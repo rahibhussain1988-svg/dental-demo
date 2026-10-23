@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Smile Dental & Orthodontics — Clinic Management System</title>
+  
+  <!-- Modern Healthcare Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Main Application Wrapper -->
+  <div id="app-container">
+
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">🦷</div>
+        <div class="brand-text">
+          <h1>Smile Dental</h1>
+          <span>& Orthodontics</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Core Modules</div>
+        <button class="nav-item active" data-screen="dashboard">
+          <span class="nav-icon">📊</span>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-screen="registration">
+          <span class="nav-icon">👤➕</span>
+          <span>New Patient</span>
+        </button>
+        <button class="nav-item" data-screen="search">
+          <span class="nav-icon">🔍</span>
+          <span>Find Patient</span>
+        </button>
+        <button class="nav-item" data-screen="appointments">
+          <span class="nav-icon">📅</span>
+          <span>Appointments</span>
+          <span class="badge badge-teal">Today</span>
+        </button>
+        <button class="nav-item" data-screen="queue">
+          <span class="nav-icon">🎟️</span>
+          <span>Patient Queue</span>
+          <span class="badge badge-amber">Live</span>
+        </button>
+
+        <div class="nav-section-title">Clinical Care</div>
+        <button class="nav-item" data-screen="record">
+          <span class="nav-icon">🦷</span>
+          <span>Dental Records & Odontogram</span>
+        </button>
+        <button class="nav-item" data-screen="dentist-workspace">
+          <span class="nav-icon">🩺</span>
+          <span>Dentist Workspace</span>
+        </button>
+        <button class="nav-item" data-screen="orthodontics">
+          <span class="nav-icon">✨</span>
+          <span>Orthodontics (Braces)</span>
+        </button>
+
+        <div class="nav-section-title">Finance & Management</div>
+        <button class="nav-item" data-screen="billing">
+          <span class="nav-icon">💳</span>
+          <span>Billing & Cashier</span>
+        </button>
+        <button class="nav-item" data-screen="reports">
+          <span class="nav-icon">📈</span>
+          <span>Reports & Analytics</span>
+        </button>
+        <button class="nav-item" data-screen="admin">
+          <span class="nav-icon">⚙️</span>
+          <span>Administration</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="demo-banner">
+          <strong>Demo Prototype Mode:</strong> Fictional patient dataset. Local non-sensitive prototype persistence active.
+        </div>
+        <button class="btn btn-sm btn-outline" style="width: 100%;" onclick="app.resetDemoData()">
+          🔄 Reset Sample Records
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="app-main">
+      <!-- Header Bar -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="mobile-nav-toggle" id="mobile-nav-toggle-btn" aria-label="Toggle navigation menu">
+            ☰
+          </button>
+          <div class="page-title">
+            <h2 id="header-page-title">Clinic Operations Dashboard</h2>
+            <p id="header-page-subtext">Welcome to Smile Dental & Orthodontics Management System</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Live Clock -->
+          <div class="header-clock" id="header-live-clock">
+            🕒 Loading clock...
+          </div>
+
+          <!-- Kiosk View Toggle -->
+          <button class="kiosk-toggle-btn" id="btn-kiosk-toggle" title="Toggle Kiosk Touch Optimization">
+            <span>📱</span> Kiosk View
+          </button>
+
+          <!-- Role Switcher -->
+          <div class="role-badge-box">
+            <div class="role-avatar" id="header-user-avatar" style="background-color: var(--primary-teal);">
+              EB
+            </div>
+            <select class="role-select" id="active-role-selector" title="Switch active clinical or staff role">
+              <option value="u1">Emma Brooks (Receptionist)</option>
+              <option value="u2">Dr. Sarah Chen, DDS (Dentist)</option>
+              <option value="u3">Dr. Marcus Vance (Orthodontist)</option>
+              <option value="u4">Liam Vance, RDA (Dental Assistant)</option>
+              <option value="u5">Elena Rostova (Cashier)</option>
+              <option value="u6">Dr. Sarah Chen (Clinic Admin)</option>
+            </select>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dynamic Page Container -->
+      <div class="page-container" id="page-main-workspace">
+        <!-- Rendered by js/app.js -->
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Toast Notification Mount -->
+  <div id="toast-container"></div>
+
+  <!-- ==========================================================================
+       MODAL DIALOGS
+       ========================================================================== -->
+
+  <!-- Modal 1: New Appointment Booking -->
+  <div class="modal-backdrop" id="new-appointment-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📅 Schedule Patient Appointment</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label required">Select Patient</label>
+          <select class="form-control" id="apt-patient-select"></select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label required">Clinician</label>
+            <select class="form-control" id="apt-doctor-select">
+              <option value="u2">Dr. Sarah Chen, DDS (General / Restorative)</option>
+              <option value="u3">Dr. Marcus Vance (Orthodontics Specialist)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Operatory Chair</label>
+            <select class="form-control" id="apt-chair-select">
+              <option value="c1">Chair 1 (General Operatory)</option>
+              <option value="c2">Chair 2 (Restorative Suite)</option>
+              <option value="c3">Chair 3 (Surgical & Implant)</option>
+              <option value="c4">Chair 4 (Orthodontic Bay)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label required">Date</label>
+            <input type="date" class="form-control" id="apt-date">
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Time Slot</label>
+            <select class="form-control" id="apt-time">
+              <option value="09:00 AM">09:00 AM</option>
+              <option value="09:30 AM">09:30 AM</option>
+              <option value="10:00 AM">10:00 AM</option>
+              <option value="10:30 AM">10:30 AM</option>
+              <option value="11:00 AM">11:00 AM</option>
+              <option value="11:30 AM">11:30 AM</option>
+              <option value="01:30 PM">01:30 PM</option>
+              <option value="02:00 PM">02:00 PM</option>
+              <option value="02:30 PM">02:30 PM</option>
+              <option value="03:00 PM">03:00 PM</option>
+              <option value="03:30 PM">03:30 PM</option>
+              <option value="04:00 PM">04:00 PM</option>
+              <option value="04:30 PM">04:30 PM</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Service / Procedure</label>
+          <select class="form-control" id="apt-service">
+            <option value="Comprehensive Oral Evaluation">Comprehensive Oral Evaluation (D0150)</option>
+            <option value="Periodic Oral Evaluation">Periodic Oral Evaluation (D0120)</option>
+            <option value="Adult Dental Prophylaxis (Cleaning)">Adult Dental Prophylaxis / Cleaning (D1110)</option>
+            <option value="Periodic Orthodontic Adjustment Visit">Periodic Orthodontic Adjustment Visit (D8670)</option>
+            <option value="Resin Composite Restoration">Resin Composite Restoration (D2391)</option>
+            <option value="Endodontic Root Canal Therapy">Endodontic Root Canal Therapy (D3330)</option>
+            <option value="Crown Preparation / Delivery">Crown Preparation / Delivery (D2740)</option>
+            <option value="Emergency Toothache & Pain Relief">Emergency Toothache & Pain Relief</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Chief Complaint & Clinical Notes</label>
+          <textarea class="form-control" id="apt-notes" placeholder="Reason for booking, symptoms, or special patient requests..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveAppointment()">Save & Schedule Appointment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Quick Walk-in Queue Token -->
+  <div class="modal-backdrop" id="quick-token-modal">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3>🎟️ Issue Walk-In Queue Token</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 16px;">
+          Quick triage registration for incoming walk-in patients. A sequential daily queue slip will be generated.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label required">Patient Full Name</label>
+          <input type="text" class="form-control" id="walkin-name" placeholder="e.g. David Miller">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Mobile Phone Number</label>
+          <input type="tel" class="form-control" id="walkin-phone" placeholder="+1 (555) 000-0000">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Chief Reason / Service</label>
+          <select class="form-control" id="walkin-service">
+            <option value="Emergency Toothache Evaluation">Emergency Dental Pain / Toothache</option>
+            <option value="Broken Tooth / Lost Filling">Broken Tooth / Chipped Enamel</option>
+            <option value="Orthodontic Poking Wire / Broken Bracket">Orthodontic Emergency (Poking Wire)</option>
+            <option value="Walk-in Consultation & Checkup">General Walk-in Consultation</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="app.issueQuickWalkInToken()">
+          <span>🖨️</span> Issue Token & Print Slip
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Finalize & Sign Clinical Encounter -->
+  <div class="modal-backdrop" id="finalize-encounter-modal">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3>✍️ Finalize & Sign Clinical Encounter</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="medical-alert-banner">
+          <span>🔒</span>
+          <span><strong>Immutable Record Notice:</strong> Once signed, this clinical encounter and its associated odontogram changes will be locked. Any subsequent changes will require a controlled amendment.</span>
+        </div>
+
+        <p style="font-size: 0.9rem; margin-bottom: 12px;">
+          Attesting Clinician: <strong id="modal-signing-doctor-name">Dr. Sarah Chen, DDS</strong>
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Clinical Encounter Summary Notes</label>
+          <textarea class="form-control" id="finalize-clinical-summary-notes" placeholder="Summarize patient tolerance, treatment completed, home-care instructions, and recommended recall interval..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Dentist PIN / Electronic Signature Attestation</label>
+          <input type="password" class="form-control" id="finalize-doctor-pin" value="1234" placeholder="Enter clinician PIN (Default demo PIN: 1234)">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="app.confirmFinalizeEncounter()">
+          <span>🔒</span> Confirm & Digitally Lock Encounter
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: New Prescription Builder -->
+  <div class="modal-backdrop" id="new-prescription-modal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>💊 Electronic Dental Prescription</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-rx-allergy-alert" class="medical-alert-banner" style="display: none;"></div>
+
+        <div class="form-group">
+          <label class="form-label">Quick Formulary Template</label>
+          <select class="form-control" id="rx-formulary-select" onchange="app.onFormularySelected(this.value)"></select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label required">Medication Name</label>
+            <input type="text" class="form-control" id="rx-drug-name" placeholder="e.g. Amoxicillin">
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Strength</label>
+            <input type="text" class="form-control" id="rx-strength" placeholder="e.g. 500 mg">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label required">Dosage & Frequency</label>
+            <input type="text" class="form-control" id="rx-dosage" placeholder="e.g. 1 capsule 3 times daily (TDS)">
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Duration</label>
+            <input type="text" class="form-control" id="rx-duration" placeholder="e.g. 5 days">
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Dispense Qty</label>
+            <input type="number" class="form-control" id="rx-quantity" value="15">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Patient Directions & Warning Labels</label>
+          <input type="text" class="form-control" id="rx-instructions" placeholder="e.g. Take with food. Complete entire course.">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="app.savePrescription()">
+          <span>✍️</span> Generate Prescription
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Record Payment -->
+  <div class="modal-backdrop" id="record-payment-modal">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3>💳 Record Patient Payment</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.9rem; margin-bottom: 14px;">
+          Applying payment to Invoice <strong id="modal-pay-inv-id">#</strong><br>
+          Current Outstanding Balance: <strong id="modal-pay-balance" style="color: var(--error); font-size: 1.15rem;">$0</strong>
+        </p>
+
+        <div class="form-group">
+          <label class="form-label required">Payment Amount ($)</label>
+          <input type="number" step="0.01" class="form-control" id="pay-amount-input">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Payment Method</label>
+          <select class="form-control" id="pay-method-select">
+            <option value="Credit Card (Visa/Mastercard)">Credit Card (Visa / Mastercard)</option>
+            <option value="Debit Card">Debit Card</option>
+            <option value="Cash">Cash Currency</option>
+            <option value="Bank Wire / Transfer">Bank Wire / Electronic Transfer</option>
+            <option value="Dental Insurance Copay">Dental Insurance Copay</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Transaction / Cheque Reference #</label>
+          <input type="text" class="form-control" id="pay-ref-input" placeholder="e.g. POS Auth #89421">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+        <button class="btn btn-success" onclick="app.submitPayment()">
+          <span>✓</span> Post Payment & Update Ledger
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: Orthodontic Adjustment Visit -->
+  <div class="modal-backdrop" id="ortho-adjustment-modal">
+    <div class="modal-content" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3>✨ Record Orthodontic Adjustment Visit</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label required">Treatment Stage</label>
+          <select class="form-control" id="ortho-adj-stage">
+            <option value="Stage 1 — Alignment & Leveling">Stage 1 — Alignment & Leveling</option>
+            <option value="Stage 2 — Canine Retraction & Rotations">Stage 2 — Canine Retraction & Rotations</option>
+            <option value="Stage 3 — Space Closure & Arch Coordination">Stage 3 — Space Closure & Arch Coordination</option>
+            <option value="Stage 4 — Final Detailing & Root Torquing">Stage 4 — Final Detailing & Root Torquing</option>
+            <option value="Stage 5 — Debonding & Retention Review">Stage 5 — Debonding & Retention Review</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Upper Archwire Placed</label>
+            <input type="text" class="form-control" id="ortho-adj-wire-upper" placeholder="e.g. 0.019x0.025 Stainless Steel">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lower Archwire Placed</label>
+            <input type="text" class="form-control" id="ortho-adj-wire-lower" placeholder="e.g. 0.019x0.025 Stainless Steel">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Clinical Adjustment Notes & Auxiliaries</label>
+          <textarea class="form-control" id="ortho-adj-notes" placeholder="Powerchain placement, bracket rebonds, IPR performed, elastics wear compliance..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveOrthoAdjustment()">Save Visit Entry</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 7: Print Preview Modal (Thermal Slips, Cards, Rx, Invoices) -->
+  <div class="modal-backdrop" id="print-preview-modal">
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3>🖨️ Document Print Preview</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body" id="print-preview-content">
+        <!-- Injected dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Close</button>
+        <button class="btn btn-primary" onclick="window.print()">
+          <span>🖨️</span> Send to Printer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 8: Simulated QR & Barcode Scanner -->
+  <div class="modal-backdrop" id="qr-scanner-modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3>📷 Patient QR / Barcode Scanner Simulator</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+          Simulating an optical scanner or tablet camera viewfinder for patient badge check-in.
+        </p>
+
+        <!-- Viewfinder Box with Laser Line Animation -->
+        <div style="width: 260px; height: 260px; border: 3px solid var(--primary-teal); border-radius: 16px; margin: 0 auto 20px; position: relative; background: #0F172A; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+          <div style="position: absolute; width: 100%; height: 2px; background: #EF4444; box-shadow: 0 0 8px #EF4444; animation: laserSweep 2s infinite ease-in-out;"></div>
+          <span style="font-size: 3rem; color: #475569;">📷</span>
+        </div>
+
+        <p style="font-size: 0.9rem; font-weight: 600; margin-bottom: 10px;">Select a Sample Patient Badge to Simulate Scan:</p>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button class="btn btn-outline" onclick="app.simulateScanPatient('SDO-2026-0101')">
+            Scan John Miller (MRN: SDO-2026-0101)
+          </button>
+          <button class="btn btn-outline" onclick="app.simulateScanPatient('SDO-2026-0102')">
+            Scan Emily Zhang (MRN: SDO-2026-0102)
+          </button>
+          <button class="btn btn-outline" onclick="app.simulateScanPatient('SDO-2026-0103')">
+            Scan Marcus Rodriguez (MRN: SDO-2026-0103)
+          </button>
+          <button class="btn btn-outline" onclick="app.simulateScanPatient('SDO-2026-0104')">
+            Scan Chloe Bennett (MRN: SDO-2026-0104)
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 9: Reschedule Appointment -->
+  <div class="modal-backdrop" id="reschedule-appointment-modal">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3>📅 Reschedule Appointment</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 14px;">
+          <div style="font-weight: 700; color: var(--text-main);" id="reschedule-modal-patient-name">Patient Name</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);" id="reschedule-modal-current-slot">Current: 2026-10-23 at 09:00 AM</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label required">New Date</label>
+            <input type="date" class="form-control" id="reschedule-new-date">
+          </div>
+          <div class="form-group">
+            <label class="form-label required">New Time Slot</label>
+            <select class="form-control" id="reschedule-new-time">
+              <option value="09:00 AM">09:00 AM</option>
+              <option value="09:30 AM">09:30 AM</option>
+              <option value="10:00 AM">10:00 AM</option>
+              <option value="10:30 AM">10:30 AM</option>
+              <option value="11:00 AM">11:00 AM</option>
+              <option value="11:30 AM">11:30 AM</option>
+              <option value="01:30 PM">01:30 PM</option>
+              <option value="02:00 PM">02:00 PM</option>
+              <option value="02:30 PM">02:30 PM</option>
+              <option value="03:00 PM">03:00 PM</option>
+              <option value="03:30 PM">03:30 PM</option>
+              <option value="04:00 PM">04:00 PM</option>
+              <option value="04:30 PM">04:30 PM</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Operatory Chair</label>
+          <select class="form-control" id="reschedule-new-chair">
+            <option value="c1">Chair 1 (General Operatory)</option>
+            <option value="c2">Chair 2 (Restorative Suite)</option>
+            <option value="c3">Chair 3 (Surgical & Implant)</option>
+            <option value="c4">Chair 4 (Orthodontic Bay)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Reason for Rescheduling</label>
+          <textarea class="form-control" id="reschedule-reason" placeholder="Patient conflict, illness, clinician request..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="app.confirmReschedule()">Confirm Reschedule</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 10: Transfer Queue Token -->
+  <div class="modal-backdrop" id="transfer-queue-modal">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3>🔄 Transfer Patient / Operatory</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 14px;">
+          <div style="font-weight: 700; color: var(--text-main);" id="transfer-modal-patient-name">Token #</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);" id="transfer-modal-current-info">Current: Chair 1</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Assign Clinician</label>
+          <select class="form-control" id="transfer-new-doctor">
+            <option value="u2">Dr. Sarah Chen, DDS (General / Restorative Lead)</option>
+            <option value="u3">Dr. Marcus Vance (Chief Orthodontist)</option>
+            <option value="u4">Liam Vance, RDA (Clinical Assistant / Triage)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Assign Operatory Chair</label>
+          <select class="form-control" id="transfer-new-chair">
+            <option value="Chair 1">Chair 1 (General Operatory)</option>
+            <option value="Chair 2">Chair 2 (Restorative Suite)</option>
+            <option value="Chair 3">Chair 3 (Surgical & Implant)</option>
+            <option value="Chair 4">Chair 4 (Orthodontic Bay)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="app.confirmTransferQueue()">Confirm Transfer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 11: Controlled Clinical Amendment -->
+  <div class="modal-backdrop" id="controlled-amendment-modal">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3>📝 Add Controlled Clinical Amendment</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="medical-alert-banner">
+          <span>⚠️</span>
+          <span><strong>Regulatory Compliance Requirement:</strong> Once an encounter is finalized, all changes must include a documented clinical justification and will be permanently recorded in the HIPAA/regulatory audit trail.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Clinical Justification & Addendum Reason</label>
+          <textarea class="form-control" id="amendment-justification" placeholder="State reason for amendment (e.g. Additional radiographic finding, revised tooth diagnosis #16, supplementary treatment note)..." rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Doctor Electronic Signature PIN</label>
+          <input type="password" class="form-control" id="amendment-doctor-pin" value="1234" placeholder="Enter PIN (Demo: 1234)">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="app.confirmControlledAmendment()">Unlock for Amendment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 12: Interactive Radiograph Viewer -->
+  <div class="modal-backdrop" id="xray-viewer-modal">
+    <div class="modal-content" style="max-width: 820px; background: #0B0F17; color: #F1F5F9;">
+      <div class="modal-header" style="border-bottom: 1px solid #1E293B;">
+        <h3 id="xray-viewer-title" style="color: #FFF;">🩻 Digital Radiograph Diagnostic Viewer</h3>
+        <button class="modal-close-btn" style="color: #94A3B8;">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 16px;">
+        <!-- Viewer Toolbar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-sm btn-outline" style="border-color: #334155; color: #FFF;" onclick="app.xrayZoom(1.2)">🔍+ Zoom In</button>
+            <button class="btn btn-sm btn-outline" style="border-color: #334155; color: #FFF;" onclick="app.xrayZoom(0.8)">🔍- Zoom Out</button>
+            <button class="btn btn-sm btn-outline" style="border-color: #334155; color: #FFF;" onclick="app.xrayResetZoom()">100% Reset</button>
+            <button class="btn btn-sm btn-outline" id="btn-xray-invert" style="border-color: #334155; color: #FFF;" onclick="app.toggleXrayInvert()">🌓 Invert Contrast</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #94A3B8;">
+            <span>Brightness:</span>
+            <input type="range" id="xray-brightness-slider" min="50" max="150" value="100" style="width: 100px;" oninput="app.updateXrayFilter()">
+          </div>
+        </div>
+
+        <!-- Viewport Container -->
+        <div id="xray-viewport-box" style="width: 100%; height: 380px; background: #000; border: 1px solid #1E293B; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
+          <div id="xray-image-mount" style="transform: scale(1); transition: transform 0.15s ease; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+            <!-- Injected Radiograph SVG -->
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 0.82rem; color: #94A3B8;">
+          <span id="xray-meta-details">Type: Panoramic OPG • Date: 2026-10-15</span>
+          <span id="xray-zoom-level">Scale: 100%</span>
+        </div>
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid #1E293B;">
+        <button class="btn btn-outline btn-modal-cancel" style="border-color: #334155; color: #FFF;">Close Viewer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 13: Upload Radiograph -->
+  <div class="modal-backdrop" id="upload-xray-modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3>📤 Upload Digital Radiograph / Intraoral Scan</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label required">Imaging Modality</label>
+          <select class="form-control" id="upload-xray-modality">
+            <option value="Panoramic OPG">Panoramic Radiograph (Full Arch OPG)</option>
+            <option value="Periapical PA">Periapical Radiograph (PA)</option>
+            <option value="Bitewing">Bitewing Radiograph (BW)</option>
+            <option value="Cephalometric">Lateral Cephalometric (Ceph)</option>
+            <option value="Intraoral Photo">High-Res Intraoral Clinical Photo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Anatomical Region / Tooth #</label>
+          <input type="text" class="form-control" id="upload-xray-region" placeholder="e.g. Tooth #16 or Maxillary Right">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Digital Sensor / Hardware Device</label>
+          <input type="text" class="form-control" id="upload-xray-sensor" placeholder="e.g. Sirona Orthophos SL / Dexis Titanium">
+        </div>
+
+        <!-- Simulated Dropzone -->
+        <div style="border: 2px dashed var(--primary-teal); border-radius: var(--radius-md); padding: 25px; text-align: center; background: #F0FDFA; cursor: pointer;" onclick="document.getElementById('upload-xray-file').click()">
+          <div style="font-size: 2rem; margin-bottom: 6px;">📁</div>
+          <strong>Click to select simulated DICOM / PNG image</strong>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">Supports DICOM (.dcm), TIFF, PNG, JPG</p>
+          <input type="file" id="upload-xray-file" style="display: none;" onchange="app.onXrayFileSelected(this)">
+          <div id="upload-xray-filename" style="font-size: 0.85rem; font-weight: 700; color: var(--primary-teal); margin-top: 6px;"></div>
+        </div>
+
+        <div class="form-group" style="margin-top: 14px;">
+          <label class="form-label">Diagnostic Findings & Radiologist Notes</label>
+          <textarea class="form-control" id="upload-xray-notes" placeholder="Periapical radiolucency, bone resorption, impacted root..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveUploadedXray()">Upload & Attach to Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 14: Selective Procedure Billing -->
+  <div class="modal-backdrop" id="selective-billing-modal">
+    <div class="modal-content" style="max-width: 620px;">
+      <div class="modal-header">
+        <h3>💳 Select Procedures to Bill</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px;">
+          Choose which completed or approved procedures from the treatment plan to include on this invoice.
+        </p>
+
+        <div id="selective-billing-items-container" style="max-height: 240px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px; margin-bottom: 14px;">
+          <!-- Dynamically populated checkboxes -->
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Authorized Courtesy Discount ($)</label>
+            <input type="number" step="1" min="0" class="form-control" id="selective-bill-discount" value="0" oninput="app.recalcSelectiveBillingTotal()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Discount Justification</label>
+            <input type="text" class="form-control" id="selective-bill-discount-reason" placeholder="Senior courtesy, staff family, prompt pay">
+          </div>
+        </div>
+
+        <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-top: 10px;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px;">
+            <span>Subtotal:</span>
+            <strong id="selective-bill-subtotal">$0</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--success); margin-bottom: 4px;">
+            <span>Discount:</span>
+            <strong id="selective-bill-discount-display">-$0</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 1.15rem; font-weight: 800; border-top: 1px solid var(--border-color); padding-top: 6px;">
+            <span>Net Invoice Total:</span>
+            <strong id="selective-bill-net-total" style="color: var(--primary-teal);">$0</strong>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="app.confirmSelectiveInvoice()">Generate Selected Invoice</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 15: Record Refund -->
+  <div class="modal-backdrop" id="refund-modal">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3>↩️ Issue Patient Refund</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 14px;">
+          <div>Applying to Invoice <strong id="refund-modal-inv-id">#</strong></div>
+          <div>Total Paid: <strong id="refund-modal-paid" style="color: var(--success);">$0</strong></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Refund Amount ($)</label>
+          <input type="number" step="0.01" class="form-control" id="refund-amount-input">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Reason for Refund</label>
+          <select class="form-control" id="refund-reason-select">
+            <option value="Overpayment adjustment">Overpayment adjustment</option>
+            <option value="Insurance payment received (patient copay refund)">Insurance payment received (copay refund)</option>
+            <option value="Cancelled procedure / unperformed treatment">Cancelled procedure / unperformed treatment</option>
+            <option value="Patient satisfaction courtesy">Patient satisfaction courtesy</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-modal-cancel">Cancel</button>
+        <button class="btn btn-danger" onclick="app.confirmRefund()">Process & Post Refund</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes laserSweep {
+      0% { top: 10%; }
+      50% { top: 90%; }
+      100% { top: 10%; }
+    }
+  </style>
+
+  <!-- Application Logic Modules -->
+  <script src="js/data.js"></script>
+  <script src="js/odontogram.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
