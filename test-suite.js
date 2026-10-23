@@ -381,6 +381,27 @@ const verifyPtXray = store.getPatient(ptWithXray.id);
 assert(verifyPtXray.xrays.some(x => x.id === newXrayEntry.id), "New digital radiograph successfully persisted to patient record");
 
 // -----------------------------------------------------------------
+// Test Suite 15: Emergency Triage, Dispensary & Kiosk PIN Lock
+// -----------------------------------------------------------------
+console.log("\n--- 15. Emergency Triage, Dispensary & Kiosk Lock ---");
+
+// Test 15.1: Emergency triage intake
+const emgResult = store.emergencyRegister("Alexander Trauma", "555-0999", "emg-2");
+assert(emgResult.token.token.startsWith("EMG-"), `Emergency token generated with EMG prefix: ${emgResult.token.token}`);
+assert(emgResult.token.priority === "Urgent", "Emergency priority is tagged as Urgent");
+assert(emgResult.chair.id === "chair-3", `Emergency assigned to Surgical Chair: ${emgResult.chair.name}`);
+assert(store.patients.some(p => p.id === emgResult.patient.id), "Emergency patient persisted in database");
+
+// Test 15.2: Dispensary stock decrement
+const initialMedStock = (sandbox.window.DENTAL_PHARMACY_INVENTORY || []).find(i => i.id === "ph-1").stock;
+const dispenseRes = store.dispenseItem("ph-1", 2);
+assert(dispenseRes.success === true, "Dispensary item successfully dispensed");
+assert(dispenseRes.item.stock === initialMedStock - 2, `Stock decremented correctly: ${initialMedStock} -> ${dispenseRes.item.stock}`);
+
+// Test 15.3: Kiosk PIN Lock default
+assert(store.kioskPin === "1234", `Default kiosk PIN is securely 1234: ${store.kioskPin}`);
+
+// -----------------------------------------------------------------
 // SUMMARY
 // -----------------------------------------------------------------
 console.log("\n=================================================");

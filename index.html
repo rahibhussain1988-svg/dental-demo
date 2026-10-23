@@ -14,8 +14,83 @@
 </head>
 <body>
 
-  <!-- Main Application Wrapper -->
-  <div id="app-container">
+  <!-- Top Workstation Navigation Bar (Fatima Clinic / Apex Clinic Multi-Station OS) -->
+  <header id="workstation-nav-bar">
+    <div class="workstation-brand" onclick="app.switchStation('PATIENT_KIOSK')">
+      <div class="workstation-brand-icon">🦷</div>
+      <div class="workstation-brand-text">
+        <h2>Smile Dental & Orthodontics <span class="badge badge-teal" style="font-size: 0.65rem; padding: 2px 6px;">Kiosk OS v2.4</span></h2>
+        <span>Multi-Station Clinical Operating System</span>
+      </div>
+    </div>
+
+    <!-- Workstation Selector Tabs -->
+    <nav class="workstation-tabs">
+      <button class="station-tab-btn active" id="tab-btn-kiosk" onclick="app.switchStation('PATIENT_KIOSK')">
+        <span>📱</span> Patient Kiosk
+      </button>
+      <button class="station-tab-btn" id="tab-btn-tv" onclick="app.switchStation('CABIN_QUEUE_TV')">
+        <span>📺</span> Lounge Queue TV
+      </button>
+      <button class="station-tab-btn" id="tab-btn-cabin" onclick="app.switchStation('DOCTOR_CABIN')">
+        <span>🦷</span> Operatory Cabin
+      </button>
+      <button class="station-tab-btn" id="tab-btn-billing" onclick="app.switchStation('BILLING_PHARMACY')">
+        <span>🧾</span> Billing POS
+      </button>
+      <button class="station-tab-btn" id="tab-btn-pharmacy" onclick="app.switchStation('INHOUSE_PHARMACY')">
+        <span>💊</span> Dispensary
+      </button>
+      <button class="station-tab-btn" id="tab-btn-admin" onclick="app.switchStation('ADMIN_DASHBOARD')">
+        <span>🛡️</span> Clinic Admin
+      </button>
+    </nav>
+
+    <!-- Top Right Quick Controls -->
+    <div class="workstation-right-controls">
+      <button class="control-pill-btn" id="btn-toggle-sound" onclick="app.toggleSound()" title="Toggle Vocal Audio & Chimes">
+        <span id="sound-icon">🔊</span> <span id="sound-label">Sound On</span>
+      </button>
+      <button class="control-pill-btn" onclick="app.openKioskLockModal()" title="Lock Kiosk Terminal (PIN 1234)">
+        <span>🔒</span> Lock Kiosk
+      </button>
+      <button class="control-pill-btn" onclick="app.resetDemoData()" title="Reset All Demo Data">
+        <span>🔄</span> Reset
+      </button>
+    </div>
+  </header>
+
+  <!-- Multi-Station Viewport -->
+  <div id="workstation-viewport">
+    <!-- Station 1: Patient Self-Service Touchscreen Kiosk -->
+    <section id="station-kiosk" class="workstation-section active">
+      <div id="kiosk-main-mount"></div>
+    </section>
+
+    <!-- Station 2: Waiting Lounge Queue TV & Voice Callout Display -->
+    <section id="station-tv" class="workstation-section">
+      <div id="tv-main-mount"></div>
+    </section>
+
+    <!-- Station 3: Dentist Operatory Console & Odontogram Station -->
+    <section id="station-cabin" class="workstation-section">
+      <div id="cabin-main-mount"></div>
+    </section>
+
+    <!-- Station 4: Cashier & Billing Desk POS -->
+    <section id="station-billing" class="workstation-section">
+      <div id="billing-main-mount"></div>
+    </section>
+
+    <!-- Station 5: Dental Dispensary & Pharmacy Desk -->
+    <section id="station-pharmacy" class="workstation-section">
+      <div id="pharmacy-main-mount"></div>
+    </section>
+
+    <!-- Station 6: Clinic Admin Governance, Records & Reports -->
+    <section id="station-admin" class="workstation-section">
+      <!-- Main Application Wrapper -->
+      <div id="app-container">
 
     <!-- Sidebar Navigation -->
     <aside class="app-sidebar">
@@ -139,6 +214,8 @@
       </div>
     </main>
 
+      </div>
+    </section>
   </div>
 
   <!-- Toast Notification Mount -->
@@ -817,6 +894,49 @@
       100% { top: 10%; }
     }
   </style>
+
+  <!-- Kiosk Terminal Screen Lock Modal (PIN: 1234) -->
+  <div id="kiosk-lock-modal">
+    <div class="lock-modal-card">
+      <div style="font-size: 3rem; margin-bottom: 8px;">🔒</div>
+      <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 4px;">Kiosk Terminal Locked</h3>
+      <p style="font-size: 0.85rem; color: #94A3B8; margin-bottom: 20px;">Enter staff 4-digit PIN to unlock kiosk (Default: <code>1234</code>)</p>
+      
+      <!-- PIN Dots Display -->
+      <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;" id="kiosk-pin-dots">
+        <span class="pin-dot" style="width: 16px; height: 16px; border-radius: 50%; background: #334155; display: inline-block;"></span>
+        <span class="pin-dot" style="width: 16px; height: 16px; border-radius: 50%; background: #334155; display: inline-block;"></span>
+        <span class="pin-dot" style="width: 16px; height: 16px; border-radius: 50%; background: #334155; display: inline-block;"></span>
+        <span class="pin-dot" style="width: 16px; height: 16px; border-radius: 50%; background: #334155; display: inline-block;"></span>
+      </div>
+      <div id="kiosk-pin-error" style="color: #EF4444; font-size: 0.82rem; font-weight: 700; height: 18px; margin-bottom: 12px;"></div>
+
+      <!-- Numeric Keypad -->
+      <div class="kiosk-numpad-grid" style="max-width: 280px; margin: 0 auto 16px auto;">
+        <button class="kiosk-num-key" onclick="app.enterPinDigit('1')">1</button>
+        <button class="kiosk-num-key" onclick="app.enterPinDigit('2')">2</button>
+        <button class="kiosk-num-key" onclick="app.enterPinDigit('3')">3</button>
+        <button class="kiosk-num-key" onclick="app.enterPinDigit('4')">4</button>
+        <button class="kiosk-num-key" onclick="app.enterPinDigit('5')">5</button>
+        <button class="kiosk-num-key" onclick="app.enterPinDigit('6')">6</button>
+        <button class="kiosk-num-key" onclick="app.enterPinDigit('7')">7</button>
+        <button class="kiosk-num-key" onclick="app.enterPinDigit('8')">8</button>
+        <button class="kiosk-num-key" onclick="app.enterPinDigit('9')">9</button>
+        <button class="kiosk-num-key action-clear" onclick="app.clearPinDigits()">Clear</button>
+        <button class="kiosk-num-key" onclick="app.enterPinDigit('0')">0</button>
+        <button class="kiosk-num-key action-backspace" onclick="app.backspacePinDigit()">⌫</button>
+      </div>
+
+      <button class="btn btn-outline btn-sm" style="color: #94A3B8; border-color: #334155;" onclick="app.closeKioskLockModal()">Dismiss</button>
+    </div>
+  </div>
+
+  <!-- Kiosk 80mm Thermal Receipt Pop-up Modal -->
+  <div id="kiosk-thermal-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 380px; padding: 0; background: transparent; border: none; box-shadow: none;">
+      <div id="thermal-receipt-container"></div>
+    </div>
+  </div>
 
   <!-- Application Logic Modules -->
   <script src="js/data.js"></script>

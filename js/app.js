@@ -20,6 +20,36 @@ class ClinicApp {
     this.xrayBrightness = 100;
     this.currentViewingXray = null;
 
+    // Multi-Station Operating System State
+    this.currentStation = 'PATIENT_KIOSK';
+    this.pinInput = '';
+    this.selectedCabinChair = 'chair-1';
+    this.selectedBillingPatientId = null;
+    this.billingDiscountPercent = 0;
+    this.billingAmountTendered = 0;
+    this.billingSelectedProcedures = [];
+    this.kioskCountdownTimer = null;
+
+    this.kioskState = {
+      pathway: 'WALK_IN',
+      step: 0,
+      selectedSymptoms: [],
+      selectedChair: 'chair-1',
+      phone: '',
+      name: '',
+      age: '',
+      gender: 'Male',
+      painScore: 3,
+      paymentMethod: 'reception',
+      activeInput: 'phone',
+      selectedEmergencyProc: 'emg-1',
+      emergencyName: '',
+      emergencyPhone: '',
+      checkinPhone: '',
+      checkinResult: null,
+      lastIssuedToken: null
+    };
+
     this.init();
   }
 
@@ -36,7 +66,8 @@ class ClinicApp {
     this.setupRoleSwitcher();
     this.setupKioskToggle();
     this.setupModals();
-    this.renderCurrentScreen();
+    this.setupWorkstationNav();
+    this.switchStation("PATIENT_KIOSK");
   }
 
   setupClock() {
@@ -4652,4 +4683,1798 @@ class ClinicApp {
 }
 
 // Instantiate global app controller
+
+
+// Multi-Station OS Controller Methods for Smile Dental & Orthodontics
+// To be merged into ClinicApp
+
+const stationMethods = {
+  setupWorkstationNav() {
+    const soundLabel = document.getElementById("sound-label");
+    const soundIcon = document.getElementById("sound-icon");
+    if (window.clinicAudio && soundLabel && soundIcon) {
+      soundLabel.textContent = window.clinicAudio.enabled ? "Sound On" : "Muted";
+      soundIcon.textContent = window.clinicAudio.enabled ? "🔊" : "🔇";
+    }
+  },
+
+  switchStation(stationId) {
+    this.currentStation = stationId;
+
+    const tabMap = {
+      'PATIENT_KIOSK': 'tab-btn-kiosk',
+      'CABIN_QUEUE_TV': 'tab-btn-tv',
+      'DOCTOR_CABIN': 'tab-btn-cabin',
+      'BILLING_PHARMACY': 'tab-btn-billing',
+      'INHOUSE_PHARMACY': 'tab-btn-pharmacy',
+      'ADMIN_DASHBOARD': 'tab-btn-admin'
+    };
+
+    const sectionMap = {
+      'PATIENT_KIOSK': 'station-kiosk',
+      'CABIN_QUEUE_TV': 'station-tv',
+      'DOCTOR_CABIN': 'station-cabin',
+      'BILLING_PHARMACY': 'station-billing',
+      'INHOUSE_PHARMACY': 'station-pharmacy',
+      'ADMIN_DASHBOARD': 'station-admin'
+    };
+
+    Object.keys(tabMap).forEach(key => {
+      const btn = document.getElementById(tabMap[key]);
+      if (btn) btn.classList.toggle('active', key === stationId);
+    });
+
+    Object.keys(sectionMap).forEach(key => {
+      const sec = document.getElementById(sectionMap[key]);
+      if (sec) sec.classList.toggle('active', key === stationId);
+    });
+
+    if (stationId === 'PATIENT_KIOSK') {
+      this.renderKioskStation();
+    } else if (stationId === 'CABIN_QUEUE_TV') {
+      this.renderTvStation();
+    } else if (stationId === 'DOCTOR_CABIN') {
+      this.renderCabinStation();
+    } else if (stationId === 'BILLING_PHARMACY') {
+      this.renderBillingStation();
+    } else if (stationId === 'INHOUSE_PHARMACY') {
+      this.renderPharmacyStation();
+    } else if (stationId === 'ADMIN_DASHBOARD') {
+      this.renderCurrentScreen();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  toggleSound() {
+    if (window.clinicAudio) {
+      const enabled = window.clinicAudio.toggle();
+      const soundLabel = document.getElementById("sound-label");
+      const soundIcon = document.getElementById("sound-icon");
+      if (soundLabel) soundLabel.textContent = enabled ? "Sound On" : "Muted";
+      if (soundIcon) soundIcon.textContent = enabled ? "🔊" : "🔇";
+      if (enabled) {
+        window.clinicAudio.playChime();
+        this.showToast("Voice announcements & audio chimes enabled", "success");
+      } else {
+        this.showToast("Audio muted", "info");
+      }
+    }
+  },
+
+  openKioskLockModal() {
+    const modal = document.getElementById("kiosk-lock-modal");
+    if (modal) {
+      modal.classList.add("open");
+      this.pinInput = '';
+      this.updatePinDots();
+      const err = document.getElementById("kiosk-pin-error");
+      if (err) err.textContent = '';
+    }
+  },
+
+  closeKioskLockModal() {
+    const modal = document.getElementById("kiosk-lock-modal");
+    if (modal) modal.classList.remove("open");
+  },
+
+  enterPinDigit(digit) {
+    if (this.pinInput.length < 4) {
+      this.pinInput += digit;
+      this.updatePinDots();
+      if (this.pinInput.length === 4) {
+        setTimeout(() => this.verifyKioskPin(), 180);
+      }
+    }
+  },
+
+  clearPinDigits() {
+    this.pinInput = '';
+    this.updatePinDots();
+    const err = document.getElementById("kiosk-pin-error");
+    if (err) err.textContent = '';
+  },
+
+  backspacePinDigit() {
+    if (this.pinInput.length > 0) {
+      this.pinInput = this.pinInput.slice(0, -1);
+      this.updatePinDots();
+    }
+  },
+
+  updatePinDots() {
+    const dots = document.querySelectorAll("#kiosk-pin-dots .pin-dot");
+    dots.forEach((dot, idx) => {
+      if (idx < this.pinInput.length) {
+        dot.style.background = "#0D9488";
+        dot.style.boxShadow = "0 0 10px rgba(13, 148, 136, 0.7)";
+      } else {
+        dot.style.background = "#334155";
+        dot.style.boxShadow = "none";
+      }
+    });
+  },
+
+  verifyKioskPin() {
+    const correctPin = this.store.kioskPin || "1234";
+    const err = document.getElementById("kiosk-pin-error");
+    if (this.pinInput === correctPin) {
+      this.closeKioskLockModal();
+      this.showToast("Kiosk terminal unlocked successfully", "success");
+      this.switchStation("ADMIN_DASHBOARD");
+    } else {
+      if (err) err.textContent = "Incorrect PIN. Default is 1234.";
+      if (window.clinicAudio) window.clinicAudio.playAlert();
+      setTimeout(() => {
+        this.clearPinDigits();
+      }, 700);
+    }
+  },
+
+  resetDemoData() {
+    if (confirm("Reset all demo data to default clinic state? All newly created tokens, invoices, and mock records will reset.")) {
+      localStorage.clear();
+      window.clinicStore = new ClinicStore();
+      this.store = window.clinicStore;
+      this.showToast("All demo data reset to initial clinic state.", "success");
+      this.switchStation(this.currentStation);
+    }
+  },
+
+  /* ==========================================================================
+     STATION 1: PATIENT SELF-SERVICE KIOSK CONTROLLER
+     ========================================================================== */
+
+  setKioskPathway(pathway) {
+    this.kioskState.pathway = pathway;
+    this.kioskState.step = pathway === 'WALK_IN' ? 1 : 0;
+    this.kioskState.checkinResult = null;
+    this.kioskState.checkinPhone = '';
+    this.renderKioskStation();
+  },
+
+  setKioskStep(step) {
+    this.kioskState.step = step;
+    this.renderKioskStation();
+  },
+
+  toggleKioskSymptom(symptomId) {
+    const idx = this.kioskState.selectedSymptoms.indexOf(symptomId);
+    if (idx > -1) {
+      this.kioskState.selectedSymptoms.splice(idx, 1);
+    } else {
+      this.kioskState.selectedSymptoms.push(symptomId);
+    }
+    this.renderKioskStation();
+  },
+
+  selectKioskChair(chairId) {
+    this.kioskState.selectedChair = chairId;
+    this.renderKioskStation();
+  },
+
+  setKioskActiveInput(field) {
+    this.kioskState.activeInput = field;
+    this.renderKioskStation();
+  },
+
+  enterKioskNum(num) {
+    const active = this.kioskState.activeInput || 'phone';
+    if (active === 'phone') {
+      if (this.kioskState.phone.length < 15) this.kioskState.phone += num;
+    } else if (active === 'age') {
+      if (this.kioskState.age.length < 3) this.kioskState.age += num;
+    } else if (active === 'checkinPhone') {
+      if (this.kioskState.checkinPhone.length < 15) this.kioskState.checkinPhone += num;
+    } else if (active === 'emergencyPhone') {
+      if (this.kioskState.emergencyPhone.length < 15) this.kioskState.emergencyPhone += num;
+    }
+    this.renderKioskStation();
+  },
+
+  backspaceKioskNum() {
+    const active = this.kioskState.activeInput || 'phone';
+    if (active === 'phone' && this.kioskState.phone.length > 0) {
+      this.kioskState.phone = this.kioskState.phone.slice(0, -1);
+    } else if (active === 'age' && this.kioskState.age.length > 0) {
+      this.kioskState.age = this.kioskState.age.slice(0, -1);
+    } else if (active === 'checkinPhone' && this.kioskState.checkinPhone.length > 0) {
+      this.kioskState.checkinPhone = this.kioskState.checkinPhone.slice(0, -1);
+    } else if (active === 'emergencyPhone' && this.kioskState.emergencyPhone.length > 0) {
+      this.kioskState.emergencyPhone = this.kioskState.emergencyPhone.slice(0, -1);
+    }
+    this.renderKioskStation();
+  },
+
+  clearKioskNum() {
+    const active = this.kioskState.activeInput || 'phone';
+    if (active === 'phone') this.kioskState.phone = '';
+    else if (active === 'age') this.kioskState.age = '';
+    else if (active === 'checkinPhone') this.kioskState.checkinPhone = '';
+    else if (active === 'emergencyPhone') this.kioskState.emergencyPhone = '';
+    this.renderKioskStation();
+  },
+
+  setKioskGender(gender) {
+    this.kioskState.gender = gender;
+    this.renderKioskStation();
+  },
+
+  updateKioskPain(val) {
+    this.kioskState.painScore = parseInt(val, 10) || 0;
+    this.renderKioskStation();
+  },
+
+  setKioskPaymentMethod(method) {
+    this.kioskState.paymentMethod = method;
+    this.renderKioskStation();
+  },
+
+  selectEmergencyProcedure(procId) {
+    this.kioskState.selectedEmergencyProc = procId;
+    this.renderKioskStation();
+  },
+
+  submitEmergencyKiosk() {
+    const nameInput = document.getElementById("kiosk-emg-name");
+    const name = nameInput ? nameInput.value.trim() : (this.kioskState.emergencyName || "Emergency Patient");
+    const phone = this.kioskState.emergencyPhone || "555-0911";
+
+    if (!name) {
+      this.showToast("Please enter patient name for emergency triage", "error");
+      if (nameInput) nameInput.focus();
+      return;
+    }
+
+    const procId = this.kioskState.selectedEmergencyProc || "emg-1";
+    const emergencyRecord = this.store.emergencyRegister(name, phone, procId);
+
+    if (window.clinicAudio) {
+      window.clinicAudio.announceToken(emergencyRecord.token.token, emergencyRecord.chair.name, emergencyRecord.chair.doctor);
+    }
+
+    this.launchConfetti();
+
+    this.showThermalReceiptModal({
+      token: emergencyRecord.token.token,
+      name: emergencyRecord.patient.name,
+      phone: emergencyRecord.patient.phone,
+      chairName: emergencyRecord.chair.name,
+      doctor: emergencyRecord.chair.doctor,
+      priority: "CRITICAL 1 (EMERGENCY)",
+      complaint: emergencyRecord.procedure.name,
+      fee: emergencyRecord.procedure.estFee,
+      time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+    });
+  },
+
+  searchAppointmentKiosk() {
+    const phone = (this.kioskState.checkinPhone || "").replace(/\D/g, "");
+    if (!phone || phone.length < 4) {
+      this.showToast("Please enter at least 4 digits of your phone number", "warning");
+      return;
+    }
+
+    const todayStr = new Date().toISOString().split("T")[0];
+    const match = this.store.appointments.find(apt => {
+      const pt = this.store.getPatient(apt.patientId);
+      if (!pt) return false;
+      const ptDigits = (pt.phone || "").replace(/\D/g, "");
+      return ptDigits.includes(phone) && apt.date === todayStr && apt.status !== "Completed" && apt.status !== "Cancelled";
+    });
+
+    if (match) {
+      const pt = this.store.getPatient(match.patientId);
+      this.kioskState.checkinResult = { appointment: match, patient: pt };
+    } else {
+      this.kioskState.checkinResult = { notFound: true };
+    }
+    this.renderKioskStation();
+  },
+
+  confirmAppointmentCheckin() {
+    if (!this.kioskState.checkinResult || !this.kioskState.checkinResult.appointment) return;
+    const { appointment, patient } = this.kioskState.checkinResult;
+
+    let chairId = "chair-1";
+    if (appointment.doctor.includes("Sarah") || appointment.type.toLowerCase().includes("ortho")) chairId = "chair-2";
+    else if (appointment.doctor.includes("Alex") || appointment.type.toLowerCase().includes("surg")) chairId = "chair-3";
+    else if (appointment.doctor.includes("Olivia") || appointment.type.toLowerCase().includes("clean")) chairId = "chair-4";
+
+    const tokenItem = this.store.addQueuePatient({
+      patientId: patient.id,
+      name: patient.name,
+      phone: patient.phone,
+      chair: chairId,
+      chiefComplaint: `Appointment: ${appointment.type}`,
+      painScore: 2,
+      priority: "Normal"
+    });
+
+    appointment.status = "In-Queue";
+    this.store.saveAppointments();
+
+    const chairObj = this.store.chairs.find(c => c.id === chairId) || { name: "Chair 1", doctor: appointment.doctor };
+
+    if (window.clinicAudio) {
+      window.clinicAudio.announceToken(tokenItem.token, chairObj.name, chairObj.doctor);
+    }
+
+    this.launchConfetti();
+
+    this.showThermalReceiptModal({
+      token: tokenItem.token,
+      name: patient.name,
+      phone: patient.phone,
+      chairName: chairObj.name,
+      doctor: chairObj.doctor,
+      priority: "Scheduled Check-In",
+      complaint: appointment.type,
+      fee: 45,
+      time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+    });
+  },
+
+  issueWalkinToken() {
+    const nameInput = document.getElementById("kiosk-walkin-name");
+    const name = (nameInput ? nameInput.value.trim() : "") || this.kioskState.name.trim() || "Walk-In Patient";
+    const phone = this.kioskState.phone.trim() || "555-0100";
+    const age = this.kioskState.age || "30";
+    const gender = this.kioskState.gender || "Male";
+    const chairId = this.kioskState.selectedChair || "chair-1";
+    const painScore = this.kioskState.painScore || 3;
+
+    let patient = this.store.patients.find(p => p.phone === phone || p.name.toLowerCase() === name.toLowerCase());
+    if (!patient) {
+      patient = {
+        id: "pt-" + Date.now(),
+        mrn: this.store.getNextMRN(),
+        name: name,
+        phone: phone,
+        age: parseInt(age, 10),
+        gender: gender,
+        allergies: "None",
+        medicalConditions: "None",
+        currentMedications: "None",
+        balance: 0,
+        registrationDate: new Date().toISOString().split("T")[0],
+        chartData: {}
+      };
+      this.store.patients.unshift(patient);
+      this.store.savePatients();
+    }
+
+    const symptomNames = (this.kioskState.selectedSymptoms || []).map(id => {
+      const sym = (window.DENTAL_SYMPTOM_OPTIONS || []).find(s => s.id === id);
+      return sym ? sym.name : id;
+    });
+    const complaintText = symptomNames.length > 0 ? symptomNames.join(", ") : "Walk-in Dental Consultation";
+
+    const tokenItem = this.store.addQueuePatient({
+      patientId: patient.id,
+      name: patient.name,
+      phone: patient.phone,
+      chair: chairId,
+      chiefComplaint: complaintText,
+      painScore: painScore,
+      priority: painScore >= 8 ? "Urgent" : "Normal"
+    });
+
+    const chairObj = this.store.chairs.find(c => c.id === chairId) || { name: "Operatory Chair", doctor: "On-Duty Dentist" };
+
+    if (window.clinicAudio) {
+      window.clinicAudio.announceToken(tokenItem.token, chairObj.name, chairObj.doctor);
+    }
+
+    this.launchConfetti();
+
+    let totalEst = 40;
+    (this.kioskState.selectedSymptoms || []).forEach(id => {
+      const sym = (window.DENTAL_SYMPTOM_OPTIONS || []).find(s => s.id === id);
+      if (sym) totalEst = Math.max(totalEst, sym.estFee);
+    });
+
+    this.showThermalReceiptModal({
+      token: tokenItem.token,
+      name: patient.name,
+      phone: patient.phone,
+      chairName: chairObj.name,
+      doctor: chairObj.doctor,
+      priority: painScore >= 8 ? "Urgent Priority" : "Standard Walk-In",
+      complaint: complaintText,
+      fee: totalEst,
+      time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+    });
+  },
+
+  showThermalReceiptModal(data) {
+    const container = document.getElementById("thermal-receipt-container");
+    const modal = document.getElementById("kiosk-thermal-modal");
+    if (!container || !modal) return;
+
+    let countdown = 10;
+    container.innerHTML = `
+      <div class="thermal-slip-card animate-fade-in">
+        <div style="text-align: center; border-bottom: 1px dashed #CBD5E1; padding-bottom: 12px; margin-bottom: 12px;">
+          <div style="font-size: 1.8rem; line-height: 1;">🦷</div>
+          <h3 style="font-size: 1.15rem; font-weight: 800; margin: 4px 0 2px 0;">SMILE DENTAL & ORTHO</h3>
+          <p style="font-size: 0.72rem; color: #64748B; margin: 0;">124 Healthcare Plaza, Suite 400 • (555) 019-2834</p>
+          <p style="font-size: 0.7rem; color: #94A3B8; margin: 2px 0 0 0;">PATIENT QUEUE ACCESS TOKEN</p>
+        </div>
+
+        <div style="text-align: center; margin: 16px 0; background: #F1F5F9; padding: 14px 10px; border-radius: 6px; border: 1px dashed #94A3B8;">
+          <div style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: #475569; letter-spacing: 1px;">YOUR TOKEN NUMBER</div>
+          <div style="font-size: 3.4rem; font-weight: 900; color: #0D9488; font-family: 'JetBrains Mono', monospace; line-height: 1.1; margin: 6px 0;">
+            ${data.token}
+          </div>
+          <div style="font-size: 0.82rem; font-weight: 700; color: #0F172A;">${data.chairName}</div>
+          <div style="font-size: 0.75rem; color: #0284C7;">${data.doctor}</div>
+        </div>
+
+        <div style="font-size: 0.78rem; line-height: 1.6; border-bottom: 1px dashed #CBD5E1; padding-bottom: 10px; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #64748B;">Patient:</span>
+            <strong style="color: #0F172A;">${data.name}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #64748B;">Phone:</span>
+            <span>${data.phone}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #64748B;">Priority:</span>
+            <span style="font-weight: 700; color: ${data.priority.includes('CRITICAL') || data.priority.includes('Urgent') ? '#DC2626' : '#0D9488'};">${data.priority}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #64748B;">Chief Concern:</span>
+            <span style="max-width: 170px; text-align: right; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${data.complaint}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #64748B;">Est. Consultation:</span>
+            <strong>${data.fee}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #64748B;">Issued Time:</span>
+            <span>${data.time}</span>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin: 12px 0 8px 0;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 3px; color: #334155;">||| | ||||| || |||| |||||| | |||</div>
+          <div style="font-size: 0.68rem; color: #94A3B8; margin-top: 2px;">Please relax in Lounge. Watch Queue TV.</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+          <button class="btn btn-primary btn-sm" onclick="window.print()" style="width: 100%;">
+            <span>🖨️</span> Print Receipt Slip
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="app.closeThermalReceiptModal()" style="width: 100%;">
+            <span>✓</span> Done (Closing in <span id="slip-countdown">${countdown}</span>s)
+          </button>
+        </div>
+      </div>
+    `;
+
+    modal.classList.add("open");
+
+    if (this.kioskCountdownTimer) clearInterval(this.kioskCountdownTimer);
+    this.kioskCountdownTimer = setInterval(() => {
+      countdown--;
+      const el = document.getElementById("slip-countdown");
+      if (el) el.textContent = countdown;
+      if (countdown <= 0) {
+        clearInterval(this.kioskCountdownTimer);
+        this.closeThermalReceiptModal();
+      }
+    }, 1000);
+  },
+
+  closeThermalReceiptModal() {
+    if (this.kioskCountdownTimer) clearInterval(this.kioskCountdownTimer);
+    const modal = document.getElementById("kiosk-thermal-modal");
+    if (modal) modal.classList.remove("open");
+
+    this.kioskState = {
+      pathway: 'WALK_IN',
+      step: 0,
+      selectedSymptoms: [],
+      selectedChair: 'chair-1',
+      phone: '',
+      name: '',
+      age: '',
+      gender: 'Male',
+      painScore: 3,
+      paymentMethod: 'reception',
+      activeInput: 'phone',
+      selectedEmergencyProc: 'emg-1',
+      emergencyName: '',
+      emergencyPhone: '',
+      checkinPhone: '',
+      checkinResult: null,
+      lastIssuedToken: null
+    };
+
+    if (this.currentStation === 'PATIENT_KIOSK') {
+      this.renderKioskStation();
+    }
+  },
+
+  launchConfetti() {
+    const container = document.createElement("div");
+    container.style.position = "fixed";
+    container.style.inset = "0";
+    container.style.pointerEvents = "none";
+    container.style.zIndex = "99999";
+    container.style.overflow = "hidden";
+    document.body.appendChild(container);
+
+    const colors = ["#0D9488", "#0284C7", "#F59E0B", "#10B981", "#EC4899", "#8B5CF6"];
+    for (let i = 0; i < 40; i++) {
+      const piece = document.createElement("div");
+      piece.style.position = "absolute";
+      piece.style.width = Math.random() * 12 + 6 + "px";
+      piece.style.height = Math.random() * 10 + 6 + "px";
+      piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.top = "-20px";
+      piece.style.left = Math.random() * 100 + "vw";
+      piece.style.opacity = Math.random() + 0.5;
+      piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+      piece.style.transition = `all ${Math.random() * 2 + 1.5}s ease-out`;
+      container.appendChild(piece);
+
+      setTimeout(() => {
+        piece.style.top = "105vh";
+        piece.style.left = `${parseFloat(piece.style.left) + (Math.random() * 20 - 10)}vw`;
+        piece.style.transform = `rotate(${Math.random() * 720}deg)`;
+        piece.style.opacity = "0";
+      }, 50);
+    }
+
+    setTimeout(() => {
+      container.remove();
+    }, 3500);
+  },
+
+  renderKioskStation() {
+    const mount = document.getElementById("kiosk-main-mount");
+    if (!mount) return;
+
+    const { pathway, step } = this.kioskState;
+
+    // Header HTML
+    const headerHtml = `
+      <div class="kiosk-header">
+        <div style="display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; width: 100%;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="font-size: 2.2rem; background: rgba(13,148,136,0.1); width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 12px;">🦷</div>
+            <div>
+              <h1 style="font-size: 1.5rem; font-weight: 900; color: #0F172A; margin: 0; letter-spacing: -0.5px;">Smile Dental & Orthodontics</h1>
+              <p style="font-size: 0.85rem; color: #64748B; margin: 2px 0 0 0;">Touchscreen Patient Intake & Token Terminal</p>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            ${(step > 0 || pathway !== 'WALK_IN') ? `
+              <button class="btn btn-outline" onclick="app.setKioskPathway('WALK_IN'); app.setKioskStep(0);" style="font-size: 0.9rem; padding: 10px 18px;">
+                <span>🏠</span> Return to Welcome
+              </button>
+            ` : ''}
+            <div style="background: #F1F5F9; padding: 8px 16px; border-radius: 9999px; font-weight: 700; font-size: 0.85rem; color: #0F172A; display: flex; align-items: center; gap: 8px;">
+              <span>🕒</span> ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
+        </div>
+
+        ${pathway === 'WALK_IN' && step > 0 ? `
+          <div class="kiosk-progress-steps">
+            <div class="kiosk-step ${step >= 1 ? (step === 1 ? 'active' : 'completed') : ''}">
+              <div class="kiosk-step-number">${step > 1 ? '✓' : '1'}</div>
+              <div class="kiosk-step-label">Concern</div>
+            </div>
+            <div class="kiosk-step ${step >= 2 ? (step === 2 ? 'active' : 'completed') : ''}">
+              <div class="kiosk-step-number">${step > 2 ? '✓' : '2'}</div>
+              <div class="kiosk-step-label">Chair</div>
+            </div>
+            <div class="kiosk-step ${step >= 3 ? (step === 3 ? 'active' : 'completed') : ''}">
+              <div class="kiosk-step-number">${step > 3 ? '✓' : '3'}</div>
+              <div class="kiosk-step-label">Your Info</div>
+            </div>
+            <div class="kiosk-step ${step >= 4 ? (step === 4 ? 'active' : 'completed') : ''}">
+              <div class="kiosk-step-number">${step > 4 ? '✓' : '4'}</div>
+              <div class="kiosk-step-label">Pain Level</div>
+            </div>
+            <div class="kiosk-step ${step >= 5 ? 'active' : ''}">
+              <div class="kiosk-step-number">5</div>
+              <div class="kiosk-step-label">Token</div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    let bodyHtml = '';
+
+    // ================= STEP 0: WELCOME & 3 PATHWAYS =================
+    if (step === 0 && pathway === 'WALK_IN') {
+      bodyHtml = `
+        <div style="max-width: 1200px; margin: 30px auto; padding: 0 20px;">
+          <div style="text-align: center; margin-bottom: 36px;">
+            <h2 style="font-size: 2.2rem; font-weight: 900; color: #0F172A; margin-bottom: 8px;">Welcome! Please Touch Your Visit Reason</h2>
+            <p style="font-size: 1.1rem; color: #64748B;">Self-service registration, fast-track emergency intake, and appointment check-in</p>
+          </div>
+
+          <div class="kiosk-pathways-grid">
+            <!-- 1. Emergency Pass -->
+            <div class="kiosk-pathway-card emergency" onclick="app.setKioskPathway('EMERGENCY_TRIAGE')">
+              <span class="pathway-badge">Fast-Track Priority 1</span>
+              <div class="pathway-icon">🚨</div>
+              <h3 class="pathway-title">Emergency Dental Triage</h3>
+              <p class="pathway-desc">Acute severe toothache, facial swelling/abscess, knocked-out (avulsed) tooth, uncontrollable bleeding, or broken braces wire trauma.</p>
+              <div class="pathway-btn-text">Touch for Emergency Triage →</div>
+            </div>
+
+            <!-- 2. Walk-In Consultation -->
+            <div class="kiosk-pathway-card walkin" onclick="app.setKioskPathway('WALK_IN'); app.setKioskStep(1);">
+              <span class="pathway-badge">Same-Day Walk-In</span>
+              <div class="pathway-icon">🦷</div>
+              <h3 class="pathway-title">Direct Walk-In Consultation</h3>
+              <p class="pathway-desc">Routine dental checkup, cavity filling, dental scaling/cleaning, gum discomfort, new braces consultation, or cosmetic smile assessment.</p>
+              <div class="pathway-btn-text">Touch for Walk-In Queue →</div>
+            </div>
+
+            <!-- 3. Pre-Booked Appointment -->
+            <div class="kiosk-pathway-card checkin" onclick="app.setKioskPathway('CHECKIN_SEARCH')">
+              <span class="pathway-badge">Pre-Booked Patient</span>
+              <div class="pathway-icon">📅</div>
+              <h3 class="pathway-title">Appointment Check-In</h3>
+              <p class="pathway-desc">Already scheduled an appointment for today? Enter your mobile phone number on touch keypad to verify and get queue token.</p>
+              <div class="pathway-btn-text">Touch to Check-In with Phone →</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 40px; text-align: center; color: #64748B; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 16px;">
+            <span>🔊 Voice assistance enabled</span>
+            <span>•</span>
+            <span>📱 Large touch-screen friendly</span>
+            <span>•</span>
+            <span>🔒 HIPAA Protected</span>
+          </div>
+        </div>
+      `;
+    }
+    // ================= EMERGENCY TRIAGE =================
+    else if (pathway === 'EMERGENCY_TRIAGE') {
+      const selectedProc = this.kioskState.selectedEmergencyProc || 'emg-1';
+      bodyHtml = `
+        <div style="max-width: 1000px; margin: 20px auto; padding: 0 20px;">
+          <div style="background: #FEF2F2; border: 2px solid #F87171; border-radius: var(--radius-xl); padding: 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px;">
+            <div style="font-size: 3rem;">🚨</div>
+            <div>
+              <h2 style="font-size: 1.5rem; font-weight: 900; color: #991B1B; margin: 0 0 4px 0;">Urgent Dental Trauma & Emergency Triage</h2>
+              <p style="font-size: 0.95rem; color: #B91C1C; margin: 0;">Select your acute condition to bypass standard queue for immediate Operatory Chair assignment:</p>
+            </div>
+          </div>
+
+          <div class="kiosk-symptoms-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 24px;">
+            ${(window.EMERGENCY_DENTAL_PROCEDURES || []).map(proc => `
+              <div class="kiosk-symptom-card ${selectedProc === proc.id ? 'selected' : ''}" onclick="app.selectEmergencyProcedure('${proc.id}')" style="${selectedProc === proc.id ? 'border-color: #DC2626; background: #FEF2F2;' : ''}">
+                <div class="symptom-icon">${proc.icon}</div>
+                <div class="symptom-name" style="color: #991B1B; font-weight: 800;">${proc.name}</div>
+                <div style="font-size: 0.8rem; color: #64748B; margin: 6px 0;">Assigned: <strong>${proc.assignedChair}</strong> • Priority: <strong style="color: #DC2626;">Immediate</strong></div>
+                <div class="symptom-fee">Est. Triage: ${proc.estFee}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-xl); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-sm);">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #0F172A; margin-bottom: 16px;">Emergency Patient Quick Contact</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <div>
+                <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #475569; margin-bottom: 6px;">Patient Full Name *</label>
+                <input type="text" id="kiosk-emg-name" class="form-control" style="font-size: 1.1rem; padding: 12px 14px;" placeholder="e.g. John Doe" value="${this.kioskState.emergencyName || ''}" oninput="app.kioskState.emergencyName = this.value">
+              </div>
+              <div>
+                <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #475569; margin-bottom: 6px;">Mobile Phone Number</label>
+                <div class="kiosk-phone-display ${this.kioskState.activeInput === 'emergencyPhone' ? 'active' : ''}" onclick="app.setKioskActiveInput('emergencyPhone')" style="height: 50px; font-size: 1.2rem;">
+                  ${this.kioskState.emergencyPhone || '<span style="color:#94A3B8;">Touch to enter phone</span>'}
+                </div>
+              </div>
+            </div>
+
+            <!-- Virtual Numpad for Phone -->
+            <div style="max-width: 320px; margin: 0 auto 16px auto;">
+              <div class="kiosk-numpad-grid">
+                ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="kiosk-num-key" onclick="app.enterKioskNum('${n}')">${n}</button>`).join('')}
+                <button class="kiosk-num-key action-clear" onclick="app.clearKioskNum()">Clear</button>
+                <button class="kiosk-num-key" onclick="app.enterKioskNum('0')">0</button>
+                <button class="kiosk-num-key action-backspace" onclick="app.backspaceKioskNum()">⌫</button>
+              </div>
+            </div>
+
+            <div style="text-align: center;">
+              <button class="btn btn-danger btn-lg" onclick="app.submitEmergencyKiosk()" style="font-size: 1.2rem; padding: 16px 36px; border-radius: 9999px; box-shadow: 0 10px 25px rgba(220,38,38,0.3);">
+                🚨 ISSUE IMMEDIATE EMERGENCY TOKEN (EMG)
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    // ================= APPOINTMENT CHECK-IN SEARCH =================
+    else if (pathway === 'CHECKIN_SEARCH') {
+      const res = this.kioskState.checkinResult;
+      bodyHtml = `
+        <div style="max-width: 800px; margin: 30px auto; padding: 0 20px;">
+          <div style="text-align: center; margin-bottom: 28px;">
+            <div style="font-size: 3rem; margin-bottom: 8px;">📅</div>
+            <h2 style="font-size: 2rem; font-weight: 900; color: #0F172A; margin-bottom: 6px;">Pre-Booked Appointment Check-In</h2>
+            <p style="font-size: 1rem; color: #64748B;">Enter your registered 10-digit mobile phone number using the touch keypad:</p>
+          </div>
+
+          <!-- Phone Display -->
+          <div class="kiosk-phone-display active" onclick="app.setKioskActiveInput('checkinPhone')" style="margin-bottom: 20px;">
+            ${this.kioskState.checkinPhone || '<span style="color:#94A3B8;">_ _ _ - _ _ _ - _ _ _ _</span>'}
+          </div>
+
+          <!-- Touch Numpad -->
+          <div style="max-width: 320px; margin: 0 auto 24px auto;">
+            <div class="kiosk-numpad-grid">
+              ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="kiosk-num-key" onclick="app.enterKioskNum('${n}')">${n}</button>`).join('')}
+              <button class="kiosk-num-key action-clear" onclick="app.clearKioskNum()">Clear</button>
+              <button class="kiosk-num-key" onclick="app.enterKioskNum('0')">0</button>
+              <button class="kiosk-num-key action-backspace" onclick="app.backspaceKioskNum()">⌫</button>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-bottom: 28px;">
+            <button class="btn btn-primary btn-lg" onclick="app.searchAppointmentKiosk()" style="font-size: 1.1rem; padding: 14px 40px; border-radius: 9999px;">
+              🔍 Search My Appointment
+            </button>
+          </div>
+
+          <!-- Search Results Area -->
+          ${res ? (
+            res.appointment ? `
+              <div class="card animate-fade-in" style="background: #F0FDF4; border: 2px solid #22C55E; padding: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                  <div>
+                    <span class="badge badge-teal" style="font-size: 0.8rem;">Appointment Found</span>
+                    <h3 style="font-size: 1.4rem; font-weight: 800; color: #166534; margin: 4px 0 0 0;">${res.patient.name}</h3>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 1.5rem; font-weight: 900; color: #15803D;">🕒 ${res.appointment.time}</div>
+                    <div style="font-size: 0.85rem; color: #166534;">Today</div>
+                  </div>
+                </div>
+
+                <div style="background: #FFFFFF; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.6;">
+                  <div><strong>Doctor / Specialist:</strong> ${res.appointment.doctor}</div>
+                  <div><strong>Procedure / Reason:</strong> ${res.appointment.type}</div>
+                  <div><strong>Patient Mobile:</strong> ${res.patient.phone}</div>
+                </div>
+
+                <div style="text-align: center;">
+                  <button class="btn btn-primary btn-lg" onclick="app.confirmAppointmentCheckin()" style="font-size: 1.2rem; padding: 16px 36px; border-radius: 9999px; width: 100%; box-shadow: 0 10px 20px rgba(13,148,136,0.25);">
+                    🎫 Confirm Arrival & Print Queue Token
+                  </button>
+                </div>
+              </div>
+            ` : `
+              <div class="card animate-fade-in" style="background: #FFFBEB; border: 2px solid #F59E0B; text-align: center; padding: 28px;">
+                <div style="font-size: 2.5rem; margin-bottom: 8px;">🔍</div>
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: #92400E; margin-bottom: 6px;">No Appointment Found Today</h3>
+                <p style="font-size: 0.95rem; color: #B45309; margin-bottom: 20px;">We couldn't find a scheduled appointment matching this phone number for today.</p>
+                <button class="btn btn-amber" onclick="app.setKioskPathway('WALK_IN'); app.setKioskStep(1);" style="font-size: 1rem; padding: 12px 28px; border-radius: 9999px;">
+                  Join as Walk-In Patient Instead →
+                </button>
+              </div>
+            `
+          ) : ''}
+        </div>
+      `;
+    }
+    // ================= WALK-IN FLOW =================
+    else if (pathway === 'WALK_IN') {
+      // Step 1: Dental Chief Complaint / Symptoms
+      if (step === 1) {
+        bodyHtml = `
+          <div style="max-width: 1200px; margin: 24px auto; padding: 0 20px;">
+            <div style="text-align: center; margin-bottom: 28px;">
+              <h2 style="font-size: 1.9rem; font-weight: 900; color: #0F172A; margin-bottom: 6px;">What is Your Primary Dental Concern Today?</h2>
+              <p style="font-size: 1.05rem; color: #64748B;">Touch one or more cards to describe your symptoms or requested service:</p>
+            </div>
+
+            <div class="kiosk-symptoms-grid">
+              ${(window.DENTAL_SYMPTOM_OPTIONS || []).map(sym => {
+                const isSelected = (this.kioskState.selectedSymptoms || []).includes(sym.id);
+                return `
+                  <div class="kiosk-symptom-card ${isSelected ? 'selected' : ''}" onclick="app.toggleKioskSymptom('${sym.id}')">
+                    <div class="symptom-icon">${sym.icon}</div>
+                    <div class="symptom-name">${sym.name}</div>
+                    <div class="symptom-dept">${sym.dept}</div>
+                    <div class="symptom-fee">Est. From ${sym.estFee}</div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <div class="kiosk-actions-bar">
+              <button class="btn btn-outline btn-lg" onclick="app.setKioskStep(0)">
+                ← Back to Welcome
+              </button>
+              <button class="btn btn-primary btn-lg" onclick="app.setKioskStep(2)">
+                Next: Select Operatory Chair & Doctor (${this.kioskState.selectedSymptoms.length} selected) →
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      // Step 2: Chair & Doctor Selection
+      else if (step === 2) {
+        const chairs = [
+          { id: 'chair-1', name: 'Chair 1 — General Operatory', doc: 'Dr. Marcus Vance, DDS', spec: 'General & Restorative Dentistry', icon: '🩺', wait: '3 waiting (~15m)' },
+          { id: 'chair-2', name: 'Chair 2 — Ortho Suite', doc: 'Dr. Sarah Jenkins, BDS, M.S.', spec: 'Orthodontics, Braces & Aligners', icon: '✨', wait: '1 waiting (~5m)' },
+          { id: 'chair-3', name: 'Chair 3 — Surgical Bay', doc: 'Dr. Alex Chen, DMD, FICOI', spec: 'Oral Surgery, Extractions & Implants', icon: '🔬', wait: '2 waiting (~10m)' },
+          { id: 'chair-4', name: 'Chair 4 — Hygiene Station', doc: 'Dr. Olivia Taylor, RDH', spec: 'Dental Scaling, Prophylaxis & Whitening', icon: '🪥', wait: '0 waiting (Immediate)' }
+        ];
+
+        bodyHtml = `
+          <div style="max-width: 1200px; margin: 24px auto; padding: 0 20px;">
+            <div style="text-align: center; margin-bottom: 28px;">
+              <h2 style="font-size: 1.9rem; font-weight: 900; color: #0F172A; margin-bottom: 6px;">Select Operatory Chair & Specialist</h2>
+              <p style="font-size: 1.05rem; color: #64748B;">Choose your preferred dental specialist and operatory suite:</p>
+            </div>
+
+            <div class="kiosk-chairs-grid">
+              ${chairs.map(c => `
+                <div class="kiosk-chair-card ${this.kioskState.selectedChair === c.id ? 'selected' : ''}" onclick="app.selectKioskChair('${c.id}')">
+                  <div class="chair-icon">${c.icon}</div>
+                  <div class="chair-name">${c.name}</div>
+                  <div class="chair-doc">${c.doc}</div>
+                  <div class="chair-spec">${c.spec}</div>
+                  <div class="chair-wait">🕒 ${c.wait}</div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="kiosk-actions-bar">
+              <button class="btn btn-outline btn-lg" onclick="app.setKioskStep(1)">
+                ← Back to Symptoms
+              </button>
+              <button class="btn btn-primary btn-lg" onclick="app.setKioskStep(3)">
+                Next: Enter Patient Details →
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      // Step 3: Patient Intake Details with Touch Numpad
+      else if (step === 3) {
+        bodyHtml = `
+          <div style="max-width: 1000px; margin: 24px auto; padding: 0 20px;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <h2 style="font-size: 1.9rem; font-weight: 900; color: #0F172A; margin-bottom: 6px;">Enter Patient Contact Information</h2>
+              <p style="font-size: 1.05rem; color: #64748B;">Touch fields and use virtual on-screen keypad to enter numbers easily:</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 32px; align-items: start;">
+              <!-- Left Form -->
+              <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-xl); padding: 28px; box-shadow: var(--shadow-sm);">
+                <!-- Full Name -->
+                <div style="margin-bottom: 20px;">
+                  <label style="display: block; font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 6px;">Patient Full Name *</label>
+                  <input type="text" id="kiosk-walkin-name" class="form-control" style="font-size: 1.15rem; padding: 14px 16px;" placeholder="e.g. Sarah Connor" value="${this.kioskState.name}" oninput="app.kioskState.name = this.value">
+                </div>
+
+                <!-- Mobile Phone -->
+                <div style="margin-bottom: 20px;">
+                  <label style="display: block; font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 6px;">Mobile Phone Number *</label>
+                  <div class="kiosk-phone-display ${this.kioskState.activeInput === 'phone' ? 'active' : ''}" onclick="app.setKioskActiveInput('phone')">
+                    ${this.kioskState.phone || '<span style="color:#94A3B8;">Touch keypad on right to enter phone</span>'}
+                  </div>
+                </div>
+
+                <!-- Age & Gender -->
+                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 16px;">
+                  <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 6px;">Age</label>
+                    <div class="kiosk-phone-display ${this.kioskState.activeInput === 'age' ? 'active' : ''}" onclick="app.setKioskActiveInput('age')" style="font-size: 1.3rem;">
+                      ${this.kioskState.age || '<span style="color:#94A3B8;">Age</span>'}
+                    </div>
+                  </div>
+                  <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 6px;">Gender</label>
+                    <div style="display: flex; gap: 8px;">
+                      ${['Male', 'Female', 'Child'].map(g => `
+                        <button type="button" class="btn ${this.kioskState.gender === g ? 'btn-primary' : 'btn-outline'}" onclick="app.setKioskGender('${g}')" style="flex: 1; padding: 12px 6px; font-size: 0.9rem;">
+                          ${g}
+                        </button>
+                      `).join('')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Virtual Numpad -->
+              <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-xl); padding: 24px; text-align: center; box-shadow: var(--shadow-sm);">
+                <div style="font-size: 0.85rem; font-weight: 700; color: #64748B; margin-bottom: 12px; text-transform: uppercase;">
+                  Touch Keypad (${this.kioskState.activeInput === 'age' ? 'Entering Age' : 'Entering Phone'})
+                </div>
+                <div class="kiosk-numpad-grid">
+                  ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="kiosk-num-key" onclick="app.enterKioskNum('${n}')">${n}</button>`).join('')}
+                  <button class="kiosk-num-key action-clear" onclick="app.clearKioskNum()">Clear</button>
+                  <button class="kiosk-num-key" onclick="app.enterKioskNum('0')">0</button>
+                  <button class="kiosk-num-key action-backspace" onclick="app.backspaceKioskNum()">⌫</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="kiosk-actions-bar">
+              <button class="btn btn-outline btn-lg" onclick="app.setKioskStep(2)">
+                ← Back to Chair
+              </button>
+              <button class="btn btn-primary btn-lg" onclick="app.setKioskStep(4)">
+                Next: Pain & Comfort Rating →
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      // Step 4: Pain & Discomfort Rating
+      else if (step === 4) {
+        const score = this.kioskState.painScore || 0;
+        let face = '😃';
+        let desc = 'Mild Discomfort / None (Score 0-2)';
+        let color = '#10B981';
+
+        if (score >= 8) {
+          face = '😭';
+          desc = 'Unbearable / Acute Emergency Pain (Score 8-10)';
+          color = '#DC2626';
+        } else if (score >= 6) {
+          face = '😣';
+          desc = 'Severe / Throbbing Pain (Score 6-7)';
+          color = '#F59E0B';
+        } else if (score >= 3) {
+          face = '😐';
+          desc = 'Moderate Dull Ache (Score 3-5)';
+          color = '#0284C7';
+        }
+
+        bodyHtml = `
+          <div style="max-width: 800px; margin: 30px auto; padding: 0 20px;">
+            <div style="text-align: center; margin-bottom: 28px;">
+              <h2 style="font-size: 2rem; font-weight: 900; color: #0F172A; margin-bottom: 6px;">How Would You Rate Your Dental Pain?</h2>
+              <p style="font-size: 1.05rem; color: #64748B;">This helps our dental team prepare anesthetic and prioritize care:</p>
+            </div>
+
+            <div class="kiosk-pain-box">
+              <div class="pain-face-display">${face}</div>
+              <div class="pain-score-display" style="color: ${color};">${score} / 10</div>
+              <div class="pain-description-label" style="color: ${color};">${desc}</div>
+
+              <!-- Interactive Touch Slider -->
+              <input type="range" class="pain-range-slider" min="0" max="10" step="1" value="${score}" oninput="app.updateKioskPain(this.value)">
+
+              <!-- Quick Score Pills -->
+              <div style="display: flex; justify-content: space-between; margin-top: 20px; gap: 6px;">
+                ${[0,1,2,3,4,5,6,7,8,9,10].map(s => `
+                  <button type="button" class="btn ${s === score ? 'btn-primary' : 'btn-outline'}" onclick="app.updateKioskPain(${s})" style="flex: 1; padding: 10px 0; font-size: 0.95rem; font-weight: 700;">
+                    ${s}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="kiosk-actions-bar">
+              <button class="btn btn-outline btn-lg" onclick="app.setKioskStep(3)">
+                ← Back to Details
+              </button>
+              <button class="btn btn-primary btn-lg" onclick="app.setKioskStep(5)">
+                Next: Review & Issue Token →
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      // Step 5: Review & Issue Token
+      else if (step === 5) {
+        const chairObj = this.store.chairs.find(c => c.id === this.kioskState.selectedChair) || { name: 'Operatory Chair', doctor: 'On-Duty Specialist' };
+        
+        let estFee = 40;
+        const complaintItems = (this.kioskState.selectedSymptoms || []).map(id => {
+          const s = (window.DENTAL_SYMPTOM_OPTIONS || []).find(x => x.id === id);
+          if (s) {
+            estFee = Math.max(estFee, s.estFee);
+            return s.name;
+          }
+          return id;
+        });
+
+        bodyHtml = `
+          <div style="max-width: 800px; margin: 30px auto; padding: 0 20px;">
+            <div style="text-align: center; margin-bottom: 28px;">
+              <h2 style="font-size: 2rem; font-weight: 900; color: #0F172A; margin-bottom: 6px;">Review & Issue Your Queue Token</h2>
+              <p style="font-size: 1.05rem; color: #64748B;">Please confirm your check-in summary before entering queue:</p>
+            </div>
+
+            <div class="card" style="padding: 28px; margin-bottom: 24px; border: 2px solid #0D9488; box-shadow: var(--shadow-md);">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 1rem; line-height: 1.7;">
+                <div>
+                  <div style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Patient Name</div>
+                  <div style="font-size: 1.25rem; font-weight: 800; color: #0F172A;">${this.kioskState.name || 'Walk-In Patient'}</div>
+                  <div style="color: #475569; font-size: 0.9rem;">${this.kioskState.phone || 'Phone not provided'} • ${this.kioskState.age} yrs (${this.kioskState.gender})</div>
+                </div>
+                <div>
+                  <div style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Assigned Operatory</div>
+                  <div style="font-size: 1.25rem; font-weight: 800; color: #0284C7;">${chairObj.name}</div>
+                  <div style="color: #475569; font-size: 0.9rem;">${chairObj.doctor}</div>
+                </div>
+                <div>
+                  <div style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Chief Concern</div>
+                  <div style="font-weight: 700; color: #0F172A;">${complaintItems.join(', ') || 'General Consultation'}</div>
+                </div>
+                <div>
+                  <div style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Pain Score / Triage</div>
+                  <div>
+                    <span class="badge ${this.kioskState.painScore >= 8 ? 'badge-red' : 'badge-teal'}" style="font-size: 0.9rem; padding: 4px 10px;">
+                      Pain: ${this.kioskState.painScore} / 10 • ${this.kioskState.painScore >= 8 ? 'Urgent Priority' : 'Normal Queue'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payment Preference -->
+              <div style="border-top: 1px solid #E2E8F0; margin-top: 20px; padding-top: 20px;">
+                <div style="font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 10px;">Payment Preference:</div>
+                <div style="display: flex; gap: 12px;">
+                  <button type="button" class="btn ${this.kioskState.paymentMethod === 'reception' ? 'btn-primary' : 'btn-outline'}" onclick="app.setKioskPaymentMethod('reception')" style="flex: 1; padding: 12px; font-size: 0.95rem;">
+                    <span>🧾</span> Pay at Cashier Desk (Cash/Card)
+                  </button>
+                  <button type="button" class="btn ${this.kioskState.paymentMethod === 'kiosk' ? 'btn-primary' : 'btn-outline'}" onclick="app.setKioskPaymentMethod('kiosk')" style="flex: 1; padding: 12px; font-size: 0.95rem;">
+                    <span>💳</span> Prepay via Kiosk Card Reader
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 30px;">
+              <button class="btn btn-primary btn-lg" onclick="app.issueWalkinToken()" style="font-size: 1.3rem; padding: 18px 48px; border-radius: 9999px; box-shadow: 0 12px 28px rgba(13,148,136,0.35);">
+                🎫 PRINT TOKEN & ENTER QUEUE
+              </button>
+            </div>
+
+            <div class="kiosk-actions-bar" style="margin-top: 0;">
+              <button class="btn btn-outline" onclick="app.setKioskStep(4)">
+                ← Back to Pain Rating
+              </button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    mount.innerHTML = headerHtml + bodyHtml;
+  },
+
+  /* ==========================================================================
+     STATION 2: LOUNGE QUEUE TV DISPLAY CONTROLLER
+     ========================================================================== */
+
+  renderTvStation() {
+    const mount = document.getElementById("tv-main-mount");
+    if (!mount) return;
+
+    // Determine active serving patient and waiting list
+    const inConsult = this.store.queue.filter(q => q.status === "in-consultation" || q.status === "called");
+    const activeServing = inConsult.length > 0 ? inConsult[0] : (this.store.queue[0] || {
+      token: "D-104",
+      name: "Robert Miller",
+      chair: "chair-2",
+      chiefComplaint: "Orthodontics",
+      status: "in-consultation"
+    });
+
+    const waitingQueue = this.store.queue.filter(q => q.status === "waiting");
+
+    const chairNames = {
+      'chair-1': 'Chair 1 — General Operatory',
+      'chair-2': 'Chair 2 — Orthodontics Suite',
+      'chair-3': 'Chair 3 — Surgical Bay',
+      'chair-4': 'Chair 4 — Hygiene Station'
+    };
+
+    const docNames = {
+      'chair-1': 'Dr. Marcus Vance, DDS',
+      'chair-2': 'Dr. Sarah Jenkins, BDS, M.S.',
+      'chair-3': 'Dr. Alex Chen, DMD, FICOI',
+      'chair-4': 'Dr. Olivia Taylor, RDH'
+    };
+
+    mount.innerHTML = `
+      <div class="tv-container">
+        <!-- TV Top Bar -->
+        <div class="tv-header-bar">
+          <div class="tv-brand">
+            <div class="tv-brand-icon">🦷</div>
+            <div>
+              <h1>Smile Dental & Orthodontics</h1>
+              <p>PATIENT LOUNGE LIVE QUEUE DISPLAY & AUDIO CHIME</p>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="background: #0F172A; border: 1px solid #1E293B; border-radius: 9999px; padding: 8px 18px; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: #38BDF8;">
+              🕒 ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="app.tvRecallNextToken()" style="color: #38BDF8; border-color: #0284C7;">
+              <span>📢</span> Re-Announce
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="app.toggleTvFullscreen()" style="color: #94A3B8; border-color: #334155;">
+              <span>⛶</span> Fullscreen
+            </button>
+          </div>
+        </div>
+
+        <!-- TV Main 2-Column Content -->
+        <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; align-items: start;">
+          <!-- Left Column: Spotlight Hero -->
+          <div>
+            <div class="tv-now-serving-hero">
+              <div class="tv-serving-label">● NOW SERVING</div>
+              <div class="tv-serving-token">${activeServing.token}</div>
+              <div class="tv-serving-destination" style="color: #38BDF8; font-size: 2rem; margin-bottom: 6px;">
+                ${activeServing.name}
+              </div>
+              <div style="font-size: 1.4rem; font-weight: 800; color: #FFFFFF; margin-bottom: 4px;">
+                ${chairNames[activeServing.chair] || 'Operatory Chair'}
+              </div>
+              <div style="font-size: 1.1rem; color: #94A3B8;">
+                ${docNames[activeServing.chair] || 'Attending Dentist'}
+              </div>
+
+              <!-- Animated Voice Wave Bar -->
+              <div style="display: flex; justify-content: center; align-items: flex-end; gap: 6px; height: 32px; margin-top: 24px;">
+                <div style="width: 6px; height: 18px; background: #2DD4BF; border-radius: 4px; animation: pulse 1s infinite alternate;"></div>
+                <div style="width: 6px; height: 28px; background: #2DD4BF; border-radius: 4px; animation: pulse 0.7s infinite alternate;"></div>
+                <div style="width: 6px; height: 12px; background: #2DD4BF; border-radius: 4px; animation: pulse 1.2s infinite alternate;"></div>
+                <div style="width: 6px; height: 32px; background: #2DD4BF; border-radius: 4px; animation: pulse 0.8s infinite alternate;"></div>
+                <div style="width: 6px; height: 20px; background: #2DD4BF; border-radius: 4px; animation: pulse 1.1s infinite alternate;"></div>
+              </div>
+            </div>
+
+            <!-- Call Simulator Toolbar -->
+            <div style="background: #0F172A; border: 1px solid #1E293B; border-radius: var(--radius-lg); padding: 18px 24px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-size: 0.95rem; color: #94A3B8;">Staff Quick Callout Control:</span>
+              <button class="btn btn-primary" onclick="app.tvRecallNextToken()" style="font-size: 0.95rem;">
+                <span>📢</span> Announce & Call Next Waiting Patient
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Column: 4-Chair Matrix & Waiting List -->
+          <div>
+            <!-- 4 Chairs Matrix -->
+            <div class="tv-chairs-grid" style="grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 20px;">
+              ${[
+                { id: 'chair-1', name: 'Chair 1', doc: 'Dr. Marcus Vance' },
+                { id: 'chair-2', name: 'Chair 2', doc: 'Dr. Sarah Jenkins' },
+                { id: 'chair-3', name: 'Chair 3', doc: 'Dr. Alex Chen' },
+                { id: 'chair-4', name: 'Chair 4', doc: 'Dr. Olivia Taylor' }
+              ].map(c => {
+                const chairPatient = this.store.queue.find(q => q.chair === c.id && (q.status === 'in-consultation' || q.status === 'called'));
+                return `
+                  <div class="tv-chair-card">
+                    <div class="tv-chair-header">
+                      <div class="tv-chair-title">${c.name}</div>
+                      <span class="tv-chair-status ${chairPatient ? 'badge-teal' : 'badge-outline'}" style="color: ${chairPatient ? '#2DD4BF' : '#94A3B8'};">
+                        ${chairPatient ? 'In Consultation' : 'Available'}
+                      </span>
+                    </div>
+                    <div class="tv-chair-token">${chairPatient ? chairPatient.token : '—'}</div>
+                    <div class="tv-chair-patient">${chairPatient ? chairPatient.name : 'Waiting for assignment'}</div>
+                    <div style="font-size: 0.75rem; color: #64748B; margin-top: 4px;">${c.doc}</div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <!-- Waiting Queue Table -->
+            <div style="background: #0B0F19; border: 1px solid #1E293B; border-radius: var(--radius-lg); overflow: hidden;">
+              <div style="padding: 14px 18px; border-bottom: 1px solid #1E293B; font-weight: 800; font-size: 0.95rem; color: #38BDF8; display: flex; justify-content: space-between;">
+                <span>NEXT IN LINE TO BE CALLED</span>
+                <span>${waitingQueue.length} WAITING</span>
+              </div>
+              <table class="tv-waiting-table">
+                <thead>
+                  <tr>
+                    <th>Token</th>
+                    <th>Patient</th>
+                    <th>Destination</th>
+                    <th>Priority</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${waitingQueue.length === 0 ? `
+                    <tr><td colspan="4" style="text-align: center; color: #64748B; padding: 20px;">No patients currently in waiting lounge.</td></tr>
+                  ` : waitingQueue.slice(0, 5).map(w => `
+                    <tr>
+                      <td style="font-family: 'JetBrains Mono', monospace; font-weight: 800; color: #38BDF8;">${w.token}</td>
+                      <td>${w.name}</td>
+                      <td>${w.chair ? w.chair.replace('-', ' ').toUpperCase() : 'General'}</td>
+                      <td><span class="badge ${w.priority === 'Urgent' || (w.token && w.token.startsWith('EMG')) ? 'badge-red' : 'badge-outline'}">${w.priority || 'Normal'}</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  tvRecallNextToken() {
+    const nextWaiting = this.store.queue.find(q => q.status === "waiting");
+    if (!nextWaiting) {
+      this.showToast("No waiting patients in queue to call.", "info");
+      return;
+    }
+
+    nextWaiting.status = "in-consultation";
+    this.store.saveQueue();
+
+    const chairObj = this.store.chairs.find(c => c.id === nextWaiting.chair) || { name: "Chair 1", doctor: "On-Duty Dentist" };
+
+    if (window.clinicAudio) {
+      window.clinicAudio.announceToken(nextWaiting.token, chairObj.name, chairObj.doctor);
+    }
+
+    this.showToast(`Called token ${nextWaiting.token} (${nextWaiting.name}) to ${chairObj.name}`, "success");
+    this.renderTvStation();
+  },
+
+  toggleTvFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+    }
+  },
+
+  /* ==========================================================================
+     STATION 3: DENTIST OPERATORY CABIN CONTROLLER
+     ========================================================================== */
+
+  renderCabinStation() {
+    const mount = document.getElementById("cabin-main-mount");
+    if (!mount) return;
+
+    const chairId = this.selectedCabinChair || 'chair-1';
+    const chairObj = this.store.chairs.find(c => c.id === chairId) || { id: 'chair-1', name: 'Chair 1 — General Operatory', doctor: 'Dr. Marcus Vance, DDS' };
+
+    // Find active patient in this chair
+    const currentPt = this.store.queue.find(q => q.chair === chairId && (q.status === 'in-consultation' || q.status === 'called'));
+    const fullPt = currentPt ? this.store.getPatient(currentPt.patientId) : null;
+
+    mount.innerHTML = `
+      <div style="max-width: 1200px; margin: 24px auto; padding: 0 20px;">
+        <!-- Header with Chair Tabs -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+          <div>
+            <h2 style="font-size: 1.8rem; font-weight: 900; color: #0F172A; margin: 0;">Dentist Operatory Station</h2>
+            <p style="font-size: 0.9rem; color: #64748B; margin: 2px 0 0 0;">Chairside Clinical Workspace & Instant Charting Shortcut</p>
+          </div>
+          <!-- Chair Selector Tabs -->
+          <div style="display: flex; gap: 8px;">
+            ${[
+              { id: 'chair-1', label: 'Chair 1: General' },
+              { id: 'chair-2', label: 'Chair 2: Ortho' },
+              { id: 'chair-3', label: 'Chair 3: Surgery' },
+              { id: 'chair-4', label: 'Chair 4: Hygiene' }
+            ].map(c => `
+              <button class="btn ${chairId === c.id ? 'btn-primary' : 'btn-outline'}" onclick="app.selectCabinChair('${c.id}')" style="font-size: 0.85rem; padding: 8px 14px;">
+                ${c.label}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Operatory Hero Banner -->
+        <div class="card" style="padding: 24px; margin-bottom: 24px; border-left: 5px solid #0D9488; background: #FFFFFF;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span class="badge badge-teal" style="font-size: 0.8rem;">Active Operatory</span>
+              <h3 style="font-size: 1.4rem; font-weight: 800; color: #0F172A; margin: 4px 0 2px 0;">${chairObj.name}</h3>
+              <p style="font-size: 0.95rem; color: #0284C7; margin: 0; font-weight: 600;">Dentist: ${chairObj.doctor}</p>
+            </div>
+            <div>
+              <button class="btn btn-outline" onclick="app.cabinCallNextPatient()">
+                <span>📢</span> Call Next Patient for ${chairObj.name}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        ${currentPt && fullPt ? `
+          <!-- Active Patient In Chair -->
+          <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; margin-bottom: 24px;">
+            <div class="card" style="padding: 24px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div>
+                  <span class="badge badge-amber">Currently in Chair</span>
+                  <h3 style="font-size: 1.5rem; font-weight: 900; color: #0F172A; margin: 4px 0 0 0;">${fullPt.name}</h3>
+                  <div style="font-size: 0.85rem; color: #64748B;">MRN: <code>${fullPt.mrn}</code> • ${fullPt.age} yrs (${fullPt.gender}) • Tel: ${fullPt.phone}</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 2.2rem; font-weight: 900; color: #0D9488; font-family: 'JetBrains Mono', monospace;">${currentPt.token}</div>
+                  <div style="font-size: 0.8rem; color: #64748B;">Token Issued: ${currentPt.checkinTime}</div>
+                </div>
+              </div>
+
+              <div style="background: #F8FAFC; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px; font-size: 0.95rem; line-height: 1.6;">
+                <div><strong>Chief Complaint:</strong> ${currentPt.chiefComplaint || 'Consultation'}</div>
+                <div><strong>Pain Rating:</strong> <span class="badge ${currentPt.painScore >= 8 ? 'badge-red' : 'badge-teal'}">${currentPt.painScore || 0} / 10</span></div>
+                <div><strong>Medical Alerts / Allergies:</strong> <span style="color: #DC2626; font-weight: 700;">${fullPt.allergies || 'None'}</span></div>
+              </div>
+
+              <!-- Action buttons -->
+              <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="app.openPatientInOdontogram('${fullPt.id}')" style="flex: 1;">
+                  <span>🦷</span> Open Interactive Odontogram & Records
+                </button>
+                <button class="btn btn-success" onclick="app.cabinCompleteConsultation()" style="flex: 1;">
+                  <span>🏁</span> Complete & Send to Billing Desk
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick 1-Tap Dental Rx Chips -->
+            <div class="card" style="padding: 24px;">
+              <h4 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin-bottom: 6px;">1-Tap Quick Dental Rx Prescriptions</h4>
+              <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 16px;">Touch any chip to immediately prescribe and route to Dispensary:</p>
+
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-outline" onclick="app.cabinAddRxChip('Amoxicillin', '500mg tid x 5 days', 'Take 1 capsule every 8 hours with water after food')" style="justify-content: flex-start; text-align: left; padding: 10px 14px;">
+                  <span>💊</span> <strong>Amoxicillin 500mg</strong> &nbsp;— tid x 5d (Dental Infection)
+                </button>
+                <button class="btn btn-outline" onclick="app.cabinAddRxChip('Augmentin (Amoxicillin/Clavulanate)', '625mg bid x 5 days', 'Take 1 tablet every 12 hours with meals')" style="justify-content: flex-start; text-align: left; padding: 10px 14px;">
+                  <span>💊</span> <strong>Augmentin 625mg</strong> &nbsp;— bid x 5d (Severe Abscess)
+                </button>
+                <button class="btn btn-outline" onclick="app.cabinAddRxChip('Ibuprofen', '400mg tid prn pain', 'Take 1 tablet after meals when pain occurs')" style="justify-content: flex-start; text-align: left; padding: 10px 14px;">
+                  <span>💊</span> <strong>Ibuprofen 400mg</strong> &nbsp;— tid prn (Anti-inflammatory)
+                </button>
+                <button class="btn btn-outline" onclick="app.cabinAddRxChip('Chlorhexidine Gluconate 0.2%', '10ml oral rinse bid x 7 days', 'Swish 10ml in mouth for 60 seconds after brushing')" style="justify-content: flex-start; text-align: left; padding: 10px 14px;">
+                  <span>🧴</span> <strong>Chlorhexidine 0.2% Rinse</strong> &nbsp;— bid x 7d (Gingivitis)
+                </button>
+                <button class="btn btn-outline" onclick="app.cabinAddRxChip('Metronidazole', '400mg tid x 5 days', 'Take 1 tablet every 8 hours. Strictly no alcohol.')" style="justify-content: flex-start; text-align: left; padding: 10px 14px;">
+                  <span>💊</span> <strong>Metronidazole 400mg</strong> &nbsp;— tid x 5d (Periodontal/Anaerobic)
+                </button>
+              </div>
+            </div>
+          </div>
+        ` : `
+          <!-- No Patient in Chair -->
+          <div class="card" style="padding: 48px; text-align: center;">
+            <div style="font-size: 3.5rem; margin-bottom: 12px;">💺</div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: #0F172A; margin-bottom: 6px;">No Patient Currently in ${chairObj.name}</h3>
+            <p style="font-size: 0.95rem; color: #64748B; margin-bottom: 24px;">The operatory chair is sanitized and ready for the next patient.</p>
+            <button class="btn btn-primary btn-lg" onclick="app.cabinCallNextPatient()" style="font-size: 1.1rem; padding: 14px 32px; border-radius: 9999px;">
+              <span>📢</span> Call Next Waiting Patient from Queue
+            </button>
+          </div>
+        `}
+      </div>
+    `;
+  },
+
+  selectCabinChair(chairId) {
+    this.selectedCabinChair = chairId;
+    this.renderCabinStation();
+  },
+
+  cabinCallNextPatient() {
+    const chairId = this.selectedCabinChair || 'chair-1';
+    const chairObj = this.store.chairs.find(c => c.id === chairId) || { name: 'Operatory Chair', doctor: 'On-Duty Dentist' };
+
+    // Find next waiting patient for this chair or general
+    const nextPt = this.store.queue.find(q => q.status === 'waiting' && (q.chair === chairId || !q.chair));
+    if (!nextPt) {
+      this.showToast(`No patients currently waiting for ${chairObj.name}.`, 'info');
+      return;
+    }
+
+    nextPt.status = 'in-consultation';
+    nextPt.chair = chairId;
+    this.store.saveQueue();
+
+    if (window.clinicAudio) {
+      window.clinicAudio.announceToken(nextPt.token, chairObj.name, chairObj.doctor);
+    }
+
+    this.showToast(`Calling token ${nextPt.token} (${nextPt.name}) to ${chairObj.name}`, 'success');
+    this.renderCabinStation();
+  },
+
+  cabinAddRxChip(medName, dosage, instructions) {
+    const chairId = this.selectedCabinChair || 'chair-1';
+    const currentPt = this.store.queue.find(q => q.chair === chairId && (q.status === 'in-consultation' || q.status === 'called'));
+    if (!currentPt) {
+      this.showToast("No active patient in chair to prescribe for.", "warning");
+      return;
+    }
+
+    const patient = this.store.getPatient(currentPt.patientId);
+    if (!patient) return;
+
+    patient.prescriptions = patient.prescriptions || [];
+    patient.prescriptions.unshift({
+      id: "rx-" + Date.now(),
+      date: new Date().toISOString().split("T")[0],
+      medication: medName,
+      dosage: dosage,
+      instructions: instructions,
+      status: "Active",
+      prescribedBy: this.store.currentUser ? this.store.currentUser.name : "Dr. Marcus Vance, DDS"
+    });
+
+    this.store.savePatient(patient);
+    this.showToast(`Prescription for ${medName} added & routed to Dental Dispensary.`, "success");
+  },
+
+  cabinCompleteConsultation() {
+    const chairId = this.selectedCabinChair || 'chair-1';
+    const currentPt = this.store.queue.find(q => q.chair === chairId && (q.status === 'in-consultation' || q.status === 'called'));
+    if (!currentPt) return;
+
+    currentPt.status = 'completed';
+    this.store.saveQueue();
+
+    this.showToast(`Encounter completed for ${currentPt.name}. Patient transferred to Billing Desk POS.`, "success");
+    this.renderCabinStation();
+  },
+
+  openPatientInOdontogram(patientId) {
+    this.switchStation('ADMIN_DASHBOARD');
+    this.navigateTo('record', { patientId: patientId });
+  },
+
+  /* ==========================================================================
+     STATION 4: BILLING & CASHIER POS CONTROLLER
+     ========================================================================== */
+
+  renderBillingStation() {
+    const mount = document.getElementById("billing-main-mount");
+    if (!mount) return;
+
+    // Pick ready for billing patient
+    let patientId = this.selectedBillingPatientId;
+    if (!patientId && this.store.patients.length > 0) {
+      patientId = this.store.patients[0].id;
+      this.selectedBillingPatientId = patientId;
+    }
+
+    const patient = this.store.getPatient(patientId) || this.store.patients[0];
+    const discountPct = this.billingDiscountPercent || 0;
+    const tendered = this.billingAmountTendered || 0;
+
+    // Standard billing procedures
+    const procedures = [
+      { id: 'bp-1', name: 'Comprehensive Dental Examination', fee: 50 },
+      { id: 'bp-2', name: 'Composite Resin Restoration (Filling)', fee: 120 },
+      { id: 'bp-3', name: 'Full Mouth Scaling & Root Planing', fee: 80 },
+      { id: 'bp-4', name: 'Orthodontic Archwire Adjustment', fee: 95 }
+    ];
+
+    if (!this.billingSelectedProcedures || this.billingSelectedProcedures.length === 0) {
+      this.billingSelectedProcedures = ['bp-1', 'bp-2'];
+    }
+
+    let subtotal = 0;
+    procedures.forEach(p => {
+      if (this.billingSelectedProcedures.includes(p.id)) {
+        subtotal += p.fee;
+      }
+    });
+
+    const discountAmount = Math.round((subtotal * discountPct) / 100);
+    const taxAmount = Math.round((subtotal - discountAmount) * 0.05);
+    const netTotal = (subtotal - discountAmount) + taxAmount;
+    const changeDue = Math.max(0, tendered - netTotal);
+
+    mount.innerHTML = `
+      <div style="max-width: 1200px; margin: 24px auto; padding: 0 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <h2 style="font-size: 1.8rem; font-weight: 900; color: #0F172A; margin: 0;">Cashier & Billing Desk POS</h2>
+            <p style="font-size: 0.9rem; color: #64748B; margin: 2px 0 0 0;">Cash Counter, Selective Invoicing & Instant Thermal Receipts</p>
+          </div>
+          <button class="btn btn-outline" onclick="app.switchStation('ADMIN_DASHBOARD'); app.navigateTo('billing');">
+            <span>📊</span> Open Detailed Financial Ledger
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 24px; align-items: start;">
+          <!-- Left: Patients Waiting for Billing -->
+          <div class="card" style="padding: 20px;">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #0F172A; margin-bottom: 14px;">Select Patient to Bill</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 520px; overflow-y: auto;">
+              ${this.store.patients.slice(0, 8).map(pt => `
+                <div onclick="app.selectBillingPatient('${pt.id}')" style="padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid ${patient && patient.id === pt.id ? '#0D9488' : '#E2E8F0'}; background: ${patient && patient.id === pt.id ? 'rgba(13,148,136,0.06)' : '#FFFFFF'}; cursor: pointer;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="color: #0F172A; font-size: 0.95rem;">${pt.name}</strong>
+                    <span class="badge ${pt.balance > 0 ? 'badge-amber' : 'badge-teal'}" style="font-size: 0.75rem;">${pt.balance || 0} due</span>
+                  </div>
+                  <div style="font-size: 0.8rem; color: #64748B; margin-top: 2px;">MRN: ${pt.mrn} • Tel: ${pt.phone}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Right: Interactive Bill Generator -->
+          ${patient ? `
+            <div class="card" style="padding: 24px;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 16px; border-bottom: 1px solid #E2E8F0; margin-bottom: 16px;">
+                <div>
+                  <h3 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0;">${patient.name}</h3>
+                  <div style="font-size: 0.85rem; color: #64748B; margin-top: 2px;">MRN: <code>${patient.mrn}</code> • Phone: ${patient.phone}</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 0.8rem; color: #64748B; text-transform: uppercase; font-weight: 700;">Date & Time</div>
+                  <div style="font-weight: 700; color: #0F172A;">${new Date().toLocaleDateString()}</div>
+                </div>
+              </div>
+
+              <!-- Procedures Checklist -->
+              <div style="margin-bottom: 20px;">
+                <div style="font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 10px;">Select Procedures / Items to Invoice:</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  ${procedures.map(p => {
+                    const isChecked = this.billingSelectedProcedures.includes(p.id);
+                    return `
+                      <label style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border: 1px solid #E2E8F0; border-radius: var(--radius-md); cursor: pointer; background: ${isChecked ? '#F8FAFC' : '#FFFFFF'};">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                          <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="app.toggleBillingProcedure('${p.id}')">
+                          <span style="font-weight: 600; font-size: 0.95rem; color: #0F172A;">${p.name}</span>
+                        </div>
+                        <strong style="color: #0D9488;">${p.fee}</strong>
+                      </label>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+              <!-- Discount & Financial Summary -->
+              <div style="background: #F8FAFC; border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 20px; font-size: 0.95rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span style="color: #64748B;">Procedures Subtotal:</span>
+                  <strong>${subtotal}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="color: #64748B;">Discount (${discountPct}%):</span>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="range" min="0" max="30" step="5" value="${discountPct}" oninput="app.updateBillingDiscount(this.value)" style="width: 100px;">
+                    <span style="color: #10B981; font-weight: 700;">-${discountAmount}</span>
+                  </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                  <span style="color: #64748B;">Sales Tax (5%):</span>
+                  <span>+${taxAmount}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 900; color: #0F172A; border-top: 1px solid #E2E8F0; padding-top: 10px;">
+                  <span>Net Amount Due:</span>
+                  <span style="color: #0D9488;">${netTotal}</span>
+                </div>
+              </div>
+
+              <!-- Payment Method & Tendered -->
+              <div style="margin-bottom: 24px;">
+                <div style="font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 8px;">Cash Received & Change Calculator:</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                  <div>
+                    <label style="display: block; font-size: 0.8rem; color: #64748B; margin-bottom: 4px;">Amount Tendered ($)</label>
+                    <input type="number" class="form-control" placeholder="0" value="${tendered || ''}" oninput="app.updateBillingTendered(this.value)">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.8rem; color: #64748B; margin-bottom: 4px;">Change Due ($)</label>
+                    <div style="height: 42px; display: flex; align-items: center; padding: 0 14px; background: #F1F5F9; border-radius: var(--radius-md); font-weight: 800; font-size: 1.1rem; color: #10B981;">
+                      ${changeDue}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action buttons -->
+              <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="app.processBillingPayment('Cash')" style="flex: 1.5; font-size: 1rem; padding: 12px;">
+                  <span>💳</span> Process Payment (${netTotal})
+                </button>
+                <button class="btn btn-outline" onclick="window.print()" style="flex: 1;">
+                  <span>🖨️</span> Thermal Receipt
+                </button>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  },
+
+  selectBillingPatient(patientId) {
+    this.selectedBillingPatientId = patientId;
+    this.renderBillingStation();
+  },
+
+  toggleBillingProcedure(procId) {
+    this.billingSelectedProcedures = this.billingSelectedProcedures || [];
+    const idx = this.billingSelectedProcedures.indexOf(procId);
+    if (idx > -1) {
+      this.billingSelectedProcedures.splice(idx, 1);
+    } else {
+      this.billingSelectedProcedures.push(procId);
+    }
+    this.renderBillingStation();
+  },
+
+  updateBillingDiscount(val) {
+    this.billingDiscountPercent = parseInt(val, 10) || 0;
+    this.renderBillingStation();
+  },
+
+  updateBillingTendered(val) {
+    this.billingAmountTendered = parseFloat(val) || 0;
+    this.renderBillingStation();
+  },
+
+  processBillingPayment(method) {
+    const ptId = this.selectedBillingPatientId;
+    const pt = this.store.getPatient(ptId);
+    if (!pt) return;
+
+    this.showToast(`Payment received via ${method} for ${pt.name}. Receipt printed.`, "success");
+    if (window.clinicAudio) window.clinicAudio.playChime();
+    this.renderBillingStation();
+  },
+
+  /* ==========================================================================
+     STATION 5: DENTAL DISPENSARY CONTROLLER
+     ========================================================================== */
+
+  renderPharmacyStation() {
+    const mount = document.getElementById("pharmacy-main-mount");
+    if (!mount) return;
+
+    const inventory = window.DENTAL_PHARMACY_INVENTORY || [];
+
+    mount.innerHTML = `
+      <div style="max-width: 1200px; margin: 24px auto; padding: 0 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <h2 style="font-size: 1.8rem; font-weight: 900; color: #0F172A; margin: 0;">Dental Dispensary & In-House Pharmacy</h2>
+            <p style="font-size: 0.9rem; color: #64748B; margin: 2px 0 0 0;">Fulfill Electronic Rx, Dispense Oral Care & Track Material Stocks</p>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-outline" onclick="app.showToast('Pharmacy barcode scanner connected', 'success')">
+              <span>📷</span> Barcode Scanner
+            </button>
+          </div>
+        </div>
+
+        <!-- Electronic Rx Fulfillment Queue -->
+        <div class="card" style="padding: 24px; margin-bottom: 28px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0;">Pending Electronic Prescriptions from Operatories</h3>
+            <span class="badge badge-teal">Live Fulfillment Queue</span>
+          </div>
+
+          <table class="plan-table">
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Prescribed Medication</th>
+                <th>Dosage & Instructions</th>
+                <th>Prescribed By</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Emma Watson</strong><div style="font-size: 0.75rem; color: #64748B;">MRN: SDO-2026-0002</div></td>
+                <td><strong style="color: #0D9488;">Amoxicillin 500mg</strong></td>
+                <td>1 cap tid x 5 days (After meals)</td>
+                <td>Dr. Marcus Vance</td>
+                <td><button class="btn btn-primary btn-sm" onclick="app.dispensePharmacyItem('med-1')">Dispense</button></td>
+              </tr>
+              <tr>
+                <td><strong>Robert Miller</strong><div style="font-size: 0.75rem; color: #64748B;">MRN: SDO-2026-0004</div></td>
+                <td><strong style="color: #0284C7;">Orthodontic Relief Wax</strong></td>
+                <td>Apply to brackets prn wire irritation</td>
+                <td>Dr. Sarah Jenkins</td>
+                <td><button class="btn btn-primary btn-sm" onclick="app.dispensePharmacyItem('med-5')">Dispense</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- In-House Stock Inventory -->
+        <div class="card" style="padding: 24px;">
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 16px;">Dental Dispensary Stock Levels</h3>
+          <table class="plan-table">
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Stock Level</th>
+                <th>Status</th>
+                <th>Unit Price</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${inventory.map(item => `
+                <tr>
+                  <td><strong>${item.name}</strong></td>
+                  <td><span class="badge badge-outline">${item.category}</span></td>
+                  <td><strong>${item.stock}</strong> units</td>
+                  <td><span class="badge ${item.stock < 15 ? 'badge-amber' : 'badge-teal'}">${item.stock < 15 ? 'Low Stock' : 'In Stock'}</span></td>
+                  <td>${item.price}</td>
+                  <td>
+                    <button class="btn btn-outline btn-sm" onclick="app.dispensePharmacyItem('${item.id}')" style="margin-right: 6px;">
+                      Dispense 1
+                    </button>
+                    <button class="btn btn-outline btn-sm" onclick="app.restockPharmacyItem('${item.id}')">
+                      Restock +50
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  },
+
+  dispensePharmacyItem(itemId) {
+    if (this.store && this.store.dispenseItem) {
+      const res = this.store.dispenseItem(itemId, 1);
+      if (res && res.success) {
+        this.showToast(`Dispensed 1 unit of ${res.item.name}. Remaining stock: ${res.item.stock}`, "success");
+        if (window.clinicAudio) window.clinicAudio.playChime();
+        this.renderPharmacyStation();
+      } else {
+        this.showToast("Item out of stock or not found", "error");
+      }
+    }
+  },
+
+  restockPharmacyItem(itemId) {
+    const item = (window.DENTAL_PHARMACY_INVENTORY || []).find(i => i.id === itemId);
+    if (item) {
+      item.stock += 50;
+      this.showToast(`Restocked 50 units of ${item.name}. New stock: ${item.stock}`, "success");
+      this.renderPharmacyStation();
+    }
+  }
+};
+
+Object.assign(ClinicApp.prototype, stationMethods);
+
 window.app = new ClinicApp();

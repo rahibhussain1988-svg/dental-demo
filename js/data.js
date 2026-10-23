@@ -199,6 +199,260 @@ const MEDICATION_FORMULARY = [
   }
 ];
 
+const DENTAL_SYMPTOM_OPTIONS = [
+  {
+    id: "sym-toothache",
+    label: "Toothache & Cavity Pain",
+    icon: "🦷",
+    dept: "General Dentistry",
+    chairId: "c1",
+    chairName: "Chair 1 (General Operatory)",
+    doctorName: "Dr. Sarah Chen, DDS",
+    fee: 65,
+    description: "Throbbing pain, sensitivity to hot/cold, visible hole or dark cavity",
+    urgency: "Medium"
+  },
+  {
+    id: "sym-braces",
+    label: "Braces & Aligners Review",
+    icon: "📐",
+    dept: "Orthodontics",
+    chairId: "c4",
+    chairName: "Chair 4 (Orthodontic Bay)",
+    doctorName: "Dr. Marcus Vance, Ortho Specialist",
+    fee: 85,
+    description: "Crooked teeth, wire adjustment, loose bracket, clear aligner fitting",
+    urgency: "Normal"
+  },
+  {
+    id: "sym-bleeding-gums",
+    label: "Bleeding Gums & Cleaning",
+    icon: "🪥",
+    dept: "Periodontics & Hygiene",
+    chairId: "c2",
+    chairName: "Chair 2 (General & Restorative)",
+    doctorName: "Dr. Sarah Chen, DDS",
+    fee: 95,
+    description: "Bleeding during brushing, heavy tartar, bad breath, puffy inflamed gums",
+    urgency: "Normal"
+  },
+  {
+    id: "sym-broken-tooth",
+    label: "Broken or Chipped Tooth",
+    icon: "⚡",
+    dept: "Restorative Dentistry",
+    chairId: "c2",
+    chairName: "Chair 2 (General & Restorative)",
+    doctorName: "Dr. Sarah Chen, DDS",
+    fee: 75,
+    description: "Sharp edge, fractured cusp, lost old filling, trauma while eating",
+    urgency: "High"
+  },
+  {
+    id: "sym-wisdom-tooth",
+    label: "Wisdom Tooth & Swelling",
+    icon: "⚠️",
+    dept: "Oral Surgery",
+    chairId: "c3",
+    chairName: "Chair 3 (Surgical & Implant Suite)",
+    doctorName: "Dr. Sarah Chen, DDS",
+    fee: 110,
+    description: "Back jaw pain, difficulty opening mouth, gum flap inflammation (Pericoronitis)",
+    urgency: "High"
+  },
+  {
+    id: "sym-root-canal",
+    label: "Root Canal (RCT) Consultation",
+    icon: "🔬",
+    dept: "Endodontics",
+    chairId: "c3",
+    chairName: "Chair 3 (Surgical & Implant Suite)",
+    doctorName: "Dr. Sarah Chen, DDS",
+    fee: 120,
+    description: "Severe nocturnal throbbing, persistent abscess, nerve infection",
+    urgency: "High"
+  },
+  {
+    id: "sym-implants",
+    label: "Dental Implants & Missing Teeth",
+    icon: "💎",
+    dept: "Implantology",
+    chairId: "c3",
+    chairName: "Chair 3 (Surgical & Implant Suite)",
+    doctorName: "Dr. Sarah Chen, DDS",
+    fee: 150,
+    description: "Permanent replacement for missing teeth, titanium post & ceramic crown",
+    urgency: "Normal"
+  },
+  {
+    id: "sym-pediatric",
+    label: "Kids Dental & Checkup",
+    icon: "👶",
+    dept: "Pediatric Dentistry",
+    chairId: "c1",
+    chairName: "Chair 1 (General Operatory)",
+    doctorName: "Dr. Sarah Chen, DDS",
+    fee: 70,
+    description: "Milk teeth cavities, gentle exam, fluoride polish, sealants",
+    urgency: "Normal"
+  },
+  {
+    id: "sym-whitening",
+    label: "Teeth Whitening & Smile Design",
+    icon: "✨",
+    dept: "Cosmetic Dentistry",
+    chairId: "c4",
+    chairName: "Chair 4 (Orthodontic Bay)",
+    doctorName: "Dr. Marcus Vance, Ortho Specialist",
+    fee: 120,
+    description: "Laser teeth whitening, porcelain veneers, aesthetic smile contouring",
+    urgency: "Normal"
+  }
+];
+
+const EMERGENCY_DENTAL_PROCEDURES = [
+  {
+    id: "emg-1",
+    name: "Acute Odontogenic Abscess & Severe Pain",
+    code: "EMG-ABSCESS",
+    chairId: "c3",
+    chairName: "Chair 3 (Surgical & Implant Suite)",
+    doctorName: "Dr. Sarah Chen, DDS",
+    fee: 120,
+    description: "Immediate incision & drainage, pulp debridement, antibiotic therapy",
+    icon: "🚨"
+  },
+  {
+    id: "emg-2",
+    name: "Knocked-Out Permanent Tooth (Dental Avulsion)",
+    code: "EMG-AVULSION",
+    chairId: "c3",
+    chairName: "Chair 3 (Surgical & Implant Suite)",
+    doctorName: "Dr. Sarah Chen, DDS",
+    fee: 150,
+    description: "Re-implantation, flexible splinting, tetanus & antibiotic coverage",
+    icon: "🦷"
+  },
+  {
+    id: "emg-3",
+    name: "Uncontrolled Post-Extraction Bleeding",
+    code: "EMG-HEMORRHAGE",
+    chairId: "c3",
+    chairName: "Chair 3 (Surgical & Implant Suite)",
+    doctorName: "Dr. Sarah Chen, DDS",
+    fee: 90,
+    description: "Socket debridement, gelatin sponge (Gelfoam), compression sutures",
+    icon: "🩸"
+  },
+  {
+    id: "emg-4",
+    name: "Orthodontic Trauma / Piercing Archwire",
+    code: "EMG-ORTHO",
+    chairId: "c4",
+    chairName: "Chair 4 (Orthodontic Bay)",
+    doctorName: "Dr. Marcus Vance, Ortho Specialist",
+    fee: 60,
+    description: "Archwire trimming, bracket relief wax, mucosal laceration repair",
+    icon: "📐"
+  }
+];
+
+const DENTAL_PHARMACY_INVENTORY = [
+  { id: "ph-1", name: "Amoxicillin 500mg Capsules", category: "Antibiotics", stock: 140, unit: "Caps", price: 18.50, batch: "AMX-2026-9", expiry: "2027-11" },
+  { id: "ph-2", name: "Augmentin 625mg (Amox+Clav)", category: "Antibiotics", stock: 85, unit: "Tabs", price: 32.00, batch: "AUG-2026-4", expiry: "2027-08" },
+  { id: "ph-3", name: "Ibuprofen 400mg NSAID", category: "Analgesics", stock: 220, unit: "Tabs", price: 12.00, batch: "IBU-2026-1", expiry: "2028-03" },
+  { id: "ph-4", name: "Chlorhexidine 0.2% Oral Rinse (300ml)", category: "Antiseptic", stock: 45, unit: "Bottles", price: 16.00, batch: "CHX-2026-8", expiry: "2027-05" },
+  { id: "ph-5", name: "Metronidazole 400mg Tablets", category: "Antibiotics", stock: 95, unit: "Tabs", price: 14.50, batch: "MTZ-2026-2", expiry: "2027-12" },
+  { id: "ph-6", name: "Orthodontic Relief Wax Packs", category: "Orthodontic", stock: 110, unit: "Packs", price: 8.00, batch: "WAX-2026-7", expiry: "2029-01" },
+  { id: "ph-7", name: "Fluoride Protection Toothpaste 1450ppm", category: "Hygiene", stock: 60, unit: "Tubes", price: 12.50, batch: "FLU-2026-0", expiry: "2028-06" }
+];
+
+class ClinicAudio {
+  constructor() {
+    this.audioCtx = null;
+    this.soundEnabled = true;
+  }
+  getAudioContext() {
+    if (!this.audioCtx && (typeof window !== 'undefined') && (window.AudioContext || window.webkitAudioContext)) {
+      this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return this.audioCtx;
+  }
+  playChime() {
+    if (!this.soundEnabled || typeof window === 'undefined') return;
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+      const now = ctx.currentTime;
+      // Tone 1
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(523.25, now);
+      gain1.gain.setValueAtTime(0.18, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.45);
+      // Tone 2
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(659.25, now + 0.22);
+      gain2.gain.setValueAtTime(0.2, now + 0.22);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.22);
+      osc2.stop(now + 0.85);
+    } catch (e) {}
+  }
+  playEmergencyAlarm() {
+    if (!this.soundEnabled || typeof window === 'undefined') return;
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+      const now = ctx.currentTime;
+      [0, 0.18, 0.36].forEach(offset => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(880, now + offset);
+        gain.gain.setValueAtTime(0.22, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.16);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.16);
+      });
+    } catch (e) {}
+  }
+  speak(text) {
+    if (!this.soundEnabled || typeof window === 'undefined' || !window.speechSynthesis) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.95;
+      utterance.pitch = 1.05;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {}
+  }
+  announceToken(token, chairName, doctorName) {
+    this.playChime();
+    setTimeout(() => {
+      const text = `Token ${token}. Please proceed to ${chairName || 'Operatory Chair 1'}, with ${doctorName || 'the dentist'}.`;
+      this.speak(text);
+    }, 700);
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.clinicAudio = new ClinicAudio();
+}
+
 const INITIAL_PATIENTS = [
   {
     id: "p1",
@@ -1331,6 +1585,10 @@ class ClinicStore {
     this.STORAGE_KEY = "SMILE_DENTAL_CLINIC_STATE_v1";
     this.currentUser = STAFF_USERS[0]; // Default receptionist
     this.isKioskMode = false;
+    this.currentStation = "PATIENT_KIOSK"; // Default active workstation
+    this.kioskPin = "1234";
+    this.isKioskLocked = false;
+    this.pharmacyInventory = JSON.parse(JSON.stringify(DENTAL_PHARMACY_INVENTORY));
     this.loadState();
   }
 
@@ -1343,6 +1601,7 @@ class ClinicStore {
         this.appointments = parsed.appointments || INITIAL_APPOINTMENTS;
         this.queue = parsed.queue || INITIAL_QUEUE;
         this.procedures = parsed.procedures || PROCEDURE_CATALOG;
+        this.pharmacyInventory = parsed.pharmacyInventory || DENTAL_PHARMACY_INVENTORY;
         this.currentUserId = parsed.currentUserId || "u1";
         this.currentUser = STAFF_USERS.find(u => u.id === this.currentUserId) || STAFF_USERS[0];
         return;
@@ -1360,6 +1619,7 @@ class ClinicStore {
         appointments: this.appointments,
         queue: this.queue,
         procedures: this.procedures,
+        pharmacyInventory: this.pharmacyInventory,
         currentUserId: this.currentUser.id
       };
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
@@ -1373,11 +1633,106 @@ class ClinicStore {
     this.appointments = JSON.parse(JSON.stringify(INITIAL_APPOINTMENTS));
     this.queue = JSON.parse(JSON.stringify(INITIAL_QUEUE));
     this.procedures = JSON.parse(JSON.stringify(PROCEDURE_CATALOG));
+    this.pharmacyInventory = JSON.parse(JSON.stringify(DENTAL_PHARMACY_INVENTORY));
     this.currentUser = STAFF_USERS[0];
     try {
       localStorage.removeItem(this.STORAGE_KEY);
     } catch (e) {}
     this.saveState();
+  }
+
+  dispenseItem(itemId, qty = 1) {
+    this.pharmacyInventory = this.pharmacyInventory || (typeof DENTAL_PHARMACY_INVENTORY !== 'undefined' ? DENTAL_PHARMACY_INVENTORY : (window.DENTAL_PHARMACY_INVENTORY || []));
+    const item = this.pharmacyInventory.find(i => i.id === itemId);
+    if (!item || item.stock < qty) return { success: false, item: null };
+    item.stock -= qty;
+    this.saveState();
+    return { success: true, item: item };
+  }
+
+  emergencyRegister(dataOrName, phoneArg, procIdArg) {
+    let data = {};
+    if (typeof dataOrName === "object" && dataOrName !== null) {
+      data = dataOrName;
+    } else {
+      const fullName = (dataOrName || "").trim();
+      const parts = fullName.split(" ");
+      const firstName = parts[0] || "Emergency";
+      const lastName = parts.slice(1).join(" ") || "Patient";
+      const proc = (window.EMERGENCY_DENTAL_PROCEDURES || []).find(p => p.id === procIdArg) || { name: procIdArg || "Acute Dental Trauma", assignedChair: "Chair 3 (Surgical & Implant Suite)", estFee: 120 };
+      data = {
+        firstName,
+        lastName,
+        name: fullName || `${firstName} ${lastName}`,
+        phone: phoneArg || "N/A",
+        procedureName: proc.name,
+        chairName: proc.assignedChair,
+        procedure: proc,
+        painScore: 9
+      };
+    }
+
+    const emgCount = this.queue.filter(q => q.token && q.token.startsWith('EMG')).length + 1;
+    const emgToken = `EMG-${String(emgCount).padStart(2, '0')}`;
+    const fullName = data.name || `${data.firstName || 'Emergency'} ${data.lastName || 'Patient'}`.trim();
+    const newPt = {
+      id: "p" + (this.patients.length + 1),
+      mrn: this.generateMRN(),
+      name: fullName,
+      firstName: data.firstName || "Emergency",
+      lastName: data.lastName || "Patient",
+      phone: data.phone || "N/A",
+      dob: data.dob || "1990-01-01",
+      age: 35,
+      gender: data.gender || "Unknown",
+      bloodGroup: "Unknown",
+      allergies: "Acute Dental Trauma",
+      emergencyContact: { name: "Immediate Triage", phone: data.phone || "N/A" },
+      medicalInfo: {
+        allergies: [],
+        conditions: ["Acute Dental Trauma / Severe Pain"],
+        medications: [],
+        medicalNotes: data.notes || "Fast-track emergency intake via Patient Kiosk",
+        previousDental: "",
+        dentalAnxiety: "Severe"
+      },
+      dentalChart: {},
+      treatmentPlans: [],
+      prescriptions: [],
+      billing: [],
+      auditLogs: [{
+        timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
+        user: "KIOSK-01 (Emergency Triage)",
+        action: `FAST-TRACK EMERGENCY ADMISSION: ${data.procedureName || 'Acute Trauma'}`
+      }]
+    };
+    this.savePatient(newPt);
+
+    const queueItem = {
+      id: "q-" + Date.now(),
+      token: emgToken,
+      patientId: newPt.id,
+      patientName: fullName,
+      serviceType: `EMERGENCY: ${data.procedureName || 'Acute Dental Triage'}`,
+      chair: "chair-3",
+      chairName: data.chairName || "Chair 3 (Surgical & Implant Suite)",
+      doctorId: "u2",
+      doctorName: "Dr. Alex Chen, DMD, FICOI",
+      checkInTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      waitTimeMinutes: 0,
+      priority: "Urgent",
+      status: "Waiting",
+      painScore: data.painScore || 9
+    };
+    this.queue.unshift(queueItem);
+    this.saveState();
+    return {
+      patient: newPt,
+      queueItem,
+      token: queueItem,
+      chair: { id: "chair-3", name: queueItem.chairName, doctor: queueItem.doctorName },
+      procedure: data.procedure || { name: data.procedureName || "Acute Dental Trauma", estFee: 120 }
+    };
   }
 
   setCurrentUser(userId) {
@@ -1540,3 +1895,6 @@ class ClinicStore {
 
 // Global store instance
 window.clinicStore = new ClinicStore();
+window.DENTAL_SYMPTOM_OPTIONS = DENTAL_SYMPTOM_OPTIONS;
+window.EMERGENCY_DENTAL_PROCEDURES = EMERGENCY_DENTAL_PROCEDURES;
+window.DENTAL_PHARMACY_INVENTORY = DENTAL_PHARMACY_INVENTORY;
