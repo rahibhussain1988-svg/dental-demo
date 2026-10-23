@@ -5859,25 +5859,8 @@ const stationMethods = {
       ];
 
       bodyHtml = `
-        <div style="max-width: 1140px; margin: 8px auto 36px; padding: 0 20px;">
+        <div style="max-width: 1140px; margin: 16px auto 36px; padding: 0 20px;">
           
-          <!-- Clinic Welcome Header -->
-          <div style="text-align: center; margin-bottom: 22px;">
-            <div style="display: inline-flex; align-items: center; gap: 8px; background: #F0FDFA; border: 1px solid #CCFBF1; padding: 5px 16px; border-radius: var(--radius-pill); margin-bottom: 10px;">
-              <span style="color: var(--primary-teal); display: flex;">${CLINIC_ICONS.tooth}</span>
-              <span style="font-size: 0.76rem; font-weight: 800; color: var(--dark-teal); letter-spacing: 0.6px; text-transform: uppercase;">
-                Smile Dental &amp; Orthodontics • Self-Service Intake Terminal #01
-              </span>
-              <span style="width: 7px; height: 7px; border-radius: 50%; background: #22C55E; display: inline-block;"></span>
-            </div>
-            <h1 style="font-size: 2.35rem; font-weight: 900; color: #0F172A; margin: 0 0 6px 0; letter-spacing: -0.5px;">
-              Touchscreen Patient Intake &amp; Check-In
-            </h1>
-            <p style="font-size: 1rem; color: #64748B; margin: 0 auto; max-width: 620px;">
-              Select your visit type below for instant token dispensing, pre-booked arrivals, or fast-track emergency dental triage.
-            </p>
-          </div>
-
           <!-- Operatory Cabin Live Availability Strip -->
           <div class="kiosk-cabins-strip">
             ${cabins.map(c => `
