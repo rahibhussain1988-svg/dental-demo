@@ -5804,524 +5804,369 @@ const stationMethods = {
 
     const { pathway, step } = this.kioskState;
 
-    // Header HTML
-    const headerHtml = `
-      <div class="kiosk-header">
-        <div style="display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; width: 100%;">
-          <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="font-size: 2.2rem; background: rgba(13,148,136,0.1); width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 12px;">🦷</div>
-            <div>
-              <h1 style="font-size: 1.5rem; font-weight: 900; color: #0F172A; margin: 0; letter-spacing: -0.5px;">Smile Dental & Orthodontics</h1>
-              <p style="font-size: 0.85rem; color: #64748B; margin: 2px 0 0 0;">Touchscreen Patient Intake & Token Terminal</p>
-            </div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            ${(step > 0 || pathway !== 'WALK_IN') ? `
-              <button class="btn btn-outline" onclick="app.setKioskPathway('WALK_IN'); app.setKioskStep(0);" style="font-size: 0.9rem; padding: 10px 18px;">
-                <span>🏠</span> Return to Welcome
-              </button>
-            ` : ''}
-            <div style="background: #F1F5F9; padding: 8px 16px; border-radius: 9999px; font-weight: 700; font-size: 0.85rem; color: #0F172A; display: flex; align-items: center; gap: 8px;">
-              <span>🕒</span> ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-            </div>
-          </div>
-        </div>
-
-        ${pathway === 'WALK_IN' && step > 0 ? `
-          <div class="kiosk-progress-steps">
-            <div class="kiosk-step ${step >= 1 ? (step === 1 ? 'active' : 'completed') : ''}">
-              <div class="kiosk-step-number">${step > 1 ? '✓' : '1'}</div>
-              <div class="kiosk-step-label">Concern</div>
-            </div>
-            <div class="kiosk-step ${step >= 2 ? (step === 2 ? 'active' : 'completed') : ''}">
-              <div class="kiosk-step-number">${step > 2 ? '✓' : '2'}</div>
-              <div class="kiosk-step-label">Chair</div>
-            </div>
-            <div class="kiosk-step ${step >= 3 ? (step === 3 ? 'active' : 'completed') : ''}">
-              <div class="kiosk-step-number">${step > 3 ? '✓' : '3'}</div>
-              <div class="kiosk-step-label">Your Info</div>
-            </div>
-            <div class="kiosk-step ${step >= 4 ? (step === 4 ? 'active' : 'completed') : ''}">
-              <div class="kiosk-step-number">${step > 4 ? '✓' : '4'}</div>
-              <div class="kiosk-step-label">Pain Level</div>
-            </div>
-            <div class="kiosk-step ${step >= 5 ? 'active' : ''}">
-              <div class="kiosk-step-number">5</div>
-              <div class="kiosk-step-label">Token</div>
-            </div>
-          </div>
-        ` : ''}
-      </div>
-    `;
-
     let bodyHtml = '';
 
-    // ================= STEP 0: WELCOME & 3 PATHWAYS =================
-    if (step === 0 && pathway === 'WALK_IN') {
+    // ================= STEP 0: WELCOME & 4 PATHWAYS =================
+    if (step === 0 && (pathway === 'WALK_IN' || !pathway)) {
       bodyHtml = `
-        <div style="max-width: 1200px; margin: 30px auto; padding: 0 20px;">
-          <div style="text-align: center; margin-bottom: 36px;">
-            <h2 style="font-size: 2.2rem; font-weight: 900; color: #0F172A; margin-bottom: 8px;">Welcome! Please Touch Your Visit Reason</h2>
-            <p style="font-size: 1.1rem; color: #64748B;">Self-service registration, fast-track emergency intake, and appointment check-in</p>
+        <div style="max-width: 1100px; margin: 10px auto 40px; padding: 0 20px;">
+          <!-- Welcome Hero Banner -->
+          <div style="text-align: center; margin-bottom: 32px;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: #F0FDFA; border: 1px solid #CCFBF1; padding: 6px 16px; border-radius: var(--radius-pill); margin-bottom: 14px;">
+              <span style="color: var(--primary-teal);">${CLINIC_ICONS.tooth}</span>
+              <span style="font-size: 0.8rem; font-weight: 800; color: var(--dark-teal); letter-spacing: 0.5px; text-transform: uppercase;">
+                Smile Dental &amp; Orthodontics • Patient Self-Service
+              </span>
+            </div>
+            <h1 style="font-size: 2.3rem; font-weight: 900; color: #0F172A; margin: 0 0 8px 0; letter-spacing: -0.5px;">
+              Patient Touchscreen Intake
+            </h1>
+            <p style="font-size: 1.05rem; color: #64748B; margin: 0; max-width: 600px; margin: 0 auto;">
+              Touch your visit category below to register and receive your printed clinic queue token
+            </p>
           </div>
 
-          <div class="kiosk-pathways-grid">
+          <!-- 4 Pathway Cards Grid -->
+          <div class="kiosk-pathways-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 32px;">
             <!-- 1. Emergency Pass -->
-            <div class="kiosk-pathway-card emergency" onclick="app.setKioskPathway('EMERGENCY_TRIAGE')">
-              <span class="pathway-badge">Fast-Track Priority 1</span>
-              <div class="pathway-icon">🚨</div>
-              <h3 class="pathway-title">Emergency Dental Triage</h3>
-              <p class="pathway-desc">Acute severe toothache, facial swelling/abscess, knocked-out (avulsed) tooth, uncontrollable bleeding, or broken braces wire trauma.</p>
-              <div class="pathway-btn-text">Touch for Emergency Triage →</div>
+            <div class="kiosk-pathway-card pathway-emergency" onclick="app.setKioskPathway('EMERGENCY_TRIAGE')" style="background: linear-gradient(135deg, #991B1B 0%, #DC2626 100%); color: #FFF; border: 2px solid #FDA4AF; border-radius: var(--radius-xl); padding: 24px 26px; cursor: pointer; box-shadow: 0 10px 25px -4px rgba(220,38,38,0.35); transition: transform 0.2s ease;">
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px;">
+                <span class="pathway-badge" style="background: rgba(255,255,255,0.22); color: #FFF; font-weight: 800; font-size: 0.72rem; padding: 4px 10px; border-radius: var(--radius-pill);">
+                  PRIORITY 1 FAST-TRACK
+                </span>
+                <div style="background: rgba(255,255,255,0.2); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #FFF;">
+                  ${CLINIC_ICONS.alertTriangle}
+                </div>
+              </div>
+              <h3 style="font-size: 1.35rem; font-weight: 900; color: #FFF; margin: 0 0 6px 0;">Emergency Triage</h3>
+              <p style="font-size: 0.88rem; color: #FEE2E2; margin: 0 0 18px 0; line-height: 1.4;">
+                Severe acute toothache, facial swelling/abscess, trauma, bleeding, or broken braces wire.
+              </p>
+              <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 14px;">
+                <span style="font-weight: 800; font-size: 0.85rem; color: #FFF;">Direct to Surgical Suite</span>
+                <span style="background: #FFF; color: #991B1B; font-weight: 800; font-size: 0.82rem; padding: 6px 14px; border-radius: var(--radius-md);">
+                  Touch Here →
+                </span>
+              </div>
             </div>
 
             <!-- 2. Walk-In Consultation -->
-            <div class="kiosk-pathway-card walkin" onclick="app.setKioskPathway('WALK_IN'); app.setKioskStep(1);">
-              <span class="pathway-badge">Same-Day Walk-In</span>
-              <div class="pathway-icon">🦷</div>
-              <h3 class="pathway-title">Direct Walk-In Consultation</h3>
-              <p class="pathway-desc">Routine dental checkup, cavity filling, dental scaling/cleaning, gum discomfort, new braces consultation, or cosmetic smile assessment.</p>
-              <div class="pathway-btn-text">Touch for Walk-In Queue →</div>
+            <div class="kiosk-pathway-card pathway-walkin" onclick="app.setKioskPathway('WALK_IN'); app.setKioskStep(1);" style="background: #FFF; border: 2px solid #0D9488; border-radius: var(--radius-xl); padding: 24px 26px; cursor: pointer; box-shadow: 0 10px 25px -4px rgba(13,148,136,0.15); transition: transform 0.2s ease;">
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px;">
+                <span class="pathway-badge" style="background: #CCFBF1; color: #0F766E; font-weight: 800; font-size: 0.72rem; padding: 4px 10px; border-radius: var(--radius-pill);">
+                  SAME-DAY WALK-IN
+                </span>
+                <div style="background: #F0FDFA; border: 1px solid #CCFBF1; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary-teal);">
+                  ${CLINIC_ICONS.tooth}
+                </div>
+              </div>
+              <h3 style="font-size: 1.35rem; font-weight: 900; color: #0F172A; margin: 0 0 6px 0;">General Dental Walk-In</h3>
+              <p style="font-size: 0.88rem; color: #64748B; margin: 0 0 18px 0; line-height: 1.4;">
+                Toothache, oral hygiene cleaning, cavity fillings, crown checkup, or dental exam.
+              </p>
+              <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                <span style="font-weight: 700; font-size: 0.85rem; color: var(--primary-teal);">Est. Wait: ~10 Mins</span>
+                <span style="background: var(--primary-teal); color: #FFF; font-weight: 800; font-size: 0.82rem; padding: 6px 14px; border-radius: var(--radius-md);">
+                  Touch for Token →
+                </span>
+              </div>
             </div>
 
-            <!-- 3. Pre-Booked Appointment -->
-            <div class="kiosk-pathway-card checkin" onclick="app.setKioskPathway('CHECKIN_SEARCH')">
-              <span class="pathway-badge">Pre-Booked Patient</span>
-              <div class="pathway-icon">📅</div>
-              <h3 class="pathway-title">Appointment Check-In</h3>
-              <p class="pathway-desc">Already scheduled an appointment for today? Enter your mobile phone number on touch keypad to verify and get queue token.</p>
-              <div class="pathway-btn-text">Touch to Check-In with Phone →</div>
+            <!-- 3. Orthodontics / Braces -->
+            <div class="kiosk-pathway-card" onclick="app.setKioskPathway('ORTHO_WALKIN'); app.setKioskStep(1);" style="background: #FFF; border: 2px solid #7C3AED; border-radius: var(--radius-xl); padding: 24px 26px; cursor: pointer; box-shadow: 0 10px 25px -4px rgba(124,58,237,0.15); transition: transform 0.2s ease;">
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px;">
+                <span class="pathway-badge" style="background: #F3E8FF; color: #6B21A8; font-weight: 800; font-size: 0.72rem; padding: 4px 10px; border-radius: var(--radius-pill);">
+                  ORTHODONTIC SUITE
+                </span>
+                <div style="background: #FAF5FF; border: 1px solid #E9D5FF; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--purple);">
+                  ${CLINIC_ICONS.brackets}
+                </div>
+              </div>
+              <h3 style="font-size: 1.35rem; font-weight: 900; color: #0F172A; margin: 0 0 6px 0;">Braces &amp; Aligners</h3>
+              <p style="font-size: 0.88rem; color: #64748B; margin: 0 0 18px 0; line-height: 1.4;">
+                Orthodontic wire adjustments, loose bracket repairs, clear aligner tray pick-up, or consult.
+              </p>
+              <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                <span style="font-weight: 700; font-size: 0.85rem; color: var(--purple);">Chair 2: Ortho Clinic</span>
+                <span style="background: var(--purple); color: #FFF; font-weight: 800; font-size: 0.82rem; padding: 6px 14px; border-radius: var(--radius-md);">
+                  Touch for Ortho →
+                </span>
+              </div>
+            </div>
+
+            <!-- 4. Pre-Booked Appointment -->
+            <div class="kiosk-pathway-card pathway-checkin" onclick="app.setKioskPathway('CHECKIN_SEARCH')" style="background: #FFF; border: 2px solid #0284C7; border-radius: var(--radius-xl); padding: 24px 26px; cursor: pointer; box-shadow: 0 10px 25px -4px rgba(2,132,199,0.15); transition: transform 0.2s ease;">
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px;">
+                <span class="pathway-badge" style="background: #E0F2FE; color: #0369A1; font-weight: 800; font-size: 0.72rem; padding: 4px 10px; border-radius: var(--radius-pill);">
+                  SCHEDULED PATIENT
+                </span>
+                <div style="background: #F0F9FF; border: 1px solid #BAE6FD; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--secondary-blue);">
+                  ${CLINIC_ICONS.calendar}
+                </div>
+              </div>
+              <h3 style="font-size: 1.35rem; font-weight: 900; color: #0F172A; margin: 0 0 6px 0;">Appointment Check-In</h3>
+              <p style="font-size: 0.88rem; color: #64748B; margin: 0 0 18px 0; line-height: 1.4;">
+                Already booked for today? Enter your mobile phone number on touch keypad to print slip.
+              </p>
+              <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                <span style="font-weight: 700; font-size: 0.85rem; color: var(--secondary-blue);">Quick Phone Lookup</span>
+                <span style="background: var(--secondary-blue); color: #FFF; font-weight: 800; font-size: 0.82rem; padding: 6px 14px; border-radius: var(--radius-md);">
+                  Touch to Check In →
+                </span>
+              </div>
             </div>
           </div>
 
-          <div style="margin-top: 40px; text-align: center; color: #64748B; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 16px;">
-            <span>🔊 Voice assistance enabled</span>
-            <span>•</span>
-            <span>📱 Large touch-screen friendly</span>
-            <span>•</span>
-            <span>🔒 HIPAA Protected</span>
+          <!-- Bottom Status Telemetry -->
+          <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; padding: 14px 24px; background: #FFFFFF; border: 1px solid var(--border-color); border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: 0.85rem; color: #475569;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="width: 8px; height: 8px; border-radius: 50%; background: #22C55E; display: inline-block;"></span>
+              <span><strong>4 Operatories</strong> Active &amp; Sanitized</span>
+            </div>
+            <span style="color: #CBD5E1;">•</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="color: var(--primary-teal);">${CLINIC_ICONS.clock}</span>
+              <span>Lounge Wait Time: <strong>~12 Mins</strong></span>
+            </div>
+            <span style="color: #CBD5E1;">•</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="color: var(--secondary-blue);">${CLINIC_ICONS.printer}</span>
+              <span>Thermal Token Printer <strong>Online</strong></span>
+            </div>
           </div>
         </div>
       `;
     }
-    // ================= EMERGENCY TRIAGE =================
-    else if (pathway === 'EMERGENCY_TRIAGE') {
-      const selectedProc = this.kioskState.selectedEmergencyProc || 'emg-1';
+
+    // ================= STEP 1: FAST-TRACK WALK-IN INTAKE =================
+    else if ((pathway === 'WALK_IN' || pathway === 'ORTHO_WALKIN') && step >= 1) {
+      const isOrtho = pathway === 'ORTHO_WALKIN';
       bodyHtml = `
-        <div style="max-width: 1000px; margin: 20px auto; padding: 0 20px;">
-          <div style="background: #FEF2F2; border: 2px solid #F87171; border-radius: var(--radius-xl); padding: 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px;">
-            <div style="font-size: 3rem;">🚨</div>
-            <div>
-              <h2 style="font-size: 1.5rem; font-weight: 900; color: #991B1B; margin: 0 0 4px 0;">Urgent Dental Trauma & Emergency Triage</h2>
-              <p style="font-size: 0.95rem; color: #B91C1C; margin: 0;">Select your acute condition to bypass standard queue for immediate Operatory Chair assignment:</p>
+        <div style="max-width: 960px; margin: 10px auto 30px; padding: 0 20px;">
+          <!-- Header Bar with Back Button -->
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+            <button class="btn btn-outline" onclick="app.setKioskPathway('WALK_IN'); app.setKioskStep(0);" style="padding: 10px 18px; font-weight: 700;">
+              ← Return to Welcome
+            </button>
+            <div style="text-align: right;">
+              <h2 style="font-size: 1.4rem; font-weight: 900; color: #0F172A; margin: 0;">
+                ${isOrtho ? 'Orthodontics & Braces Intake' : 'Walk-In Dental Registration'}
+              </h2>
+              <span style="font-size: 0.82rem; color: #64748B;">
+                ${isOrtho ? 'Assigned to Chair 2: Ortho Suite' : 'Assigned to General Operatory'}
+              </span>
             </div>
           </div>
 
-          <div class="kiosk-symptoms-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 24px;">
-            ${(window.EMERGENCY_DENTAL_PROCEDURES || []).map(proc => `
-              <div class="kiosk-symptom-card ${selectedProc === proc.id ? 'selected' : ''}" onclick="app.selectEmergencyProcedure('${proc.id}')" style="${selectedProc === proc.id ? 'border-color: #DC2626; background: #FEF2F2;' : ''}">
-                <div class="symptom-icon">${proc.icon}</div>
-                <div class="symptom-name" style="color: #991B1B; font-weight: 800;">${proc.name}</div>
-                <div style="font-size: 0.8rem; color: #64748B; margin: 6px 0;">Assigned: <strong>${proc.assignedChair}</strong> • Priority: <strong style="color: #DC2626;">Immediate</strong></div>
-                <div class="symptom-fee">Est. Triage: ${proc.estFee}</div>
+          <!-- 2-Column Split: Left Concern & Details, Right Touch Keypad -->
+          <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; align-items: start;">
+            <!-- Left: Concern Pills & Name -->
+            <div style="background: #FFF; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm);">
+              <label style="display: block; font-weight: 800; font-size: 0.9rem; color: #0F172A; margin-bottom: 10px;">
+                1. Select Primary Concern:
+              </label>
+              <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+                ${(isOrtho ? [
+                  { id: 'ortho-wire', name: 'Archwire Adjustment / Tightening', est: '$75' },
+                  { id: 'ortho-bracket', name: 'Loose Bracket / Pokey Wire Trauma', est: '$60' },
+                  { id: 'ortho-aligner', name: 'Clear Aligner Check / Tray Pick-up', est: '$80' },
+                  { id: 'ortho-consult', name: 'New Patient Braces Consultation', est: '$50' }
+                ] : [
+                  { id: 'sym-1', name: 'Severe Toothache / Cavity Pain', est: '$65' },
+                  { id: 'sym-2', name: 'Teeth Cleaning & Scaling (Hygiene)', est: '$80' },
+                  { id: 'sym-3', name: 'Comprehensive Dental Exam & Checkup', est: '$40' },
+                  { id: 'sym-4', name: 'Broken Tooth / Chipped Enamel', est: '$95' },
+                  { id: 'sym-5', name: 'Gum Swelling / Bleeding Gums', est: '$70' },
+                  { id: 'sym-6', name: 'Tooth Extraction / Wisdom Tooth Pain', est: '$90' }
+                ]).map(c => {
+                  const isSelected = this.kioskState.selectedSymptoms.includes(c.id);
+                  return `
+                    <div onclick="app.toggleKioskSymptom('${c.id}')" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: var(--radius-lg); border: 2px solid ${isSelected ? 'var(--primary-teal)' : '#E2E8F0'}; background: ${isSelected ? '#F0FDFA' : '#FFF'}; cursor: pointer; transition: all 0.15s ease;">
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid ${isSelected ? 'var(--primary-teal)' : '#CBD5E1'}; background: ${isSelected ? 'var(--primary-teal)' : '#FFF'}; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 11px; font-weight: 800;">
+                          ${isSelected ? '✓' : ''}
+                        </span>
+                        <strong style="font-size: 0.9rem; color: var(--text-main);">${c.name}</strong>
+                      </div>
+                      <span class="badge ${isSelected ? 'badge-teal' : 'badge-subtle'}" style="font-size: 0.75rem;">${c.est}</span>
+                    </div>
+                  `;
+                }).join('')}
               </div>
-            `).join('')}
-          </div>
 
-          <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-xl); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-sm);">
-            <h3 style="font-size: 1.1rem; font-weight: 800; color: #0F172A; margin-bottom: 16px;">Emergency Patient Quick Contact</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-              <div>
-                <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #475569; margin-bottom: 6px;">Patient Full Name *</label>
-                <input type="text" id="kiosk-emg-name" class="form-control" style="font-size: 1.1rem; padding: 12px 14px;" placeholder="e.g. John Doe" value="${this.kioskState.emergencyName || ''}" oninput="app.kioskState.emergencyName = this.value">
-              </div>
-              <div>
-                <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #475569; margin-bottom: 6px;">Mobile Phone Number</label>
-                <div class="kiosk-phone-display ${this.kioskState.activeInput === 'emergencyPhone' ? 'active' : ''}" onclick="app.setKioskActiveInput('emergencyPhone')" style="height: 50px; font-size: 1.2rem;">
-                  ${this.kioskState.emergencyPhone || '<span style="color:#94A3B8;">Touch to enter phone</span>'}
-                </div>
-              </div>
+              <label style="display: block; font-weight: 800; font-size: 0.9rem; color: #0F172A; margin-bottom: 6px;">
+                2. Patient Full Name (Optional):
+              </label>
+              <input type="text" id="kiosk-walkin-name" class="form-control" style="font-size: 1.05rem; padding: 12px 16px; border-radius: var(--radius-md);" placeholder="e.g. John Doe" value="${this.kioskState.name || ''}" oninput="app.kioskState.name = this.value">
             </div>
 
-            <!-- Virtual Numpad for Phone -->
-            <div style="max-width: 320px; margin: 0 auto 16px auto;">
-              <div class="kiosk-numpad-grid">
+            <!-- Right: Touch Keypad for Phone -->
+            <div style="background: #FFF; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm); text-align: center;">
+              <label style="display: block; font-weight: 800; font-size: 0.9rem; color: #0F172A; margin-bottom: 10px; text-align: left;">
+                3. Mobile Phone Number:
+              </label>
+              
+              <!-- Digital Phone Box -->
+              <div class="kiosk-phone-display active" onclick="app.setKioskActiveInput('phone')" style="margin-bottom: 16px; height: 56px; font-size: 1.5rem; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-lg); font-family: 'JetBrains Mono', monospace; font-weight: 800; color: #0F172A; background: #F8FAFC; border: 2px solid var(--primary-teal);">
+                ${this.kioskState.phone ? this.kioskState.phone : '<span style="color:#94A3B8; font-weight:500;">(555) 000-0000</span>'}
+              </div>
+
+              <!-- Virtual Numpad Grid -->
+              <div class="kiosk-numpad-grid" style="margin-bottom: 20px;">
                 ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="kiosk-num-key" onclick="app.enterKioskNum('${n}')">${n}</button>`).join('')}
                 <button class="kiosk-num-key action-clear" onclick="app.clearKioskNum()">Clear</button>
                 <button class="kiosk-num-key" onclick="app.enterKioskNum('0')">0</button>
                 <button class="kiosk-num-key action-backspace" onclick="app.backspaceKioskNum()">⌫</button>
               </div>
-            </div>
 
-            <div style="text-align: center;">
-              <button class="btn btn-danger btn-lg" onclick="app.submitEmergencyKiosk()" style="font-size: 1.2rem; padding: 16px 36px; border-radius: 9999px; box-shadow: 0 10px 25px rgba(220,38,38,0.3);">
-                🚨 ISSUE IMMEDIATE EMERGENCY TOKEN (EMG)
+              <!-- Issue Token Primary Button -->
+              <button class="btn btn-primary" onclick="app.issueWalkinToken()" style="width: 100%; height: 58px; font-size: 1.15rem; font-weight: 800; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 20px rgba(13,148,136,0.25);">
+                ${CLINIC_ICONS.checkCircle}
+                <span>Touch to Print Token Slip</span>
               </button>
             </div>
           </div>
         </div>
       `;
     }
+
+    // ================= EMERGENCY TRIAGE =================
+    else if (pathway === 'EMERGENCY_TRIAGE') {
+      const selectedProc = this.kioskState.selectedEmergencyProc || 'emg-1';
+      bodyHtml = `
+        <div style="max-width: 900px; margin: 10px auto 30px; padding: 0 20px;">
+          <!-- Back button -->
+          <div style="margin-bottom: 16px;">
+            <button class="btn btn-outline" onclick="app.setKioskPathway('WALK_IN'); app.setKioskStep(0);" style="padding: 10px 18px; font-weight: 700;">
+              ← Return to Welcome
+            </button>
+          </div>
+
+          <!-- Emergency Banner -->
+          <div style="background: #FEF2F2; border: 2px solid #F87171; border-radius: var(--radius-xl); padding: 20px 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px;">
+            <div style="color: #DC2626; display: flex;">${CLINIC_ICONS.alertTriangle}</div>
+            <div>
+              <h2 style="font-size: 1.35rem; font-weight: 900; color: #991B1B; margin: 0 0 2px 0;">Urgent Dental Trauma &amp; Emergency Triage</h2>
+              <p style="font-size: 0.88rem; color: #B91C1C; margin: 0;">Priority 1 clinical fast-track. Direct dispatch to Surgical &amp; Implant Suite (Chair 3).</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; align-items: start;">
+            <!-- Left: Emergency Conditions -->
+            <div style="background: #FFF; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm);">
+              <label style="display: block; font-weight: 800; font-size: 0.9rem; color: #0F172A; margin-bottom: 10px;">
+                Select Emergency Condition:
+              </label>
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;">
+                ${(window.EMERGENCY_DENTAL_PROCEDURES || []).map(proc => `
+                  <div class="kiosk-symptom-card ${selectedProc === proc.id ? 'selected' : ''}" onclick="app.selectEmergencyProcedure('${proc.id}')" style="padding: 12px 16px; border-radius: var(--radius-lg); border: 2px solid ${selectedProc === proc.id ? '#DC2626' : '#E2E8F0'}; background: ${selectedProc === proc.id ? '#FEF2F2' : '#FFF'}; cursor: pointer; transition: all 0.15s ease;">
+                    <strong style="color: #991B1B; font-size: 0.92rem; display: block;">${proc.name}</strong>
+                    <div style="font-size: 0.78rem; color: #64748B; margin-top: 2px;">Assigned: ${proc.assignedChair} • Priority: <strong style="color: #DC2626;">Immediate</strong></div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <label style="display: block; font-weight: 800; font-size: 0.9rem; color: #0F172A; margin-bottom: 6px;">
+                Patient Full Name:
+              </label>
+              <input type="text" id="kiosk-emg-name" class="form-control" style="font-size: 1.05rem; padding: 12px 16px; border-radius: var(--radius-md);" placeholder="Full Name" value="${this.kioskState.emergencyName || ''}" oninput="app.kioskState.emergencyName = this.value">
+            </div>
+
+            <!-- Right: Touch Keypad for Phone -->
+            <div style="background: #FFF; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm); text-align: center;">
+              <label style="display: block; font-weight: 800; font-size: 0.9rem; color: #0F172A; margin-bottom: 10px; text-align: left;">
+                Contact Mobile Phone:
+              </label>
+              
+              <!-- Digital Phone Box -->
+              <div class="kiosk-phone-display active" onclick="app.setKioskActiveInput('emergencyPhone')" style="margin-bottom: 16px; height: 56px; font-size: 1.5rem; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-lg); font-family: 'JetBrains Mono', monospace; font-weight: 800; color: #0F172A; background: #FEF2F2; border: 2px solid #DC2626;">
+                ${this.kioskState.emergencyPhone ? this.kioskState.emergencyPhone : '<span style="color:#94A3B8; font-weight:500;">(555) 000-0000</span>'}
+              </div>
+
+              <!-- Virtual Numpad Grid -->
+              <div class="kiosk-numpad-grid" style="margin-bottom: 20px;">
+                ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="kiosk-num-key" onclick="app.enterKioskNum('${n}')">${n}</button>`).join('')}
+                <button class="kiosk-num-key action-clear" onclick="app.clearKioskNum()">Clear</button>
+                <button class="kiosk-num-key" onclick="app.enterKioskNum('0')">0</button>
+                <button class="kiosk-num-key action-backspace" onclick="app.backspaceKioskNum()">⌫</button>
+              </div>
+
+              <button class="btn btn-danger btn-lg" onclick="app.submitEmergencyKiosk()" style="width: 100%; height: 58px; font-size: 1.15rem; font-weight: 900; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 25px rgba(220,38,38,0.35);">
+                ${CLINIC_ICONS.alertTriangle}
+                <span>PRINT EMERGENCY TOKEN (EMG)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     // ================= APPOINTMENT CHECK-IN SEARCH =================
     else if (pathway === 'CHECKIN_SEARCH') {
       const res = this.kioskState.checkinResult;
       bodyHtml = `
-        <div style="max-width: 800px; margin: 30px auto; padding: 0 20px;">
-          <div style="text-align: center; margin-bottom: 28px;">
-            <div style="font-size: 3rem; margin-bottom: 8px;">📅</div>
-            <h2 style="font-size: 2rem; font-weight: 900; color: #0F172A; margin-bottom: 6px;">Pre-Booked Appointment Check-In</h2>
-            <p style="font-size: 1rem; color: #64748B;">Enter your registered 10-digit mobile phone number using the touch keypad:</p>
+        <div style="max-width: 700px; margin: 10px auto 30px; padding: 0 20px;">
+          <!-- Back button -->
+          <div style="margin-bottom: 16px;">
+            <button class="btn btn-outline" onclick="app.setKioskPathway('WALK_IN'); app.setKioskStep(0);" style="padding: 10px 18px; font-weight: 700;">
+              ← Return to Welcome
+            </button>
           </div>
 
-          <!-- Phone Display -->
-          <div class="kiosk-phone-display active" onclick="app.setKioskActiveInput('checkinPhone')" style="margin-bottom: 20px;">
-            ${this.kioskState.checkinPhone || '<span style="color:#94A3B8;">_ _ _ - _ _ _ - _ _ _ _</span>'}
-          </div>
+          <div style="background: #FFF; border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 28px; box-shadow: var(--shadow-sm); text-align: center;">
+            <div style="display: flex; justify-content: center; margin-bottom: 12px; color: var(--secondary-blue);">
+              ${CLINIC_ICONS.calendar}
+            </div>
+            <h2 style="font-size: 1.6rem; font-weight: 900; color: #0F172A; margin: 0 0 6px 0;">Appointment Arrival Check-In</h2>
+            <p style="font-size: 0.95rem; color: #64748B; margin: 0 0 20px 0;">Enter your 10-digit mobile phone number using touch keypad to verify today's visit:</p>
 
-          <!-- Touch Numpad -->
-          <div style="max-width: 320px; margin: 0 auto 24px auto;">
-            <div class="kiosk-numpad-grid">
+            <!-- Phone Display -->
+            <div class="kiosk-phone-display active" onclick="app.setKioskActiveInput('checkinPhone')" style="margin: 0 auto 18px; max-width: 340px; height: 56px; font-size: 1.5rem; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-lg); font-family: 'JetBrains Mono', monospace; font-weight: 800; color: #0F172A; background: #F0F9FF; border: 2px solid var(--secondary-blue);">
+              ${this.kioskState.checkinPhone ? this.kioskState.checkinPhone : '<span style="color:#94A3B8; font-weight:500;">(555) 000-0000</span>'}
+            </div>
+
+            <!-- Virtual Numpad Grid -->
+            <div class="kiosk-numpad-grid" style="max-width: 320px; margin: 0 auto 20px;">
               ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="kiosk-num-key" onclick="app.enterKioskNum('${n}')">${n}</button>`).join('')}
               <button class="kiosk-num-key action-clear" onclick="app.clearKioskNum()">Clear</button>
               <button class="kiosk-num-key" onclick="app.enterKioskNum('0')">0</button>
               <button class="kiosk-num-key action-backspace" onclick="app.backspaceKioskNum()">⌫</button>
             </div>
-          </div>
 
-          <div style="text-align: center; margin-bottom: 28px;">
-            <button class="btn btn-primary btn-lg" onclick="app.searchAppointmentKiosk()" style="font-size: 1.1rem; padding: 14px 40px; border-radius: 9999px;">
-              🔍 Search My Appointment
+            <button class="btn btn-primary" onclick="app.searchAppointmentKiosk()" style="padding: 14px 36px; font-size: 1.05rem; font-weight: 800; border-radius: var(--radius-pill); margin-bottom: 20px;">
+              ${CLINIC_ICONS.search} Search My Appointment
             </button>
-          </div>
 
-          <!-- Search Results Area -->
-          ${res ? (
-            res.appointment ? `
-              <div class="card animate-fade-in" style="background: #F0FDF4; border: 2px solid #22C55E; padding: 24px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                  <div>
-                    <span class="badge badge-teal" style="font-size: 0.8rem;">Appointment Found</span>
-                    <h3 style="font-size: 1.4rem; font-weight: 800; color: #166534; margin: 4px 0 0 0;">${res.patient.name}</h3>
+            <!-- Search Results -->
+            ${res ? (
+              res.appointment ? `
+                <div style="background: #F0FDF4; border: 2px solid #22C55E; border-radius: var(--radius-xl); padding: 20px; text-align: left; margin-top: 10px;">
+                  <span class="badge badge-green" style="font-size: 0.75rem; padding: 4px 10px; margin-bottom: 8px;">APPOINTMENT CONFIRMED</span>
+                  <h3 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">${res.patient.name}</h3>
+                  <div style="font-size: 0.88rem; color: #166534;">
+                    Time: <strong>${res.appointment.time}</strong> • Attending: <strong>${res.appointment.doctor}</strong>
                   </div>
-                  <div style="text-align: right;">
-                    <div style="font-size: 1.5rem; font-weight: 900; color: #15803D;">🕒 ${res.appointment.time}</div>
-                    <div style="font-size: 0.85rem; color: #166534;">Today</div>
-                  </div>
-                </div>
-
-                <div style="background: #FFFFFF; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.6;">
-                  <div><strong>Doctor / Specialist:</strong> ${res.appointment.doctor}</div>
-                  <div><strong>Procedure / Reason:</strong> ${res.appointment.type}</div>
-                  <div><strong>Patient Mobile:</strong> ${res.patient.phone}</div>
-                </div>
-
-                <div style="text-align: center;">
-                  <button class="btn btn-primary btn-lg" onclick="app.confirmAppointmentCheckin()" style="font-size: 1.2rem; padding: 16px 36px; border-radius: 9999px; width: 100%; box-shadow: 0 10px 20px rgba(13,148,136,0.25);">
-                    🎫 Confirm Arrival & Print Queue Token
+                  <button class="btn btn-success" onclick="app.confirmAppointmentCheckin()" style="margin-top: 14px; width: 100%; padding: 14px; font-weight: 800; font-size: 1.05rem; border-radius: var(--radius-md);">
+                    ${CLINIC_ICONS.checkCircle} Confirm Arrival &amp; Print Queue Token
                   </button>
                 </div>
-              </div>
-            ` : `
-              <div class="card animate-fade-in" style="background: #FFFBEB; border: 2px solid #F59E0B; text-align: center; padding: 28px;">
-                <div style="font-size: 2.5rem; margin-bottom: 8px;">🔍</div>
-                <h3 style="font-size: 1.25rem; font-weight: 800; color: #92400E; margin-bottom: 6px;">No Appointment Found Today</h3>
-                <p style="font-size: 0.95rem; color: #B45309; margin-bottom: 20px;">We couldn't find a scheduled appointment matching this phone number for today.</p>
-                <button class="btn btn-amber" onclick="app.setKioskPathway('WALK_IN'); app.setKioskStep(1);" style="font-size: 1rem; padding: 12px 28px; border-radius: 9999px;">
-                  Join as Walk-In Patient Instead →
-                </button>
-              </div>
-            `
-          ) : ''}
+              ` : `
+                <div style="background: #FFFBEB; border: 2px solid #F59E0B; border-radius: var(--radius-xl); padding: 20px; text-align: center; margin-top: 10px;">
+                  <h4 style="font-size: 1.1rem; font-weight: 800; color: #92400E; margin: 0 0 6px 0;">No Appointment Found for Today</h4>
+                  <p style="font-size: 0.85rem; color: #B45309; margin: 0 0 14px 0;">We could not locate a pre-booked appointment under this mobile number.</p>
+                  <button class="btn btn-primary" onclick="app.setKioskPathway('WALK_IN'); app.setKioskStep(1);" style="padding: 10px 22px; font-weight: 700;">
+                    Join as Walk-In Patient Instead →
+                  </button>
+                </div>
+              `
+            ) : ''}
+          </div>
         </div>
       `;
     }
-    // ================= WALK-IN FLOW =================
-    else if (pathway === 'WALK_IN') {
-      // Step 1: Dental Chief Complaint / Symptoms
-      if (step === 1) {
-        bodyHtml = `
-          <div style="max-width: 1200px; margin: 24px auto; padding: 0 20px;">
-            <div style="text-align: center; margin-bottom: 28px;">
-              <h2 style="font-size: 1.9rem; font-weight: 900; color: #0F172A; margin-bottom: 6px;">What is Your Primary Dental Concern Today?</h2>
-              <p style="font-size: 1.05rem; color: #64748B;">Touch one or more cards to describe your symptoms or requested service:</p>
-            </div>
 
-            <div class="kiosk-symptoms-grid">
-              ${(window.DENTAL_SYMPTOM_OPTIONS || []).map(sym => {
-                const isSelected = (this.kioskState.selectedSymptoms || []).includes(sym.id);
-                return `
-                  <div class="kiosk-symptom-card ${isSelected ? 'selected' : ''}" onclick="app.toggleKioskSymptom('${sym.id}')">
-                    <div class="symptom-icon">${sym.icon}</div>
-                    <div class="symptom-name">${sym.name}</div>
-                    <div class="symptom-dept">${sym.dept}</div>
-                    <div class="symptom-fee">Est. From ${sym.estFee}</div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-
-            <div class="kiosk-actions-bar">
-              <button class="btn btn-outline btn-lg" onclick="app.setKioskStep(0)">
-                ← Back to Welcome
-              </button>
-              <button class="btn btn-primary btn-lg" onclick="app.setKioskStep(2)">
-                Next: Select Operatory Chair & Doctor (${this.kioskState.selectedSymptoms.length} selected) →
-              </button>
-            </div>
-          </div>
-        `;
-      }
-      // Step 2: Chair & Doctor Selection
-      else if (step === 2) {
-        const chairs = [
-          { id: 'chair-1', name: 'Chair 1 — General Operatory', doc: 'Dr. Marcus Vance, DDS', spec: 'General & Restorative Dentistry', icon: '🩺', wait: '3 waiting (~15m)' },
-          { id: 'chair-2', name: 'Chair 2 — Ortho Suite', doc: 'Dr. Sarah Jenkins, BDS, M.S.', spec: 'Orthodontics, Braces & Aligners', icon: '✨', wait: '1 waiting (~5m)' },
-          { id: 'chair-3', name: 'Chair 3 — Surgical Bay', doc: 'Dr. Alex Chen, DMD, FICOI', spec: 'Oral Surgery, Extractions & Implants', icon: '🔬', wait: '2 waiting (~10m)' },
-          { id: 'chair-4', name: 'Chair 4 — Hygiene Station', doc: 'Dr. Olivia Taylor, RDH', spec: 'Dental Scaling, Prophylaxis & Whitening', icon: '🪥', wait: '0 waiting (Immediate)' }
-        ];
-
-        bodyHtml = `
-          <div style="max-width: 1200px; margin: 24px auto; padding: 0 20px;">
-            <div style="text-align: center; margin-bottom: 28px;">
-              <h2 style="font-size: 1.9rem; font-weight: 900; color: #0F172A; margin-bottom: 6px;">Select Operatory Chair & Specialist</h2>
-              <p style="font-size: 1.05rem; color: #64748B;">Choose your preferred dental specialist and operatory suite:</p>
-            </div>
-
-            <div class="kiosk-chairs-grid">
-              ${chairs.map(c => `
-                <div class="kiosk-chair-card ${this.kioskState.selectedChair === c.id ? 'selected' : ''}" onclick="app.selectKioskChair('${c.id}')">
-                  <div class="chair-icon">${c.icon}</div>
-                  <div class="chair-name">${c.name}</div>
-                  <div class="chair-doc">${c.doc}</div>
-                  <div class="chair-spec">${c.spec}</div>
-                  <div class="chair-wait">🕒 ${c.wait}</div>
-                </div>
-              `).join('')}
-            </div>
-
-            <div class="kiosk-actions-bar">
-              <button class="btn btn-outline btn-lg" onclick="app.setKioskStep(1)">
-                ← Back to Symptoms
-              </button>
-              <button class="btn btn-primary btn-lg" onclick="app.setKioskStep(3)">
-                Next: Enter Patient Details →
-              </button>
-            </div>
-          </div>
-        `;
-      }
-      // Step 3: Patient Intake Details with Touch Numpad
-      else if (step === 3) {
-        bodyHtml = `
-          <div style="max-width: 1000px; margin: 24px auto; padding: 0 20px;">
-            <div style="text-align: center; margin-bottom: 24px;">
-              <h2 style="font-size: 1.9rem; font-weight: 900; color: #0F172A; margin-bottom: 6px;">Enter Patient Contact Information</h2>
-              <p style="font-size: 1.05rem; color: #64748B;">Touch fields and use virtual on-screen keypad to enter numbers easily:</p>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 32px; align-items: start;">
-              <!-- Left Form -->
-              <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-xl); padding: 28px; box-shadow: var(--shadow-sm);">
-                <!-- Full Name -->
-                <div style="margin-bottom: 20px;">
-                  <label style="display: block; font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 6px;">Patient Full Name *</label>
-                  <input type="text" id="kiosk-walkin-name" class="form-control" style="font-size: 1.15rem; padding: 14px 16px;" placeholder="e.g. Sarah Connor" value="${this.kioskState.name}" oninput="app.kioskState.name = this.value">
-                </div>
-
-                <!-- Mobile Phone -->
-                <div style="margin-bottom: 20px;">
-                  <label style="display: block; font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 6px;">Mobile Phone Number *</label>
-                  <div class="kiosk-phone-display ${this.kioskState.activeInput === 'phone' ? 'active' : ''}" onclick="app.setKioskActiveInput('phone')">
-                    ${this.kioskState.phone || '<span style="color:#94A3B8;">Touch keypad on right to enter phone</span>'}
-                  </div>
-                </div>
-
-                <!-- Age & Gender -->
-                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 16px;">
-                  <div>
-                    <label style="display: block; font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 6px;">Age</label>
-                    <div class="kiosk-phone-display ${this.kioskState.activeInput === 'age' ? 'active' : ''}" onclick="app.setKioskActiveInput('age')" style="font-size: 1.3rem;">
-                      ${this.kioskState.age || '<span style="color:#94A3B8;">Age</span>'}
-                    </div>
-                  </div>
-                  <div>
-                    <label style="display: block; font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 6px;">Gender</label>
-                    <div style="display: flex; gap: 8px;">
-                      ${['Male', 'Female', 'Child'].map(g => `
-                        <button type="button" class="btn ${this.kioskState.gender === g ? 'btn-primary' : 'btn-outline'}" onclick="app.setKioskGender('${g}')" style="flex: 1; padding: 12px 6px; font-size: 0.9rem;">
-                          ${g}
-                        </button>
-                      `).join('')}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Right Virtual Numpad -->
-              <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: var(--radius-xl); padding: 24px; text-align: center; box-shadow: var(--shadow-sm);">
-                <div style="font-size: 0.85rem; font-weight: 700; color: #64748B; margin-bottom: 12px; text-transform: uppercase;">
-                  Touch Keypad (${this.kioskState.activeInput === 'age' ? 'Entering Age' : 'Entering Phone'})
-                </div>
-                <div class="kiosk-numpad-grid">
-                  ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="kiosk-num-key" onclick="app.enterKioskNum('${n}')">${n}</button>`).join('')}
-                  <button class="kiosk-num-key action-clear" onclick="app.clearKioskNum()">Clear</button>
-                  <button class="kiosk-num-key" onclick="app.enterKioskNum('0')">0</button>
-                  <button class="kiosk-num-key action-backspace" onclick="app.backspaceKioskNum()">⌫</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="kiosk-actions-bar">
-              <button class="btn btn-outline btn-lg" onclick="app.setKioskStep(2)">
-                ← Back to Chair
-              </button>
-              <button class="btn btn-primary btn-lg" onclick="app.setKioskStep(4)">
-                Next: Pain & Comfort Rating →
-              </button>
-            </div>
-          </div>
-        `;
-      }
-      // Step 4: Pain & Discomfort Rating
-      else if (step === 4) {
-        const score = this.kioskState.painScore || 0;
-        let face = '😃';
-        let desc = 'Mild Discomfort / None (Score 0-2)';
-        let color = '#10B981';
-
-        if (score >= 8) {
-          face = '😭';
-          desc = 'Unbearable / Acute Emergency Pain (Score 8-10)';
-          color = '#DC2626';
-        } else if (score >= 6) {
-          face = '😣';
-          desc = 'Severe / Throbbing Pain (Score 6-7)';
-          color = '#F59E0B';
-        } else if (score >= 3) {
-          face = '😐';
-          desc = 'Moderate Dull Ache (Score 3-5)';
-          color = '#0284C7';
-        }
-
-        bodyHtml = `
-          <div style="max-width: 800px; margin: 30px auto; padding: 0 20px;">
-            <div style="text-align: center; margin-bottom: 28px;">
-              <h2 style="font-size: 2rem; font-weight: 900; color: #0F172A; margin-bottom: 6px;">How Would You Rate Your Dental Pain?</h2>
-              <p style="font-size: 1.05rem; color: #64748B;">This helps our dental team prepare anesthetic and prioritize care:</p>
-            </div>
-
-            <div class="kiosk-pain-box">
-              <div class="pain-face-display">${face}</div>
-              <div class="pain-score-display" style="color: ${color};">${score} / 10</div>
-              <div class="pain-description-label" style="color: ${color};">${desc}</div>
-
-              <!-- Interactive Touch Slider -->
-              <input type="range" class="pain-range-slider" min="0" max="10" step="1" value="${score}" oninput="app.updateKioskPain(this.value)">
-
-              <!-- Quick Score Pills -->
-              <div style="display: flex; justify-content: space-between; margin-top: 20px; gap: 6px;">
-                ${[0,1,2,3,4,5,6,7,8,9,10].map(s => `
-                  <button type="button" class="btn ${s === score ? 'btn-primary' : 'btn-outline'}" onclick="app.updateKioskPain(${s})" style="flex: 1; padding: 10px 0; font-size: 0.95rem; font-weight: 700;">
-                    ${s}
-                  </button>
-                `).join('')}
-              </div>
-            </div>
-
-            <div class="kiosk-actions-bar">
-              <button class="btn btn-outline btn-lg" onclick="app.setKioskStep(3)">
-                ← Back to Details
-              </button>
-              <button class="btn btn-primary btn-lg" onclick="app.setKioskStep(5)">
-                Next: Review & Issue Token →
-              </button>
-            </div>
-          </div>
-        `;
-      }
-      // Step 5: Review & Issue Token
-      else if (step === 5) {
-        const chairObj = this.store.chairs.find(c => c.id === this.kioskState.selectedChair) || { name: 'Operatory Chair', doctor: 'On-Duty Specialist' };
-        
-        let estFee = 40;
-        const complaintItems = (this.kioskState.selectedSymptoms || []).map(id => {
-          const s = (window.DENTAL_SYMPTOM_OPTIONS || []).find(x => x.id === id);
-          if (s) {
-            estFee = Math.max(estFee, s.estFee);
-            return s.name;
-          }
-          return id;
-        });
-
-        bodyHtml = `
-          <div style="max-width: 800px; margin: 30px auto; padding: 0 20px;">
-            <div style="text-align: center; margin-bottom: 28px;">
-              <h2 style="font-size: 2rem; font-weight: 900; color: #0F172A; margin-bottom: 6px;">Review & Issue Your Queue Token</h2>
-              <p style="font-size: 1.05rem; color: #64748B;">Please confirm your check-in summary before entering queue:</p>
-            </div>
-
-            <div class="card" style="padding: 28px; margin-bottom: 24px; border: 2px solid #0D9488; box-shadow: var(--shadow-md);">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 1rem; line-height: 1.7;">
-                <div>
-                  <div style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Patient Name</div>
-                  <div style="font-size: 1.25rem; font-weight: 800; color: #0F172A;">${this.kioskState.name || 'Walk-In Patient'}</div>
-                  <div style="color: #475569; font-size: 0.9rem;">${this.kioskState.phone || 'Phone not provided'} • ${this.kioskState.age} yrs (${this.kioskState.gender})</div>
-                </div>
-                <div>
-                  <div style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Assigned Operatory</div>
-                  <div style="font-size: 1.25rem; font-weight: 800; color: #0284C7;">${chairObj.name}</div>
-                  <div style="color: #475569; font-size: 0.9rem;">${chairObj.doctor}</div>
-                </div>
-                <div>
-                  <div style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Chief Concern</div>
-                  <div style="font-weight: 700; color: #0F172A;">${complaintItems.join(', ') || 'General Consultation'}</div>
-                </div>
-                <div>
-                  <div style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Pain Score / Triage</div>
-                  <div>
-                    <span class="badge ${this.kioskState.painScore >= 8 ? 'badge-red' : 'badge-teal'}" style="font-size: 0.9rem; padding: 4px 10px;">
-                      Pain: ${this.kioskState.painScore} / 10 • ${this.kioskState.painScore >= 8 ? 'Urgent Priority' : 'Normal Queue'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Payment Preference -->
-              <div style="border-top: 1px solid #E2E8F0; margin-top: 20px; padding-top: 20px;">
-                <div style="font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 10px;">Payment Preference:</div>
-                <div style="display: flex; gap: 12px;">
-                  <button type="button" class="btn ${this.kioskState.paymentMethod === 'reception' ? 'btn-primary' : 'btn-outline'}" onclick="app.setKioskPaymentMethod('reception')" style="flex: 1; padding: 12px; font-size: 0.95rem;">
-                    <span>🧾</span> Pay at Cashier Desk (Cash/Card)
-                  </button>
-                  <button type="button" class="btn ${this.kioskState.paymentMethod === 'kiosk' ? 'btn-primary' : 'btn-outline'}" onclick="app.setKioskPaymentMethod('kiosk')" style="flex: 1; padding: 12px; font-size: 0.95rem;">
-                    <span>💳</span> Prepay via Kiosk Card Reader
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div style="text-align: center; margin-bottom: 30px;">
-              <button class="btn btn-primary btn-lg" onclick="app.issueWalkinToken()" style="font-size: 1.3rem; padding: 18px 48px; border-radius: 9999px; box-shadow: 0 12px 28px rgba(13,148,136,0.35);">
-                🎫 PRINT TOKEN & ENTER QUEUE
-              </button>
-            </div>
-
-            <div class="kiosk-actions-bar" style="margin-top: 0;">
-              <button class="btn btn-outline" onclick="app.setKioskStep(4)">
-                ← Back to Pain Rating
-              </button>
-            </div>
-          </div>
-        `;
-      }
-    }
-
-    mount.innerHTML = headerHtml + bodyHtml;
+    mount.innerHTML = bodyHtml;
   },
-
-  /* ==========================================================================
-     STATION 2: LOUNGE QUEUE TV DISPLAY CONTROLLER
-     ========================================================================== */
 
   renderTvStation() {
     const mount = document.getElementById("tv-main-mount");
@@ -6358,7 +6203,7 @@ const stationMethods = {
         <!-- TV Top Bar -->
         <div class="tv-header-bar">
           <div class="tv-brand">
-            <div class="tv-brand-icon">🦷</div>
+            <div class="tv-brand-icon" style="color:#2DD4BF;">${CLINIC_ICONS.tv}</div>
             <div>
               <h1>Smile Dental & Orthodontics</h1>
               <p>PATIENT LOUNGE LIVE QUEUE DISPLAY & AUDIO CHIME</p>
@@ -6366,13 +6211,13 @@ const stationMethods = {
           </div>
           <div style="display: flex; align-items: center; gap: 16px;">
             <div style="background: #0F172A; border: 1px solid #1E293B; border-radius: 9999px; padding: 8px 18px; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: #38BDF8;">
-              🕒 ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
             <button class="btn btn-outline btn-sm" onclick="app.tvRecallNextToken()" style="color: #38BDF8; border-color: #0284C7;">
-              <span>📢</span> Re-Announce
+              ${CLINIC_ICONS.sound} Re-Announce
             </button>
             <button class="btn btn-outline btn-sm" onclick="app.toggleTvFullscreen()" style="color: #94A3B8; border-color: #334155;">
-              <span>⛶</span> Fullscreen
+              Fullscreen
             </button>
           </div>
         </div>
@@ -6408,7 +6253,7 @@ const stationMethods = {
             <div style="background: #0F172A; border: 1px solid #1E293B; border-radius: var(--radius-lg); padding: 18px 24px; display: flex; align-items: center; justify-content: space-between;">
               <span style="font-size: 0.95rem; color: #94A3B8;">Staff Quick Callout Control:</span>
               <button class="btn btn-primary" onclick="app.tvRecallNextToken()" style="font-size: 0.95rem;">
-                <span>📢</span> Announce & Call Next Waiting Patient
+                ${CLINIC_ICONS.sound} Call Next Waiting Patient
               </button>
             </div>
           </div>

@@ -184,13 +184,13 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="demo-banner">
-          <strong>Clinical Prototype Mode:</strong> Local storage persistence active. Multi-station clinical operating system.
+        <div class="sidebar-user-badge">
+          <div class="sidebar-user-avatar" id="sidebar-user-avatar" style="background-color: var(--primary-teal);">SC</div>
+          <div class="sidebar-user-details">
+            <strong id="sidebar-user-name">Dr. Sarah Chen, DDS</strong>
+            <span id="sidebar-user-role">Attending Clinician</span>
+          </div>
         </div>
-        <button class="btn btn-sm btn-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="app.resetDemoData()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          <span>Reset Sample Records</span>
-        </button>
       </div>
     </aside>
 
@@ -209,16 +209,6 @@
         </div>
 
         <div class="header-right">
-          <!-- Live Clock -->
-          <div class="header-clock" id="header-live-clock">
-            🕒 Loading clock...
-          </div>
-
-          <!-- Kiosk View Toggle -->
-          <button class="kiosk-toggle-btn" id="btn-kiosk-toggle" title="Toggle Kiosk Touch Optimization">
-            <span>📱</span> Kiosk View
-          </button>
-
           <!-- Role Switcher -->
           <div class="role-badge-box">
             <div class="role-avatar" id="header-user-avatar" style="background-color: var(--primary-teal);">
