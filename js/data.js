@@ -1594,6 +1594,8 @@ class ClinicStore {
     this.currentStation = "PATIENT_KIOSK"; // Default active workstation
     this.kioskPin = "1234";
     this.isKioskLocked = false;
+    this.chairs = CLINIC_CONFIG.chairs;
+    this.users = STAFF_USERS;
     this.pharmacyInventory = JSON.parse(JSON.stringify(DENTAL_PHARMACY_INVENTORY));
     this.loadState();
   }
