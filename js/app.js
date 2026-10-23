@@ -5921,14 +5921,6 @@ const stationMethods = {
                 <p class="kiosk-pathway-desc">
                   No booking needed. Same-day exam, teeth cleaning &amp; hygiene, cavity fillings, toothache relief, or extractions.
                 </p>
-                <div class="kiosk-pathway-footer">
-                  <span style="font-weight: 700; font-size: 0.84rem; color: var(--primary-teal); display: flex; align-items: center; gap: 5px;">
-                    ${CLINIC_ICONS.clock} Est. Wait: ~10 Mins
-                  </span>
-                  <span class="kiosk-pathway-action-btn">
-                    <span>Touch for Token</span> ${CLINIC_ICONS.chevronRight}
-                  </span>
-                </div>
               </div>
             </div>
 
@@ -5949,14 +5941,6 @@ const stationMethods = {
                 <p class="kiosk-pathway-desc">
                   Orthodontic wire adjustments, loose bracket repairs, clear aligner tray pick-up, or new braces consultation.
                 </p>
-                <div class="kiosk-pathway-footer">
-                  <span style="font-weight: 700; font-size: 0.84rem; color: #7C3AED; display: flex; align-items: center; gap: 5px;">
-                    ${CLINIC_ICONS.stethoscope} Dr. Marcus Vance
-                  </span>
-                  <span class="kiosk-pathway-action-btn" style="background: #7C3AED;">
-                    <span>Touch for Ortho</span> ${CLINIC_ICONS.chevronRight}
-                  </span>
-                </div>
               </div>
             </div>
 
@@ -5977,14 +5961,6 @@ const stationMethods = {
                 <p class="kiosk-pathway-desc">
                   Already booked for today? Enter your mobile phone number on the touch keypad to confirm arrival &amp; print queue slip.
                 </p>
-                <div class="kiosk-pathway-footer">
-                  <span style="font-weight: 700; font-size: 0.84rem; color: #0284C7; display: flex; align-items: center; gap: 5px;">
-                    ${CLINIC_ICONS.checkCircle} Verified Arrival
-                  </span>
-                  <span class="kiosk-pathway-action-btn" style="background: #0284C7;">
-                    <span>Check In Now</span> ${CLINIC_ICONS.chevronRight}
-                  </span>
-                </div>
               </div>
             </div>
 

@@ -2618,7 +2618,8 @@ body.nav-hidden .workstation-section {
   font-size: 0.88rem;
   color: #64748B;
   line-height: 1.45;
-  margin: 0 0 16px 0;
+  margin: 0;
+  padding-bottom: 4px;
   flex: 1;
 }
 .kiosk-pathway-footer {
