@@ -27,46 +27,46 @@
     <div class="workstation-brand" onclick="app.switchStation('PATIENT_KIOSK')">
       <div class="workstation-brand-icon">🦷</div>
       <div class="workstation-brand-text">
-        <h2>Smile Dental & Orthodontics <span class="badge badge-teal" style="font-size: 0.65rem; padding: 2px 6px;">Kiosk OS v2.4</span></h2>
-        <span>Multi-Station Clinical Operating System</span>
+        <h2>Smile Dental <span class="badge badge-teal" style="font-size: 0.65rem; padding: 2px 5px;">v2.5</span></h2>
+        <span>Kiosk OS</span>
       </div>
     </div>
 
-    <!-- Workstation Selector Tabs -->
+    <!-- Workstation Selector Tabs - Guaranteed All Visible -->
     <nav class="workstation-tabs">
-      <button class="station-tab-btn active" id="tab-btn-kiosk" onclick="app.switchStation('PATIENT_KIOSK')">
-        <span>📱</span> Patient Kiosk
+      <button class="station-tab-btn active" id="tab-btn-kiosk" onclick="app.switchStation('PATIENT_KIOSK')" title="Patient Self-Service Intake Kiosk">
+        <span>📱</span> <span class="tab-long-label">Patient </span>Kiosk
       </button>
-      <button class="station-tab-btn" id="tab-btn-tv" onclick="app.switchStation('CABIN_QUEUE_TV')">
-        <span>📺</span> Lounge Queue TV
+      <button class="station-tab-btn" id="tab-btn-tv" onclick="app.switchStation('CABIN_QUEUE_TV')" title="Waiting Lounge Queue TV Display">
+        <span>📺</span> <span class="tab-long-label">Lounge </span>Queue TV
       </button>
-      <button class="station-tab-btn" id="tab-btn-cabin" onclick="app.switchStation('DOCTOR_CABIN')">
-        <span>🦷</span> Operatory Cabin
+      <button class="station-tab-btn" id="tab-btn-cabin" onclick="app.switchStation('DOCTOR_CABIN')" title="Dentist Operatory Station & Quick Rx">
+        <span>🦷</span> Operatory<span class="tab-long-label"> Cabin</span>
       </button>
-      <button class="station-tab-btn" id="tab-btn-billing" onclick="app.switchStation('BILLING_PHARMACY')">
+      <button class="station-tab-btn" id="tab-btn-billing" onclick="app.switchStation('BILLING_PHARMACY')" title="Cashier & Billing Desk POS">
         <span>🧾</span> Billing POS
       </button>
-      <button class="station-tab-btn" id="tab-btn-pharmacy" onclick="app.switchStation('INHOUSE_PHARMACY')">
+      <button class="station-tab-btn" id="tab-btn-pharmacy" onclick="app.switchStation('INHOUSE_PHARMACY')" title="Dental Dispensary & Materials Stock">
         <span>💊</span> Dispensary
       </button>
-      <button class="station-tab-btn" id="tab-btn-admin" onclick="app.switchStation('ADMIN_DASHBOARD')">
-        <span>🛡️</span> Clinic Admin
+      <button class="station-tab-btn" id="tab-btn-admin" onclick="app.switchStation('ADMIN_DASHBOARD')" title="Clinic Administration & Records">
+        <span>🛡️</span> <span class="tab-long-label">Clinic </span>Admin
       </button>
     </nav>
 
     <!-- Top Right Quick Controls -->
     <div class="workstation-right-controls">
-      <button class="control-pill-btn" id="btn-toggle-autohide" onclick="app.toggleNavAutoHide()" title="Toggle Navigation Auto-Hide">
-        <span id="autohide-icon">👁️</span> <span id="autohide-label">Auto-Hide</span>
+      <button class="control-pill-btn" id="btn-toggle-autohide" onclick="app.toggleNavAutoHide()" title="Toggle Navigation Auto-Hide (Pin / Auto-Hide)">
+        <span id="autohide-icon">👁️</span> <span class="control-text" id="autohide-label">Auto-Hide</span>
       </button>
-      <button class="control-pill-btn" id="btn-toggle-sound" onclick="app.toggleSound()" title="Toggle Vocal Audio & Chimes">
-        <span id="sound-icon">🔊</span> <span id="sound-label">Sound On</span>
+      <button class="control-pill-btn" id="btn-toggle-sound" onclick="app.toggleSound()" title="Toggle Vocal Audio & Hospital Chimes">
+        <span id="sound-icon">🔊</span> <span class="control-text" id="sound-label">Sound On</span>
       </button>
       <button class="control-pill-btn" onclick="app.openKioskLockModal()" title="Lock Kiosk Terminal (PIN 1234)">
-        <span>🔒</span> Lock Kiosk
+        <span>🔒</span> <span class="control-text">Lock</span>
       </button>
       <button class="control-pill-btn" onclick="app.resetDemoData()" title="Reset All Demo Data">
-        <span>🔄</span> Reset
+        <span>🔄</span> <span class="control-text">Reset</span>
       </button>
     </div>
   </header>
