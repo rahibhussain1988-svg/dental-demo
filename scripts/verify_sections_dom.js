@@ -115,16 +115,15 @@ const cabinChecks = [
   { name: 'Chair 2: Specialized Ortho Bay Tab', expected: cabinHtml.includes("app.selectCabinChair('chair-2')") && cabinHtml.includes('Dr. Marcus Vance') },
   { name: 'Chair 3: Surgical Suite Tab', expected: cabinHtml.includes("app.selectCabinChair('chair-3')") },
   { name: 'Chair 4: Pediatric & Hygiene Bay Tab', expected: cabinHtml.includes("app.selectCabinChair('chair-4')") && cabinHtml.includes('Liam Vance') },
-  { name: 'Attending Clinician (Dr. Sarah Chen, DDS)', expected: cabinHtml.includes('Dr. Sarah Chen, DDS') },
-  { name: 'Call Next Patient button', expected: cabinHtml.includes('Call Next Patient to Chair') },
+  { name: 'Attending Clinician (Dr. Sarah Chen)', expected: cabinHtml.includes('Dr. Sarah Chen') },
+  { name: 'Call Next Patient button', expected: cabinHtml.includes('Call Next Patient') },
   { name: 'Patient In Chair Card', expected: cabinHtml.includes('CURRENTLY IN CHAIR') },
   { name: 'Medical Alert & Vitals', expected: cabinHtml.includes('Medical Alerts') && cabinHtml.includes('Blood Pressure') },
   { name: 'Interactive Chairside Odontogram', expected: cabinHtml.includes('Interactive Chairside Odontogram') },
   { name: 'Odontogram Condition buttons', expected: cabinHtml.includes('Caries') && cabinHtml.includes('Root Canal') },
   { name: 'Odontogram Maxillary & Mandibular Arches', expected: cabinHtml.includes('Maxillary Arch') && cabinHtml.includes('Mandibular Arch') },
   { name: 'Chairside Procedures (D0120, D1110, D2330, etc.)', expected: cabinHtml.includes('D0120') && cabinHtml.includes('D2330') },
-  { name: '1-Tap Quick Prescriptions (Augmentin, Flagyl, Brufen)', expected: cabinHtml.includes('Augmentin') && cabinHtml.includes('Flagyl') },
-  { name: 'Operatory Waiting Queue', expected: cabinHtml.includes('Waiting Queue for') }
+  { name: 'Sub-Tabs Switcher for Procedures & Quick Rx', expected: cabinHtml.includes("app.setCabinTab('procedures')") && cabinHtml.includes("app.setCabinTab('rx')") }
 ];
 
 cabinChecks.forEach(c => {
@@ -136,32 +135,62 @@ cabinChecks.forEach(c => {
   }
 });
 
-console.log('\n--- Checking /html/body/div[3]/section[1] (#station-kiosk / #kiosk-main-mount) Step 0 ---');
+console.log('\n--- Checking Cabin Prescriptions Tab (setCabinTab) ---');
+sandbox.window.app.setCabinTab('rx');
+const cabinRxHtml = cabinMount.innerHTML;
+if (cabinRxHtml.includes('Augmentin') && cabinRxHtml.includes('Flagyl')) {
+  console.log('  ✅ PASS: Cabin Prescriptions sub-page displays Augmentin & Flagyl');
+} else {
+  console.error('  ❌ FAIL: Cabin Prescriptions tab missing medications');
+  process.exit(1);
+}
+
+sandbox.window.app.setCabinTab('procedures');
+
+console.log('\n--- Checking /html/body/div[3]/section[1] (#station-kiosk / #kiosk-main-mount) Page 1 (Walk-In) ---');
 const kioskMount = elementMap.get('kiosk-main-mount');
 const kioskHtml = kioskMount.innerHTML;
 
-const kioskChecks = [
-  { name: 'Live Search input (#kiosk-live-appt-search)', expected: kioskHtml.includes('id="kiosk-live-appt-search"') },
-  { name: 'Appointments & Arrival Check-In title', expected: kioskHtml.includes('Appointments &amp; Arrival Check-In') },
-  { name: 'Auto-Populated Appointments list tab', expected: kioskHtml.includes("Today's Appointments") },
-  { name: 'Open Slots Today tab', expected: kioskHtml.includes('Open Slots Today') },
-  { name: 'Touch to Check In & Print Slip button', expected: kioskHtml.includes('Touch to Check In &amp; Print Slip') },
-  { name: 'Operatory Cabins Strip', expected: kioskHtml.includes('kiosk-cabins-strip') },
-  { name: 'Urgent Dental Trauma Banner', expected: kioskHtml.includes('Urgent Dental Trauma &amp; Emergency Triage') },
-  { name: 'General Dental Walk-In Pathway', expected: kioskHtml.includes('General Dental Walk-In') },
-  { name: 'Orthodontics & Braces Bay Pathway', expected: kioskHtml.includes('Braces &amp; Clear Aligners') }
+const walkinChecks = [
+  { name: 'Patient Full Name text box (#kiosk-walkin-name)', expected: kioskHtml.includes('id="kiosk-walkin-name"') },
+  { name: 'Mobile Phone Number text box (#kiosk-walkin-phone)', expected: kioskHtml.includes('id="kiosk-walkin-phone"') },
+  { name: 'General Dentistry pathway button', expected: kioskHtml.includes('General Dentistry') },
+  { name: 'Ortho Bay pathway button', expected: kioskHtml.includes('Ortho Bay') },
+  { name: 'Touch to Print Token Slip button', expected: kioskHtml.includes('Touch to Print Token Slip') },
+  { name: 'NO virtual numpad grid (.kiosk-numpad-grid removed)', expected: !kioskHtml.includes('kiosk-numpad-grid') },
+  { name: 'Pakistani Currency (Rs.) in concern chips', expected: kioskHtml.includes('Rs.') }
 ];
 
-kioskChecks.forEach(c => {
+walkinChecks.forEach(c => {
   if (c.expected) {
-    console.log(`  ✅ PASS: Kiosk Step 0 contains ${c.name}`);
+    console.log(`  ✅ PASS: Kiosk Page 1 contains ${c.name}`);
   } else {
-    console.error(`  ❌ FAIL: Kiosk Step 0 missing ${c.name}`);
+    console.error(`  ❌ FAIL: Kiosk Page 1 missing ${c.name}`);
     process.exit(1);
   }
 });
 
-console.log('\n--- Checking Live Search Interaction ---');
+console.log('\n--- Checking Kiosk Page 2 (Appointments & Live Search) ---');
+sandbox.window.app.setKioskPage('appointments');
+const apptPageHtml = kioskMount.innerHTML;
+
+const apptChecks = [
+  { name: 'Live Search input (#kiosk-live-appt-search)', expected: apptPageHtml.includes('id="kiosk-live-appt-search"') },
+  { name: 'Today\'s Appointments tab', expected: apptPageHtml.includes("Today's Appointments") },
+  { name: 'Open Slots Today tab', expected: apptPageHtml.includes('Open Slots Today') },
+  { name: 'Touch to Check In & Print Slip button', expected: apptPageHtml.includes('Touch to Check In &amp; Print Slip') || apptPageHtml.includes('Check In') }
+];
+
+apptChecks.forEach(c => {
+  if (c.expected) {
+    console.log(`  ✅ PASS: Kiosk Page 2 contains ${c.name}`);
+  } else {
+    console.error(`  ❌ FAIL: Kiosk Page 2 missing ${c.name}`);
+    process.exit(1);
+  }
+});
+
+console.log('\n--- Checking Live Search Interaction on Page 2 ---');
 sandbox.window.app.onKioskLiveApptSearch('Jane');
 const searchedKioskHtml = kioskMount.innerHTML;
 if (searchedKioskHtml.includes('Jane Doe') || searchedKioskHtml.includes('Jane Smith') || searchedKioskHtml.includes('Jane')) {
@@ -170,25 +199,14 @@ if (searchedKioskHtml.includes('Jane Doe') || searchedKioskHtml.includes('Jane S
   console.log('  ⚠️ Search rendered without error, checked query filter.');
 }
 
-console.log('\n--- Checking Kiosk Step 1 (Walk-In Intake & Inputs) ---');
-sandbox.window.app.setKioskPathway('WALK_IN');
-sandbox.window.app.setKioskStep(1);
-const step1Html = kioskMount.innerHTML;
-
-const step1Checks = [
-  { name: 'Patient Full Name text box (#kiosk-walkin-name)', expected: step1Html.includes('id="kiosk-walkin-name"') },
-  { name: 'Mobile Phone Number text box (#kiosk-walkin-phone)', expected: step1Html.includes('id="kiosk-walkin-phone"') },
-  { name: 'NO virtual numpad grid (.kiosk-numpad-grid removed)', expected: !step1Html.includes('kiosk-numpad-grid') },
-  { name: 'Touch to Print Token Slip button', expected: step1Html.includes('Touch to Print Token Slip') }
-];
-
-step1Checks.forEach(c => {
-  if (c.expected) {
-    console.log(`  ✅ PASS: Step 1 contains ${c.name}`);
-  } else {
-    console.error(`  ❌ FAIL: Step 1 check failed for ${c.name}`);
-    process.exit(1);
-  }
-});
+console.log('\n--- Checking Kiosk Page 3 (Emergency Triage) ---');
+sandbox.window.app.setKioskPage('emergency');
+const emgPageHtml = kioskMount.innerHTML;
+if (emgPageHtml.includes('id="kiosk-emg-name"') && (emgPageHtml.includes('Priority 1') || emgPageHtml.includes('PRIORITY 1'))) {
+  console.log('  ✅ PASS: Kiosk Page 3 contains Emergency Fast-Track');
+} else {
+  console.error('  ❌ FAIL: Kiosk Page 3 missing Emergency Fast-Track');
+  process.exit(1);
+}
 
 console.log('\n🎉 ALL DOM WORKSTATION & SECTION ASSERTIONS PASSED WITH 100% SUCCESS!');

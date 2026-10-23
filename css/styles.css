@@ -75,10 +75,14 @@ body.kiosk-mode .kiosk-tile {
   padding: 0;
 }
 
-html {
-  min-height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
+html, body {
+  height: 100%;
+  max-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Stop page-level scrolling concept */
+  -webkit-font-smoothing: antialiased;
+  -webkit-overflow-scrolling: touch;
 }
 
 body {
@@ -2273,34 +2277,86 @@ body.nav-hidden #workstation-nav-revealer {
   color: #FFFFFF;
 }
 
-/* Multi-Station Viewport - Eliminates Scroll Traps */
+/* Zero-Scroll Viewport Architecture (Fit to Viewport, No Window Scrolling) */
 #workstation-viewport {
   padding-top: 60px;
-  transition: padding-top 0.25s ease;
-  min-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: visible;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden; /* STOP SCROLLING */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 body.nav-hidden #workstation-viewport {
   padding-top: 0;
+  height: 100vh;
+  max-height: 100vh;
 }
 
-/* Station Sections Container */
 .workstation-section {
   display: none;
-  min-height: calc(100vh - 60px);
+  height: calc(100vh - 60px);
+  max-height: calc(100vh - 60px);
   width: 100%;
-  overflow-x: hidden;
-  overflow-y: visible;
+  overflow: hidden; /* Zero window scrolling */
+  box-sizing: border-box;
 }
 
 body.nav-hidden .workstation-section {
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
 }
 
 .workstation-section.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+#station-admin.active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+#station-admin #app-container {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  display: flex;
+}
+
+#station-admin .app-sidebar {
+  height: 100%;
+  max-height: 100%;
+  top: 0;
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#station-admin .app-main {
+  height: 100%;
+  max-height: 100%;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#station-admin .page-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  padding: 16px 20px;
 }
 
 .kiosk-actions-bar {
@@ -4148,5 +4204,20 @@ body.nav-hidden .workstation-section {
   .patient-clinical-banner {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* Responsive Rules for Small / Medium Screens */
+@media (max-width: 960px) {
+  #station-kiosk .kiosk-intake-grid,
+  #station-cabin [style*="grid-template-columns: 1.15fr 0.85fr"],
+  #station-billing [style*="grid-template-columns: 0.85fr 1.15fr"] {
+    grid-template-columns: 1fr !important;
+    overflow-y: auto !important;
+  }
+  .workstation-tabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
 }
