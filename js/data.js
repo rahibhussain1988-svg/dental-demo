@@ -203,7 +203,7 @@ const DENTAL_SYMPTOM_OPTIONS = [
   {
     id: "sym-toothache",
     label: "Toothache & Cavity Pain",
-    icon: "🦷",
+    icon: "tooth",
     dept: "General Dentistry",
     chairId: "c1",
     chairName: "Chair 1 (General Operatory)",
@@ -215,7 +215,7 @@ const DENTAL_SYMPTOM_OPTIONS = [
   {
     id: "sym-braces",
     label: "Braces & Aligners Review",
-    icon: "📐",
+    icon: "brackets",
     dept: "Orthodontics",
     chairId: "c4",
     chairName: "Chair 4 (Orthodontic Bay)",
@@ -227,7 +227,7 @@ const DENTAL_SYMPTOM_OPTIONS = [
   {
     id: "sym-bleeding-gums",
     label: "Bleeding Gums & Cleaning",
-    icon: "🪥",
+    icon: "shield",
     dept: "Periodontics & Hygiene",
     chairId: "c2",
     chairName: "Chair 2 (General & Restorative)",
@@ -239,7 +239,7 @@ const DENTAL_SYMPTOM_OPTIONS = [
   {
     id: "sym-broken-tooth",
     label: "Broken or Chipped Tooth",
-    icon: "⚡",
+    icon: "alertTriangle",
     dept: "Restorative Dentistry",
     chairId: "c2",
     chairName: "Chair 2 (General & Restorative)",
@@ -251,7 +251,7 @@ const DENTAL_SYMPTOM_OPTIONS = [
   {
     id: "sym-wisdom-tooth",
     label: "Wisdom Tooth & Swelling",
-    icon: "⚠️",
+    icon: "alertTriangle",
     dept: "Oral Surgery",
     chairId: "c3",
     chairName: "Chair 3 (Surgical & Implant Suite)",
@@ -263,7 +263,7 @@ const DENTAL_SYMPTOM_OPTIONS = [
   {
     id: "sym-root-canal",
     label: "Root Canal (RCT) Consultation",
-    icon: "🔬",
+    icon: "tooth",
     dept: "Endodontics",
     chairId: "c3",
     chairName: "Chair 3 (Surgical & Implant Suite)",
@@ -275,7 +275,7 @@ const DENTAL_SYMPTOM_OPTIONS = [
   {
     id: "sym-implants",
     label: "Dental Implants & Missing Teeth",
-    icon: "💎",
+    icon: "chair",
     dept: "Implantology",
     chairId: "c3",
     chairName: "Chair 3 (Surgical & Implant Suite)",
@@ -287,7 +287,7 @@ const DENTAL_SYMPTOM_OPTIONS = [
   {
     id: "sym-pediatric",
     label: "Kids Dental & Checkup",
-    icon: "👶",
+    icon: "userPlus",
     dept: "Pediatric Dentistry",
     chairId: "c1",
     chairName: "Chair 1 (General Operatory)",
@@ -299,7 +299,7 @@ const DENTAL_SYMPTOM_OPTIONS = [
   {
     id: "sym-whitening",
     label: "Teeth Whitening & Smile Design",
-    icon: "✨",
+    icon: "chart",
     dept: "Cosmetic Dentistry",
     chairId: "c4",
     chairName: "Chair 4 (Orthodontic Bay)",
@@ -320,7 +320,7 @@ const EMERGENCY_DENTAL_PROCEDURES = [
     doctorName: "Dr. Sarah Chen, DDS",
     fee: 120,
     description: "Immediate incision & drainage, pulp debridement, antibiotic therapy",
-    icon: "🚨"
+    icon: "emergency"
   },
   {
     id: "emg-2",
@@ -331,7 +331,7 @@ const EMERGENCY_DENTAL_PROCEDURES = [
     doctorName: "Dr. Sarah Chen, DDS",
     fee: 150,
     description: "Re-implantation, flexible splinting, tetanus & antibiotic coverage",
-    icon: "🦷"
+    icon: "tooth"
   },
   {
     id: "emg-3",
@@ -342,7 +342,7 @@ const EMERGENCY_DENTAL_PROCEDURES = [
     doctorName: "Dr. Sarah Chen, DDS",
     fee: 90,
     description: "Socket debridement, gelatin sponge (Gelfoam), compression sutures",
-    icon: "🩸"
+    icon: "alertTriangle"
   },
   {
     id: "emg-4",
@@ -353,7 +353,7 @@ const EMERGENCY_DENTAL_PROCEDURES = [
     doctorName: "Dr. Marcus Vance, Ortho Specialist",
     fee: 60,
     description: "Archwire trimming, bracket relief wax, mucosal laceration repair",
-    icon: "📐"
+    icon: "brackets"
   }
 ];
 
