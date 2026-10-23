@@ -23,6 +23,8 @@ class ClinicApp {
     // Multi-Station Operating System State
     this.currentStation = 'PATIENT_KIOSK';
     this.pinInput = '';
+    this.isNavPinned = false;
+    this.navAutoHideTimer = null;
     this.selectedCabinChair = 'chair-1';
     this.selectedBillingPatientId = null;
     this.billingDiscountPercent = 0;
@@ -4696,6 +4698,97 @@ const stationMethods = {
       soundLabel.textContent = window.clinicAudio.enabled ? "Sound On" : "Muted";
       soundIcon.textContent = window.clinicAudio.enabled ? "🔊" : "🔇";
     }
+
+    const autoHideLabel = document.getElementById("autohide-label");
+    const autoHideIcon = document.getElementById("autohide-icon");
+    if (autoHideLabel && autoHideIcon) {
+      autoHideLabel.textContent = this.isNavPinned ? "Pinned" : "Auto-Hide";
+      autoHideIcon.textContent = this.isNavPinned ? "📌" : "👁️";
+    }
+
+    this.setupNavAutoHide();
+  },
+
+  setupNavAutoHide() {
+    let lastScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    let ticking = false;
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+          const delta = currentScrollY - lastScrollY;
+
+          if (!this.isNavPinned) {
+            // Scrolling down past threshold -> hide
+            if (currentScrollY > 60 && delta > 6) {
+              this.hideWorkstationNav();
+            }
+            // Scrolling up by noticeable amount or back to top -> show
+            else if (delta < -6 || currentScrollY <= 20) {
+              this.showWorkstationNav();
+            }
+          }
+
+          lastScrollY = Math.max(0, currentScrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+
+    // Edge mouse move listener near top of screen (top 14px)
+    window.addEventListener('mousemove', (e) => {
+      if (e.clientY <= 14) {
+        this.showWorkstationNav();
+      }
+    }, { passive: true });
+  },
+
+  showWorkstationNav() {
+    document.body.classList.remove("nav-hidden");
+    const nav = document.getElementById("workstation-nav-bar");
+    if (nav) nav.classList.remove("nav-hidden");
+    this.cancelNavAutoHideTimer();
+  },
+
+  hideWorkstationNav() {
+    if (this.isNavPinned) return;
+    document.body.classList.add("nav-hidden");
+    const nav = document.getElementById("workstation-nav-bar");
+    if (nav) nav.classList.add("nav-hidden");
+  },
+
+  toggleNavAutoHide() {
+    this.isNavPinned = !this.isNavPinned;
+    const autoHideLabel = document.getElementById("autohide-label");
+    const autoHideIcon = document.getElementById("autohide-icon");
+    if (autoHideLabel) autoHideLabel.textContent = this.isNavPinned ? "Pinned" : "Auto-Hide";
+    if (autoHideIcon) autoHideIcon.textContent = this.isNavPinned ? "📌" : "👁️";
+
+    if (this.isNavPinned) {
+      this.showWorkstationNav();
+      this.showToast("Navigation Pinned: Top bar is permanently visible.", "info");
+    } else {
+      this.showToast("Navigation Auto-Hide: Enabled (slides away when scrolling down).", "success");
+    }
+  },
+
+  cancelNavAutoHideTimer() {
+    if (this.navAutoHideTimer) {
+      clearTimeout(this.navAutoHideTimer);
+      this.navAutoHideTimer = null;
+    }
+  },
+
+  scheduleNavAutoHideOnLeave() {
+    if (this.isNavPinned) return;
+    this.cancelNavAutoHideTimer();
+    if (this.currentStation === 'PATIENT_KIOSK' || this.currentStation === 'CABIN_QUEUE_TV') {
+      this.navAutoHideTimer = setTimeout(() => {
+        this.hideWorkstationNav();
+      }, 2500);
+    }
   },
 
   switchStation(stationId) {
@@ -4731,15 +4824,21 @@ const stationMethods = {
 
     if (stationId === 'PATIENT_KIOSK') {
       this.renderKioskStation();
+      this.scheduleNavAutoHideOnLeave();
     } else if (stationId === 'CABIN_QUEUE_TV') {
       this.renderTvStation();
+      this.scheduleNavAutoHideOnLeave();
     } else if (stationId === 'DOCTOR_CABIN') {
+      this.showWorkstationNav();
       this.renderCabinStation();
     } else if (stationId === 'BILLING_PHARMACY') {
+      this.showWorkstationNav();
       this.renderBillingStation();
     } else if (stationId === 'INHOUSE_PHARMACY') {
+      this.showWorkstationNav();
       this.renderPharmacyStation();
     } else if (stationId === 'ADMIN_DASHBOARD') {
+      this.showWorkstationNav();
       this.renderCurrentScreen();
     }
 

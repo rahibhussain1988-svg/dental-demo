@@ -14,8 +14,16 @@
 </head>
 <body>
 
+  <!-- Top Edge Hover Zone for Auto-Reveal -->
+  <div id="workstation-edge-hover" onmouseenter="app.showWorkstationNav()" ontouchstart="app.showWorkstationNav()"></div>
+
+  <!-- Floating Nav Revealer Pull-down Pill (visible when nav is auto-hidden) -->
+  <div id="workstation-nav-revealer" onclick="app.showWorkstationNav()" title="Touch to show Station Navigation">
+    <span>🦷</span> <span>Station Menu ▼</span>
+  </div>
+
   <!-- Top Workstation Navigation Bar (Fatima Clinic / Apex Clinic Multi-Station OS) -->
-  <header id="workstation-nav-bar">
+  <header id="workstation-nav-bar" onmouseenter="app.cancelNavAutoHideTimer()" onmouseleave="app.scheduleNavAutoHideOnLeave()">
     <div class="workstation-brand" onclick="app.switchStation('PATIENT_KIOSK')">
       <div class="workstation-brand-icon">🦷</div>
       <div class="workstation-brand-text">
@@ -48,6 +56,9 @@
 
     <!-- Top Right Quick Controls -->
     <div class="workstation-right-controls">
+      <button class="control-pill-btn" id="btn-toggle-autohide" onclick="app.toggleNavAutoHide()" title="Toggle Navigation Auto-Hide">
+        <span id="autohide-icon">👁️</span> <span id="autohide-label">Auto-Hide</span>
+      </button>
       <button class="control-pill-btn" id="btn-toggle-sound" onclick="app.toggleSound()" title="Toggle Vocal Audio & Chimes">
         <span id="sound-icon">🔊</span> <span id="sound-label">Sound On</span>
       </button>
