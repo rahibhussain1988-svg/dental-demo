@@ -2458,6 +2458,193 @@ body.nav-hidden .workstation-section {
   justify-content: space-between;
 }
 
+/* Live Operatory Cabin Availability Strip (Fatima Clinic Standard) */
+.kiosk-cabins-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+@media (max-width: 960px) {
+  .kiosk-cabins-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 520px) {
+  .kiosk-cabins-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kiosk-cabin-tile {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+.kiosk-cabin-tile:hover {
+  border-color: var(--primary-teal);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(13, 148, 136, 0.12);
+}
+.kiosk-cabin-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1.5px solid #CCFBF1;
+  flex-shrink: 0;
+}
+.kiosk-cabin-info {
+  min-width: 0;
+  flex: 1;
+}
+.kiosk-cabin-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--primary-teal);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kiosk-cabin-doc {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #0F172A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+.kiosk-cabin-meta {
+  font-size: 0.72rem;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* Enhanced Pathway Cards V2 with Photography and Floating Icons */
+.kiosk-pathway-card-v2 {
+  background: #FFFFFF;
+  border: 2px solid var(--border-color);
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+}
+.kiosk-pathway-card-v2:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-teal);
+  box-shadow: 0 20px 35px -6px rgba(13, 148, 136, 0.22);
+}
+.kiosk-pathway-card-v2:active {
+  transform: scale(0.985);
+}
+.kiosk-pathway-img-wrap {
+  width: 100%;
+  height: 150px;
+  position: relative;
+  overflow: hidden;
+  background: #0F172A;
+}
+.kiosk-pathway-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.kiosk-pathway-card-v2:hover .kiosk-pathway-img-wrap img {
+  transform: scale(1.06);
+}
+.kiosk-pathway-badge-floating {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  color: #FFFFFF;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.kiosk-pathway-icon-floating {
+  position: absolute;
+  bottom: -18px;
+  right: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #FFFFFF;
+  border: 2px solid #E2E8F0;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.kiosk-pathway-content {
+  padding: 24px 22px 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.kiosk-pathway-title {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #0F172A;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.3px;
+}
+.kiosk-pathway-desc {
+  font-size: 0.88rem;
+  color: #64748B;
+  line-height: 1.45;
+  margin: 0 0 16px 0;
+  flex: 1;
+}
+.kiosk-pathway-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-color);
+  padding-top: 14px;
+  margin-top: auto;
+}
+.kiosk-pathway-action-btn {
+  background: var(--primary-teal);
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 0.84rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease;
+}
+.kiosk-pathway-card-v2:hover .kiosk-pathway-action-btn {
+  background: var(--dark-teal);
+}
+
 /* 3 Main Kiosk Pathway Cards */
 .kiosk-pathways-grid {
   display: grid;

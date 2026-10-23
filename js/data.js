@@ -29,6 +29,7 @@ const STAFF_USERS = [
     title: "Head Receptionist & Patient Care Coordinator",
     email: "emma.b@smiledentalortho.com",
     avatar: "EB",
+    photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
     color: "#0284C7",
     permissions: ["patients.view", "patients.register", "appointments.manage", "queue.manage", "cards.print"]
   },
@@ -40,6 +41,7 @@ const STAFF_USERS = [
     license: "DDS-CA-94812",
     email: "dr.chen@smiledentalortho.com",
     avatar: "SC",
+    photo: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80",
     color: "#0D9488",
     permissions: ["patients.view", "clinical.exam", "odontogram.edit", "treatment.plan", "prescriptions.write", "encounters.finalize", "queue.manage"]
   },
@@ -51,6 +53,7 @@ const STAFF_USERS = [
     license: "ORTHO-98214",
     email: "dr.vance@smiledentalortho.com",
     avatar: "MV",
+    photo: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80",
     color: "#7C3AED",
     permissions: ["patients.view", "clinical.exam", "odontogram.edit", "orthodontics.manage", "treatment.plan", "prescriptions.write", "encounters.finalize", "queue.manage"]
   },
@@ -61,6 +64,7 @@ const STAFF_USERS = [
     title: "Registered Dental Assistant & Infection Control Lead",
     email: "liam.v@smiledentalortho.com",
     avatar: "LV",
+    photo: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=150&auto=format&fit=crop&q=80",
     color: "#E11D48",
     permissions: ["patients.view", "queue.manage", "appointments.manage", "clinical.view"]
   },
@@ -71,6 +75,7 @@ const STAFF_USERS = [
     title: "Senior Financial Counselor & Billing Lead",
     email: "elena.r@smiledentalortho.com",
     avatar: "ER",
+    photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
     color: "#D97706",
     permissions: ["patients.view", "billing.manage", "invoices.create", "payments.record", "reports.view"]
   },
@@ -82,6 +87,7 @@ const STAFF_USERS = [
     license: "DDS-CA-94812",
     email: "director@smiledentalortho.com",
     avatar: "CA",
+    photo: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80",
     color: "#0F766E",
     permissions: ["*"] // All permissions
   }
