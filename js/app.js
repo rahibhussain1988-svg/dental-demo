@@ -48,6 +48,10 @@ if (typeof window !== 'undefined') window.CLINIC_ICONS = CLINIC_ICONS;
  */
 
 class ClinicApp {
+  formatCurrency(val) {
+    const num = Math.round(Number(val) || 0);
+    return 'Rs. ' + num.toLocaleString('en-PK');
+  }
   constructor() {
     this.store = window.clinicStore;
     this.currentScreen = "dashboard";
@@ -446,10 +450,10 @@ class ClinicApp {
               ${CLINIC_ICONS.creditCard}
             </div>
           </div>
-          <div class="kpi-value">$${totalCollected.toLocaleString()}</div>
+          <div class="kpi-value">Rs. ${totalCollected.toLocaleString()}</div>
           <div class="kpi-footer">
             <span class="trend-badge trend-up">${collectionRate}% Collected</span>
-            <span>$${totalBalance.toLocaleString()} Outstanding</span>
+            <span>Rs. ${totalBalance.toLocaleString()} Outstanding</span>
           </div>
           <div class="kpi-progress-bar">
             <div class="kpi-progress-fill" style="width: ${collectionRate}%; background: #16A34A;"></div>
@@ -1458,9 +1462,9 @@ class ClinicApp {
                 <span class="alert-chip-amber">${CLINIC_ICONS.alertTriangle} Alert: ${c}</span>
               `).join('')}
               ${totalBalance > 0 ? `
-                <span class="alert-chip-red">${CLINIC_ICONS.creditCard} Outstanding Balance: $${totalBalance}</span>
+                <span class="alert-chip-red">${CLINIC_ICONS.creditCard} Outstanding Balance: Rs. ${totalBalance}</span>
               ` : `
-                <span class="alert-chip-blue">${CLINIC_ICONS.checkCircle} Account Current ($0.00 Due)</span>
+                <span class="alert-chip-blue">${CLINIC_ICONS.checkCircle} Account Current (Rs. 0 Due)</span>
               `}
               ${pt.orthodonticCase ? `<span class="badge badge-purple">${CLINIC_ICONS.brackets} Orthodontic Case Active</span>` : ''}
             </div>
@@ -1473,7 +1477,7 @@ class ClinicApp {
             <div class="insurance-title">Primary Dental Coverage</div>
             <div class="insurance-carrier">Delta Dental Premier PPO</div>
             <div class="insurance-coverage-details">
-              Policy #DD-88921 • Copay: 80/20 • Remaining: $1,250 / $2,000
+              Policy #EFU-88921 • Copay: 80/20 • Remaining: Rs. 125,000 / Rs. 200,000 (EFU Health PK)
             </div>
           </div>
 
@@ -1563,7 +1567,7 @@ class ClinicApp {
               <div class="summary-icon-box" style="background:#FEF2F2; color:#DC2626;">${CLINIC_ICONS.creditCard}</div>
               <div class="summary-details">
                 <h4>Due Balance</h4>
-                <div class="summary-value">$${(pt.billing || []).reduce((acc, b) => acc + (b.balance || 0), 0)}</div>
+                <div class="summary-value">Rs. ${(pt.billing || []).reduce((acc, b) => acc + (b.balance || 0), 0)}</div>
                 <div class="summary-subtext">Patient copay due</div>
               </div>
             </div>
@@ -1590,7 +1594,7 @@ class ClinicApp {
                   <div style="background: #F0FDF4; padding: 14px; border-radius: var(--radius-md); border-left: 4px solid var(--success);">
                     <strong>Active Treatment Plan: ${pt.treatmentPlans[0].title}</strong>
                     <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">
-                      Estimated Cost: $${pt.treatmentPlans[0].estimatedTotal} | Status: <span class="badge badge-green">${pt.treatmentPlans[0].status}</span>
+                      Estimated Cost: Rs. ${pt.treatmentPlans[0].estimatedTotal} | Status: <span class="badge badge-green">${pt.treatmentPlans[0].status}</span>
                     </div>
                   </div>
                 ` : ''}
@@ -1821,7 +1825,7 @@ class ClinicApp {
               <select class="form-control" id="inspector-procedure-select">
                 <option value="">-- Choose Procedure --</option>
                 ${this.store.procedures.map(p => `
-                  <option value="${p.code}">${p.code}: ${p.name} ($${p.price})</option>
+                  <option value="${p.code}">${p.code}: ${p.name} (Rs. ${p.price})</option>
                 `).join('')}
               </select>
             </div>
@@ -2182,7 +2186,7 @@ class ClinicApp {
                     <td><strong>${p.code}</strong></td>
                     <td><span class="badge badge-subtle">Tooth #${p.tooth}</span></td>
                     <td>${p.name}</td>
-                    <td><strong>$${p.cost}</strong></td>
+                    <td><strong>Rs. ${p.cost}</strong></td>
                     <td style="text-decoration: none;">
                       <select class="form-control" style="padding: 4px 8px; min-height: 32px; font-size: 0.82rem;" onchange="app.updateProcedureStatus(${idx}, ${pIdx}, this.value)">
                         <option value="Proposed" ${p.status === 'Proposed' ? 'selected' : ''}>Proposed</option>
@@ -2212,7 +2216,7 @@ class ClinicApp {
             <div style="flex: 1; min-width: 220px;">
               <label class="form-label" style="font-size: 0.75rem; margin-bottom: 2px;">Select Procedure</label>
               <select class="form-control" id="tp-add-proc-${idx}" style="padding: 4px 8px; font-size: 0.85rem; min-height: 34px;">
-                ${this.store.procedures.map(p => `<option value="${p.code}">${p.code}: ${p.name} ($${p.price})</option>`).join('')}
+                ${this.store.procedures.map(p => `<option value="${p.code}">${p.code}: ${p.name} (Rs. ${p.price})</option>`).join('')}
               </select>
             </div>
             <button class="btn btn-primary btn-sm" style="min-height: 34px;" onclick="app.addProcedureDirectlyToPlan(${idx})">
@@ -2221,8 +2225,8 @@ class ClinicApp {
           </div>
 
           <div class="plan-totals-box">
-            <div>Estimated Total: <strong style="font-size: 1.2rem; color: var(--text-main);">$${plan.estimatedTotal}</strong></div>
-            <div>Approved Total: <strong style="font-size: 1.2rem; color: var(--success);">$${plan.procedures.filter(p => p.status === 'Approved' || p.status === 'Completed').reduce((acc, p) => acc + p.cost, 0)}</strong></div>
+            <div>Estimated Total: <strong style="font-size: 1.2rem; color: var(--text-main);">Rs. ${plan.estimatedTotal}</strong></div>
+            <div>Approved Total: <strong style="font-size: 1.2rem; color: var(--success);">Rs. ${plan.procedures.filter(p => p.status === 'Approved' || p.status === 'Completed').reduce((acc, p) => acc + p.cost, 0)}</strong></div>
           </div>
         </div>
       `).join('')}
@@ -2309,7 +2313,7 @@ class ClinicApp {
               <span class="badge ${p.status === 'Completed' ? 'badge-green' : p.status === 'Approved' ? 'badge-teal' : 'badge-subtle'}" style="margin-left: 6px; font-size: 0.72rem;">${p.status}</span>
             </div>
           </div>
-          <strong style="color: var(--text-main);">$${p.cost}</strong>
+          <strong style="color: var(--text-main);">Rs. ${p.cost}</strong>
         </label>
       `;
     }).join('');
@@ -2333,9 +2337,9 @@ class ClinicApp {
     const discEl = document.getElementById("selective-bill-discount-display");
     const netEl = document.getElementById("selective-bill-net-total");
 
-    if (subEl) subEl.textContent = `$${subtotal}`;
-    if (discEl) discEl.textContent = `-$${discount}`;
-    if (netEl) netEl.textContent = `$${netTotal}`;
+    if (subEl) subEl.textContent = `Rs. ${subtotal}`;
+    if (discEl) discEl.textContent = `-Rs. ${discount}`;
+    if (netEl) netEl.textContent = `Rs. ${netTotal}`;
   }
 
   confirmSelectiveInvoice() {
@@ -2383,7 +2387,7 @@ class ClinicApp {
     this.selectedPatient.auditLogs.unshift({
       timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
       user: this.store.currentUser.name,
-      action: `Generated Selective Invoice #${newInvoice.id} for $${newInvoice.total} (${items.length} procedures)`
+      action: `Generated Selective Invoice #${newInvoice.id} for Rs. ${newInvoice.total} (${items.length} procedures)`
     });
 
     this.store.savePatient(this.selectedPatient);
@@ -2391,7 +2395,7 @@ class ClinicApp {
     const modal = document.getElementById("selective-billing-modal");
     if (modal) modal.classList.remove("open");
 
-    this.showToast(`Invoice #${newInvoice.id} generated for $${newInvoice.total}!`, "success");
+    this.showToast(`Invoice #${newInvoice.id} generated for Rs. ${newInvoice.total}!`, "success");
     this.switchRecordTab("billing");
   }
 
@@ -2984,7 +2988,7 @@ class ClinicApp {
                 ${inv.items.map(item => `
                   <tr>
                     <td>${item.desc}</td>
-                    <td style="text-align: right;">$${item.amount}</td>
+                    <td style="text-align: right;">Rs. ${item.amount}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -2992,11 +2996,11 @@ class ClinicApp {
           </div>
 
           <div class="plan-totals-box" style="justify-content: flex-end; gap: 16px; flex-wrap: wrap;">
-            <div>Subtotal: <strong>$${inv.subtotal || inv.total}</strong></div>
-            ${inv.discount ? `<div>Discount: <strong style="color: var(--success);">-$${inv.discount}</strong></div>` : ''}
-            <div>Total: <strong>$${inv.total}</strong></div>
-            <div>Paid: <strong style="color: var(--success);">$${inv.paid}</strong></div>
-            <div>Balance Due: <strong style="color: ${inv.balance > 0 ? 'var(--error)' : 'var(--success)'}; font-size: 1.15rem;">$${inv.balance}</strong></div>
+            <div>Subtotal: <strong>Rs. ${inv.subtotal || inv.total}</strong></div>
+            ${inv.discount ? `<div>Discount: <strong style="color: var(--success);">-Rs. ${inv.discount}</strong></div>` : ''}
+            <div>Total: <strong>Rs. ${inv.total}</strong></div>
+            <div>Paid: <strong style="color: var(--success);">Rs. ${inv.paid}</strong></div>
+            <div>Balance Due: <strong style="color: ${inv.balance > 0 ? 'var(--error)' : 'var(--success)'}; font-size: 1.15rem;">Rs. ${inv.balance}</strong></div>
           </div>
         </div>
       `).join('')}
@@ -3017,7 +3021,7 @@ class ClinicApp {
 
     modal.classList.add("open");
     document.getElementById("modal-pay-inv-id").textContent = inv.id;
-    document.getElementById("modal-pay-balance").textContent = `$${inv.balance}`;
+    document.getElementById("modal-pay-balance").textContent = `Rs. ${inv.balance}`;
     document.getElementById("pay-amount-input").value = inv.balance;
     modal.setAttribute("data-invoice-id", invoiceId);
   }
@@ -3046,13 +3050,13 @@ class ClinicApp {
     this.selectedPatient.auditLogs.unshift({
       timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
       user: this.store.currentUser.name,
-      action: `Recorded Payment of $${payAmount} via ${payMethod} (Ref: ${refNum || 'N/A'})`
+      action: `Recorded Payment of Rs. ${payAmount} via ${payMethod} (Ref: ${refNum || 'N/A'})`
     });
 
     this.store.savePatient(this.selectedPatient);
     modal.classList.remove("open");
 
-    this.showToast(`Payment of $${payAmount} recorded successfully!`, "success");
+    this.showToast(`Payment of Rs. ${payAmount} recorded successfully!`, "success");
     this.renderBillingTab(document.getElementById("patient-tab-content-container"));
   }
 
@@ -3075,7 +3079,7 @@ class ClinicApp {
     modal.setAttribute("data-invoice-id", invoiceId);
     modal.setAttribute("data-patient-id", pt.id);
     document.getElementById("refund-modal-inv-id").textContent = inv.id;
-    document.getElementById("refund-modal-paid").textContent = `$${inv.paid}`;
+    document.getElementById("refund-modal-paid").textContent = `Rs. ${inv.paid}`;
     document.getElementById("refund-amount-input").value = inv.paid;
     modal.classList.add("open");
   }
@@ -3099,7 +3103,7 @@ class ClinicApp {
     }
 
     modal.classList.remove("open");
-    this.showToast(`Refund of $${amount} processed successfully.`, "success");
+    this.showToast(`Refund of Rs. ${amount} processed successfully.`, "success");
 
     if (this.currentScreen === "billing") {
       this.renderBilling(document.getElementById("page-main-workspace"));
@@ -3919,7 +3923,7 @@ class ClinicApp {
               ${CLINIC_ICONS.chart}
             </div>
           </div>
-          <div class="kpi-value">$${totalInvoiced.toLocaleString()}</div>
+          <div class="kpi-value">Rs. ${totalInvoiced.toLocaleString()}</div>
           <div class="kpi-footer">
             <span style="font-size: 0.78rem; color: var(--text-secondary);">Total invoiced procedures</span>
           </div>
@@ -3932,7 +3936,7 @@ class ClinicApp {
               ${CLINIC_ICONS.creditCard}
             </div>
           </div>
-          <div class="kpi-value" style="color: var(--success);">$${totalCollected.toLocaleString()}</div>
+          <div class="kpi-value" style="color: var(--success);">Rs. ${totalCollected.toLocaleString()}</div>
           <div class="kpi-footer">
             <span style="font-size: 0.78rem; color: var(--success); font-weight: 600;">${totalInvoiced > 0 ? Math.round((totalCollected / totalInvoiced) * 100) : 0}% Realized collections</span>
           </div>
@@ -3945,7 +3949,7 @@ class ClinicApp {
               ${CLINIC_ICONS.alertTriangle}
             </div>
           </div>
-          <div class="kpi-value" style="color: var(--error);">$${totalDue.toLocaleString()}</div>
+          <div class="kpi-value" style="color: var(--error);">Rs. ${totalDue.toLocaleString()}</div>
           <div class="kpi-footer">
             <span style="font-size: 0.78rem; color: var(--error); font-weight: 600;">Pending copay & claims</span>
           </div>
@@ -4005,9 +4009,9 @@ class ClinicApp {
                     <strong>${inv.patientName}</strong>
                     <span style="font-size: 0.75rem; color: var(--text-muted); display: block; font-family: 'JetBrains Mono', monospace;">${inv.patientMrn}</span>
                   </td>
-                  <td><strong style="font-size: 0.98rem; color: var(--text-main);">$${inv.total}</strong></td>
-                  <td style="color: var(--success); font-weight: 700;">$${inv.paid}</td>
-                  <td style="color: ${inv.balance > 0 ? 'var(--error)' : 'var(--success)'}; font-weight: 800;">$${inv.balance}</td>
+                  <td><strong style="font-size: 0.98rem; color: var(--text-main);">Rs. ${inv.total}</strong></td>
+                  <td style="color: var(--success); font-weight: 700;">Rs. ${inv.paid}</td>
+                  <td style="color: ${inv.balance > 0 ? 'var(--error)' : 'var(--success)'}; font-weight: 800;">Rs. ${inv.balance}</td>
                   <td>
                     <span class="badge ${inv.status === 'Paid' ? 'badge-green' : inv.status === 'Partial' ? 'badge-amber' : 'badge-red'}" style="font-size: 0.8rem; padding: 4px 10px;">
                       ${inv.status}
@@ -4120,7 +4124,7 @@ class ClinicApp {
               ${CLINIC_ICONS.creditCard}
             </div>
           </div>
-          <div class="kpi-value">$${totalGross.toLocaleString()}</div>
+          <div class="kpi-value">Rs. ${totalGross.toLocaleString()}</div>
           <div class="kpi-footer">
             <span style="font-size: 0.78rem; color: var(--success); font-weight: 600;">✓ All clinical encounters</span>
           </div>
@@ -4133,7 +4137,7 @@ class ClinicApp {
               ${CLINIC_ICONS.checkCircle}
             </div>
           </div>
-          <div class="kpi-value" style="color: var(--success);">$${totalCollected.toLocaleString()}</div>
+          <div class="kpi-value" style="color: var(--success);">Rs. ${totalCollected.toLocaleString()}</div>
           <div class="kpi-footer">
             <span style="font-size: 0.78rem; color: var(--text-secondary);">Realized cash & card receipts</span>
           </div>
@@ -4146,7 +4150,7 @@ class ClinicApp {
               ${CLINIC_ICONS.alertTriangle}
             </div>
           </div>
-          <div class="kpi-value" style="color: var(--error);">$${totalDue.toLocaleString()}</div>
+          <div class="kpi-value" style="color: var(--error);">Rs. ${totalDue.toLocaleString()}</div>
           <div class="kpi-footer">
             <span style="font-size: 0.78rem; color: var(--error); font-weight: 600;">Copay balance pending</span>
           </div>
@@ -4180,10 +4184,10 @@ class ClinicApp {
           <div class="css-bar-chart" style="height: 180px;">
             ${dailyData.map(day => {
               const heightPct = Math.max(15, Math.round((day.amount / maxDaily) * 100));
-              const displayAmt = day.amount > 0 ? `$${(day.amount / 1000).toFixed(1)}k` : '$0';
+              const displayAmt = day.amount > 0 ? `Rs. ${(day.amount / 1000).toFixed(1)}k` : 'Rs. 0';
               return `
                 <div class="bar-col">
-                  <div class="bar-fill" style="height: ${heightPct}%; background: linear-gradient(180deg, var(--primary-teal), var(--dark-teal)); border-radius: 4px 4px 0 0;" title="${day.iso}: $${day.amount}">
+                  <div class="bar-fill" style="height: ${heightPct}%; background: linear-gradient(180deg, var(--primary-teal), var(--dark-teal)); border-radius: 4px 4px 0 0;" title="${day.iso}: Rs. ${day.amount}">
                     <span style="position: absolute; top: -20px; font-size: 0.72rem; font-weight: 800; color: var(--text-main);">${displayAmt}</span>
                   </div>
                   <span class="bar-label" style="font-weight: 600; font-size: 0.75rem;">${day.dayName}</span>
@@ -4376,7 +4380,7 @@ class ClinicApp {
                   <td><span class="badge badge-subtle">${proc.category}</span></td>
                   <td><strong>${proc.name}</strong></td>
                   <td>${proc.duration} mins</td>
-                  <td><strong style="color: var(--text-main); font-size: 0.95rem;">$${proc.price}</strong></td>
+                  <td><strong style="color: var(--text-main); font-size: 0.95rem;">Rs. ${proc.price}</strong></td>
                 </tr>
               `).join('')}
             </tbody>
@@ -4611,14 +4615,14 @@ class ClinicApp {
                 <td style="padding: 8px;">${p.code}</td>
                 <td style="padding: 8px;">Tooth #${p.tooth}</td>
                 <td style="padding: 8px;">${p.name}</td>
-                <td style="padding: 8px; text-align: right;">$${p.cost}</td>
+                <td style="padding: 8px; text-align: right;">Rs. ${p.cost}</td>
               </tr>
             `).join('')}
           </tbody>
         </table>
 
         <div style="text-align: right; margin-bottom: 30px;">
-          <div style="font-size: 1.25rem; font-weight: 800;">Estimated Total: $${plan.estimatedTotal}</div>
+          <div style="font-size: 1.25rem; font-weight: 800;">Estimated Total: Rs. ${plan.estimatedTotal}</div>
           <div style="font-size: 0.8rem; color: #64748B;">*This estimate does not constitute a finalized billing invoice.</div>
         </div>
 
@@ -4695,17 +4699,17 @@ class ClinicApp {
             ${inv.items.map(item => `
               <tr style="border-bottom: 1px solid #E2E8F0; font-size: 0.9rem;">
                 <td style="padding: 8px;">${item.desc}</td>
-                <td style="padding: 8px; text-align: right;">$${item.amount}</td>
+                <td style="padding: 8px; text-align: right;">Rs. ${item.amount}</td>
               </tr>
             `).join('')}
           </tbody>
         </table>
 
         <div style="text-align: right; margin-bottom: 30px;">
-          <div style="font-size: 0.95rem;">Gross Total: $${inv.total}</div>
-          <div style="font-size: 1rem; color: var(--success); font-weight: 700;">Amount Paid: $${inv.paid}</div>
+          <div style="font-size: 0.95rem;">Gross Total: Rs. ${inv.total}</div>
+          <div style="font-size: 1rem; color: var(--success); font-weight: 700;">Amount Paid: Rs. ${inv.paid}</div>
           <div style="font-size: 1.25rem; font-weight: 800; color: ${inv.balance > 0 ? 'var(--error)' : 'var(--success)'};">
-            Remaining Balance Due: $${inv.balance}
+            Remaining Balance Due: Rs. ${inv.balance}
           </div>
         </div>
 
@@ -5301,7 +5305,7 @@ const stationMethods = {
       this.renderCurrentScreen();
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   },
 
   toggleSound() {
@@ -6052,10 +6056,10 @@ const stationMethods = {
       });
 
       const openSlots = [
-        { time: '11:30 AM', doc: 'Dr. Sarah Chen, DDS', chair: 'Chair 1: General', chairId: 'c1', docId: 'u2', fee: '$65' },
-        { time: '01:15 PM', doc: 'Dr. Marcus Vance, Ortho', chair: 'Chair 2: Ortho Bay', chairId: 'c2', docId: 'u3', fee: '$50' },
-        { time: '03:30 PM', doc: 'Dr. Sarah Chen, DDS', chair: 'Chair 3: Surgical Suite', chairId: 'c3', docId: 'u2', fee: '$85' },
-        { time: '04:45 PM', doc: 'Liam Vance, RDA', chair: 'Chair 4: Hygiene Bay', chairId: 'c4', docId: 'u4', fee: '$40' }
+        { time: '11:30 AM', doc: 'Dr. Sarah Chen, BDS', chair: 'Chair 1: General Operatory', chairId: 'c1', docId: 'u2', fee: 'Rs. 1,500' },
+        { time: '01:15 PM', doc: 'Dr. Marcus Vance, Ortho', chair: 'Chair 2: Ortho Bay', chairId: 'c2', docId: 'u3', fee: 'Rs. 2,000' },
+        { time: '03:30 PM', doc: 'Dr. Sarah Chen, BDS', chair: 'Chair 3: Surgical Suite', chairId: 'c3', docId: 'u2', fee: 'Rs. 2,500' },
+        { time: '04:45 PM', doc: 'Liam Vance, RDA', chair: 'Chair 4: Hygiene Bay', chairId: 'c4', docId: 'u4', fee: 'Rs. 1,200' }
       ].filter(s => {
         if (!query) return true;
         return s.time.toLowerCase().includes(query) || s.doc.toLowerCase().includes(query) || s.chair.toLowerCase().includes(query);
@@ -6295,20 +6299,20 @@ const stationMethods = {
         : "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80";
       const docName = isOrtho ? "Dr. Marcus Vance, Ortho Lead" : "Dr. Sarah Chen, DDS";
       const docSuite = isOrtho ? "Chair 2: Specialized Orthodontic Bay" : "Chair 1: General & Restorative Operatory";
-      const docFee = isOrtho ? "$50 Consult" : "$65 Exam & Consult";
+      const docFee = isOrtho ? "Rs. 2,000 Consult" : "Rs. 1,500 Exam & Consult";
 
       const concernList = isOrtho ? [
-        { id: 'ortho-wire', name: 'Archwire Adjustment / Tightening', est: '$75', icon: CLINIC_ICONS.wrench },
-        { id: 'ortho-bracket', name: 'Loose Bracket / Pokey Wire Trauma', est: '$60', icon: CLINIC_ICONS.alertTriangle },
-        { id: 'ortho-aligner', name: 'Clear Aligner Check / Tray Pick-up', est: '$80', icon: CLINIC_ICONS.sparkles },
-        { id: 'ortho-consult', name: 'New Patient Braces Consultation', est: '$50', icon: CLINIC_ICONS.smile }
+        { id: 'ortho-wire', name: 'Archwire Adjustment / Tightening', est: 'Rs. 3,000', icon: CLINIC_ICONS.wrench },
+        { id: 'ortho-bracket', name: 'Loose Bracket / Pokey Wire Trauma', est: 'Rs. 2,500', icon: CLINIC_ICONS.alertTriangle },
+        { id: 'ortho-aligner', name: 'Clear Aligner Check / Tray Pick-up', est: 'Rs. 4,000', icon: CLINIC_ICONS.sparkles },
+        { id: 'ortho-consult', name: 'New Patient Braces Consultation', est: 'Rs. 2,000', icon: CLINIC_ICONS.smile }
       ] : [
-        { id: 'sym-1', name: 'Severe Toothache / Cavity Pain', est: '$65', icon: CLINIC_ICONS.tooth },
-        { id: 'sym-2', name: 'Teeth Cleaning & Scaling (Hygiene)', est: '$80', icon: CLINIC_ICONS.sparkles },
-        { id: 'sym-3', name: 'Comprehensive Dental Exam & Checkup', est: '$40', icon: CLINIC_ICONS.stethoscope },
-        { id: 'sym-4', name: 'Broken Tooth / Chipped Enamel', est: '$95', icon: CLINIC_ICONS.alertTriangle },
-        { id: 'sym-5', name: 'Gum Swelling / Bleeding Gums', est: '$70', icon: CLINIC_ICONS.shield },
-        { id: 'sym-6', name: 'Tooth Extraction / Wisdom Tooth Pain', est: '$90', icon: CLINIC_ICONS.emergency }
+        { id: 'sym-1', name: 'Severe Toothache / Cavity Pain', est: 'Rs. 1,500', icon: CLINIC_ICONS.tooth },
+        { id: 'sym-2', name: 'Teeth Cleaning & Scaling (Hygiene)', est: 'Rs. 4,500', icon: CLINIC_ICONS.sparkles },
+        { id: 'sym-3', name: 'Comprehensive Dental Exam & Checkup', est: 'Rs. 1,500', icon: CLINIC_ICONS.stethoscope },
+        { id: 'sym-4', name: 'Broken Tooth / Chipped Enamel', est: 'Rs. 3,500', icon: CLINIC_ICONS.alertTriangle },
+        { id: 'sym-5', name: 'Gum Swelling / Bleeding Gums', est: 'Rs. 2,500', icon: CLINIC_ICONS.shield },
+        { id: 'sym-6', name: 'Tooth Extraction / Wisdom Tooth Pain', est: 'Rs. 4,000', icon: CLINIC_ICONS.emergency }
       ];
 
       bodyHtml = `
@@ -6387,7 +6391,7 @@ const stationMethods = {
                   <div style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #64748B; display: flex;">
                     ${CLINIC_ICONS.user}
                   </div>
-                  <input type="text" id="kiosk-walkin-name" class="form-control" style="font-size: 1rem; padding: 12px 14px 12px 42px; border-radius: var(--radius-md);" placeholder="e.g. John Doe (or leave blank)" value="${this.kioskState.name || ''}" oninput="app.kioskState.name = this.value">
+                  <input type="text" id="kiosk-walkin-name" class="form-control" style="font-size: 1rem; padding: 12px 14px 12px 42px; border-radius: var(--radius-md);" placeholder="e.g. Tariq Mehmood (or leave blank for Walk-in)" value="${this.kioskState.name || ''}" oninput="app.kioskState.name = this.value">
                 </div>
               </div>
 
@@ -6400,10 +6404,10 @@ const stationMethods = {
                   <div style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #64748B; display: flex;">
                     ${CLINIC_ICONS.phone}
                   </div>
-                  <input type="tel" id="kiosk-walkin-phone" class="form-control" style="font-size: 1.05rem; padding: 12px 14px 12px 42px; border-radius: var(--radius-md); font-family: 'JetBrains Mono', monospace;" placeholder="e.g. (555) 012-3456" value="${this.kioskState.phone || ''}" oninput="app.kioskState.phone = this.value">
+                  <input type="tel" id="kiosk-walkin-phone" class="form-control" style="font-size: 1.05rem; padding: 12px 14px 12px 42px; border-radius: var(--radius-md); font-family: 'JetBrains Mono', monospace;" placeholder="e.g. 0300-1234567 or 0321-9876543" value="${this.kioskState.phone || ''}" oninput="app.kioskState.phone = this.value">
                 </div>
                 <div style="font-size: 0.76rem; color: #64748B; margin-top: 5px;">
-                  Used for SMS queue announcements and clinical records.
+                  Used for SMS queue announcements and clinical records across Pakistan.
                 </div>
               </div>
 
@@ -6422,7 +6426,7 @@ const stationMethods = {
               <!-- Issue Token Primary Button -->
               <button class="btn btn-primary" onclick="app.issueWalkinToken()" style="width: 100%; height: 56px; font-size: 1.12rem; font-weight: 800; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 20px rgba(13,148,136,0.25);">
                 ${CLINIC_ICONS.printer}
-                <span>Touch to Print Token Slip</span>
+                <span>Touch to Print Token Slip (Rs. 1,500)</span>
               </button>
 
               <div style="margin-top: 12px; text-align: center; font-size: 0.74rem; color: #94A3B8;">
@@ -6507,7 +6511,7 @@ const stationMethods = {
                 <div style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #DC2626; display: flex;">
                   ${CLINIC_ICONS.phone}
                 </div>
-                <input type="tel" id="kiosk-emg-phone" class="form-control" style="font-size: 1.05rem; padding: 12px 14px 12px 42px; border-radius: var(--radius-md); font-family: 'JetBrains Mono', monospace; border: 2px solid #FCA5A5;" placeholder="(555) 000-0000" value="${this.kioskState.emergencyPhone || ''}" oninput="app.kioskState.emergencyPhone = this.value">
+                <input type="tel" id="kiosk-emg-phone" class="form-control" style="font-size: 1.05rem; padding: 12px 14px 12px 42px; border-radius: var(--radius-md); font-family: 'JetBrains Mono', monospace; border: 2px solid #FCA5A5;" placeholder="0300-1234567" value="${this.kioskState.emergencyPhone || ''}" oninput="app.kioskState.emergencyPhone = this.value">
               </div>
 
               <button class="btn btn-danger btn-lg" onclick="app.submitEmergencyKiosk()" style="width: 100%; height: 58px; font-size: 1.15rem; font-weight: 900; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 25px rgba(220,38,38,0.35);">
@@ -6940,20 +6944,20 @@ const stationMethods = {
               </h4>
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 ${[
-                  { code: 'D0120', name: 'Periodic Oral Exam', cost: 45 },
-                  { code: 'D1110', name: 'Dental Hygiene Prophylaxis', cost: 80 },
-                  { code: 'D2330', name: 'Composite Resin 1-Surface', cost: 150 },
-                  { code: 'D2740', name: 'Porcelain/Zirconia Crown', cost: 950 },
-                  { code: 'D3330', name: 'Molar Endodontic Therapy', cost: 980 },
-                  { code: 'D7140', name: 'Surgical Tooth Extraction', cost: 180 },
-                  { code: 'D8670', name: 'Ortho Archwire Adjustment', cost: 75 }
+                  { code: 'D0120', name: 'Periodic Oral Exam', cost: 1500 },
+                  { code: 'D1110', name: 'Dental Hygiene Prophylaxis', cost: 4500 },
+                  { code: 'D2330', name: 'Composite Resin 1-Surface', cost: 3500 },
+                  { code: 'D2740', name: 'Porcelain/Zirconia Crown', cost: 25000 },
+                  { code: 'D3330', name: 'Molar Endodontic Therapy', cost: 18000 },
+                  { code: 'D7140', name: 'Surgical Tooth Extraction', cost: 6000 },
+                  { code: 'D8670', name: 'Ortho Archwire Adjustment', cost: 3000 }
                 ].map(p => `
                   <button onclick="app.cabinAddProcedure('${p.code}', '${p.name}', ${p.cost})" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid #E2E8F0; background: #FFF; cursor: pointer; text-align: left; transition: all 0.15s ease;">
                     <div>
                       <strong style="font-size: 0.85rem; color: #0F172A; display: block;">${p.name}</strong>
                       <span style="font-size: 0.72rem; color: #64748B;">${p.code} • Tooth #${selectedTooth}</span>
                     </div>
-                    <span class="badge badge-teal" style="font-size: 0.75rem;">+ $${p.cost}</span>
+                    <span class="badge badge-teal" style="font-size: 0.75rem;">+ Rs. ${p.cost.toLocaleString()}</span>
                   </button>
                 `).join('')}
               </div>
@@ -6966,17 +6970,17 @@ const stationMethods = {
               </h4>
               <p style="font-size: 0.78rem; color: #64748B; margin: 0 0 12px 0;">Touch any medication to immediately prescribe &amp; route to Dispensary:</p>
               <div style="display: flex; flex-direction: column; gap: 8px;">
-                <button onclick="app.cabinAddRxChip('Clindamycin HCl', '300mg Q6H x 5d', 'Take with large glass of water. Penicillin safe.')" style="padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid #E2E8F0; background: #FFF; cursor: pointer; text-align: left; font-size: 0.82rem;">
-                  💊 <strong>Clindamycin 300mg</strong> (Penicillin-Allergy Safe)
+                <button onclick="app.cabinAddRxChip('Augmentin (Amoxicillin + Clavulanate)', '625mg BD x 5d', 'Take 1 tablet twice daily with meals (Dental Infection)')" style="padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid #E2E8F0; background: #FFF; cursor: pointer; text-align: left; font-size: 0.82rem;">
+                  💊 <strong>Augmentin 625mg</strong> (Rs. 480 • Dental Abscess / Infection)
                 </button>
-                <button onclick="app.cabinAddRxChip('Amoxicillin', '500mg tid x 5 days', 'Take 1 capsule every 8 hours with water')" style="padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid #E2E8F0; background: #FFF; cursor: pointer; text-align: left; font-size: 0.82rem;">
-                  💊 <strong>Amoxicillin 500mg</strong> (Dental Infection)
+                <button onclick="app.cabinAddRxChip('Flagyl (Metronidazole)', '400mg TDS x 5 days', 'Take 1 tablet thrice daily after food (Anaerobic / Gum Infection)')" style="padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid #E2E8F0; background: #FFF; cursor: pointer; text-align: left; font-size: 0.82rem;">
+                  💊 <strong>Flagyl 400mg</strong> (Rs. 220 • Periodontal &amp; Gum Infection)
                 </button>
-                <button onclick="app.cabinAddRxChip('Ibuprofen', '600mg Q8H PRN', 'Take with food for dental swelling and pain')" style="padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid #E2E8F0; background: #FFF; cursor: pointer; text-align: left; font-size: 0.82rem;">
-                  💊 <strong>Ibuprofen 600mg</strong> (Anti-Inflammatory Analgesic)
+                <button onclick="app.cabinAddRxChip('Brufen (Ibuprofen)', '400mg TDS PRN', 'Take with food for toothache swelling and inflammation')" style="padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid #E2E8F0; background: #FFF; cursor: pointer; text-align: left; font-size: 0.82rem;">
+                  💊 <strong>Brufen 400mg</strong> (Rs. 180 • Analgesic &amp; Anti-Inflammatory)
                 </button>
-                <button onclick="app.cabinAddRxChip('Chlorhexidine 0.2%', '10ml oral rinse bid', 'Swish 10ml in mouth for 60s after brushing')" style="padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid #E2E8F0; background: #FFF; cursor: pointer; text-align: left; font-size: 0.82rem;">
-                  🧴 <strong>Chlorhexidine 0.2% Rinse</strong> (Gingival Disinfectant)
+                <button onclick="app.cabinAddRxChip('Chlorhexidine 0.2% Rinse', '10ml mouthwash BD', 'Rinse 10ml in mouth for 60 seconds after brushing')" style="padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid #E2E8F0; background: #FFF; cursor: pointer; text-align: left; font-size: 0.82rem;">
+                  🧴 <strong>Chlorhexidine 0.2% Mouthwash</strong> (Rs. 350 • Antiseptic Disinfectant)
                 </button>
               </div>
             </div>
@@ -7207,7 +7211,7 @@ const stationMethods = {
                           <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="app.toggleBillingProcedure('${p.id}')">
                           <span style="font-weight: 600; font-size: 0.95rem; color: #0F172A;">${p.name}</span>
                         </div>
-                        <strong style="color: #0D9488;">${p.fee}</strong>
+                        <strong style="color: #0D9488;">Rs. ${Number(p.fee).toLocaleString()}</strong>
                       </label>
                     `;
                   }).join('')}
@@ -7218,7 +7222,7 @@ const stationMethods = {
               <div style="background: #F8FAFC; border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 20px; font-size: 0.95rem;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                   <span style="color: #64748B;">Procedures Subtotal:</span>
-                  <strong>${subtotal}</strong>
+                  <strong>Rs. ${Number(subtotal).toLocaleString()}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                   <span style="color: #64748B;">Discount (${discountPct}%):</span>
@@ -7229,11 +7233,11 @@ const stationMethods = {
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
                   <span style="color: #64748B;">Sales Tax (5%):</span>
-                  <span>+${taxAmount}</span>
+                  <span>+Rs. ${Number(taxAmount).toLocaleString()}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 900; color: #0F172A; border-top: 1px solid #E2E8F0; padding-top: 10px;">
                   <span>Net Amount Due:</span>
-                  <span style="color: #0D9488;">${netTotal}</span>
+                  <span style="color: #0D9488;">Rs. ${Number(netTotal).toLocaleString()}</span>
                 </div>
               </div>
 
@@ -7242,11 +7246,11 @@ const stationMethods = {
                 <div style="font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 8px;">Cash Received & Change Calculator:</div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                   <div>
-                    <label style="display: block; font-size: 0.8rem; color: #64748B; margin-bottom: 4px;">Amount Tendered ($)</label>
+                    <label style="display: block; font-size: 0.8rem; color: #64748B; margin-bottom: 4px;">Amount Tendered (Rs.)</label>
                     <input type="number" class="form-control" placeholder="0" value="${tendered || ''}" oninput="app.updateBillingTendered(this.value)">
                   </div>
                   <div>
-                    <label style="display: block; font-size: 0.8rem; color: #64748B; margin-bottom: 4px;">Change Due ($)</label>
+                    <label style="display: block; font-size: 0.8rem; color: #64748B; margin-bottom: 4px;">Change Due (Rs.)</label>
                     <div style="height: 42px; display: flex; align-items: center; padding: 0 14px; background: #F1F5F9; border-radius: var(--radius-md); font-weight: 800; font-size: 1.1rem; color: #10B981;">
                       ${changeDue}
                     </div>
@@ -7257,7 +7261,7 @@ const stationMethods = {
               <!-- Action buttons -->
               <div style="display: flex; gap: 10px;">
                 <button class="btn btn-primary" onclick="app.processBillingPayment('Cash')" style="flex: 1.5; font-size: 1rem; padding: 12px;">
-                  <span>💳</span> Process Payment (${netTotal})
+                  <span>💳</span> Process Payment (Rs. ${Number(netTotal).toLocaleString()})
                 </button>
                 <button class="btn btn-outline" onclick="window.print()" style="flex: 1;">
                   <span>🖨️</span> Thermal Receipt

@@ -76,9 +76,9 @@ body.kiosk-mode .kiosk-tile {
 }
 
 html {
-  height: 100%;
-  scroll-behavior: smooth;
+  min-height: 100%;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 body {
@@ -121,8 +121,9 @@ body.nav-hidden #app-container {
   transition: var(--transition);
   flex-shrink: 0;
   position: sticky;
-  top: 64px;
-  height: calc(100vh - 64px);
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow: hidden;
 }
 
 body.nav-hidden .app-sidebar {
@@ -178,12 +179,7 @@ body.nav-hidden .app-sidebar {
 }
 
 .nav-section-title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  letter-spacing: 0.8px;
-  padding: 12px 12px 4px;
+  display: none !important; /* Headings within menu removed */
 }
 
 .nav-item {
@@ -227,9 +223,15 @@ body.nav-hidden .app-sidebar {
 }
 
 .sidebar-footer {
-  padding: 16px;
+  margin-top: auto;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  padding: 12px 14px;
   border-top: 1px solid var(--border-color);
-  background: #FAFAFA;
+  background: #FFFFFF;
+  z-index: 20;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04);
 }
 
 .sidebar-user-badge {
@@ -2274,7 +2276,7 @@ body.nav-hidden #workstation-nav-revealer {
 /* Multi-Station Viewport - Eliminates Scroll Traps */
 #workstation-viewport {
   padding-top: 60px;
-  transition: padding-top 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: padding-top 0.25s ease;
   min-height: 100vh;
   overflow-x: hidden;
   overflow-y: visible;

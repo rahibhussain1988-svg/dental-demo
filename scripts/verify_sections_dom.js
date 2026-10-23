@@ -123,7 +123,7 @@ const cabinChecks = [
   { name: 'Odontogram Condition buttons', expected: cabinHtml.includes('Caries') && cabinHtml.includes('Root Canal') },
   { name: 'Odontogram Maxillary & Mandibular Arches', expected: cabinHtml.includes('Maxillary Arch') && cabinHtml.includes('Mandibular Arch') },
   { name: 'Chairside Procedures (D0120, D1110, D2330, etc.)', expected: cabinHtml.includes('D0120') && cabinHtml.includes('D2330') },
-  { name: '1-Tap Quick Prescriptions (Clindamycin, Amoxicillin, Ibuprofen)', expected: cabinHtml.includes('Clindamycin') && cabinHtml.includes('Amoxicillin') },
+  { name: '1-Tap Quick Prescriptions (Augmentin, Flagyl, Brufen)', expected: cabinHtml.includes('Augmentin') && cabinHtml.includes('Flagyl') },
   { name: 'Operatory Waiting Queue', expected: cabinHtml.includes('Waiting Queue for') }
 ];
 
