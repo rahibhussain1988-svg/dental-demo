@@ -110,8 +110,16 @@ function assert(condition, message) {
   }
 }
 
-console.log('\n--- Test 1: Service Categories & Step 1 Selection ---');
+console.log('\n--- Test 0: Kiosk Index Page & 3 Pathway Cards ---');
 const app = sandbox.window.app;
+assert(app.kioskPage === 'index', 'Initial Kiosk page is index');
+const initialMountHtml = elementMap.get('kiosk-main-mount').innerHTML;
+assert(initialMountHtml.includes('General Dental Walk-In'), 'Index contains Card 1: General Dental Walk-In');
+assert(initialMountHtml.includes('Braces &amp; Orthodontics') || initialMountHtml.includes('Braces & Orthodontics'), 'Index contains Card 2: Braces & Orthodontics');
+assert(initialMountHtml.includes('Scheduled Appointment Check-In'), 'Index contains Card 3: Scheduled Appointment Check-In (Third card for Appointment)');
+assert(initialMountHtml.includes('Urgent Dental Trauma'), 'Index contains Urgent Dental Trauma Fast-Track');
+
+console.log('\n--- Test 1: Service Categories & Step 1 Selection ---');
 assert(sandbox.window.KIOSK_SERVICE_CATEGORIES.length === 4, '4 Kiosk Service Categories configured');
 assert(sandbox.window.KIOSK_SERVICE_CATEGORIES[0].name === 'General Dentistry', 'Category 1 is General Dentistry');
 assert(sandbox.window.KIOSK_SERVICE_CATEGORIES[1].name.includes('Orthodontics'), 'Category 2 is Orthodontics & Braces');

@@ -147,15 +147,36 @@ if (cabinRxHtml.includes('Augmentin') && cabinRxHtml.includes('Flagyl')) {
 
 sandbox.window.app.setCabinTab('procedures');
 
-console.log('\n--- Checking /html/body/div[3]/section[1] (#station-kiosk / #kiosk-main-mount) Page 1 (Walk-In) ---');
+console.log('\n--- Checking /html/body/div[3]/section[1] (#station-kiosk / #kiosk-main-mount) Index Page ---');
 const kioskMount = elementMap.get('kiosk-main-mount');
+const indexHtml = kioskMount.innerHTML;
+
+const indexChecks = [
+  { name: 'Card 1: General Dental Walk-In pathway card', expected: indexHtml.includes('General Dental Walk-In') },
+  { name: 'Card 2: Braces & Orthodontics pathway card', expected: indexHtml.includes('Braces &amp; Orthodontics') || indexHtml.includes('Braces & Orthodontics') },
+  { name: 'Card 3: Scheduled Appointment Check-In (Third card on Index)', expected: indexHtml.includes('Scheduled Appointment Check-In') },
+  { name: 'Urgent Dental Trauma Fast-Track Banner', expected: indexHtml.includes('Urgent Dental Trauma') },
+  { name: '4 Operatory Suites Active status', expected: indexHtml.includes('4 Operatory Suites') }
+];
+
+indexChecks.forEach(c => {
+  if (c.expected) {
+    console.log(`  ✅ PASS: Kiosk Index Page contains ${c.name}`);
+  } else {
+    console.error(`  ❌ FAIL: Kiosk Index Page missing ${c.name}`);
+    process.exit(1);
+  }
+});
+
+console.log('\n--- Checking /html/body/div[3]/section[1] (#station-kiosk / #kiosk-main-mount) Next Page: Walk-In Registration ---');
+sandbox.window.app.setKioskPage('walkin');
 const kioskHtml = kioskMount.innerHTML;
 
 const walkinChecks = [
   { name: 'Patient Full Name text box (#kiosk-walkin-name)', expected: kioskHtml.includes('id="kiosk-walkin-name"') },
   { name: 'Mobile Phone Number text box (#kiosk-walkin-phone)', expected: kioskHtml.includes('id="kiosk-walkin-phone"') },
-  { name: 'General Dentistry pathway button', expected: kioskHtml.includes('General Dentistry') },
-  { name: 'Ortho Bay pathway button', expected: kioskHtml.includes('Ortho Bay') },
+  { name: 'General Dentistry service card', expected: kioskHtml.includes('General Dentistry') },
+  { name: 'Ortho Bay service card', expected: kioskHtml.includes('Ortho Bay') },
   { name: 'Touch to Print Token Slip button', expected: kioskHtml.includes('Touch to Print Token Slip') },
   { name: 'NO virtual numpad grid (.kiosk-numpad-grid removed)', expected: !kioskHtml.includes('kiosk-numpad-grid') },
   { name: 'Pakistani Currency (Rs.) in concern chips', expected: kioskHtml.includes('Rs.') }
@@ -163,9 +184,9 @@ const walkinChecks = [
 
 walkinChecks.forEach(c => {
   if (c.expected) {
-    console.log(`  ✅ PASS: Kiosk Page 1 contains ${c.name}`);
+    console.log(`  ✅ PASS: Kiosk Walk-In Page contains ${c.name}`);
   } else {
-    console.error(`  ❌ FAIL: Kiosk Page 1 missing ${c.name}`);
+    console.error(`  ❌ FAIL: Kiosk Walk-In Page missing ${c.name}`);
     process.exit(1);
   }
 });
