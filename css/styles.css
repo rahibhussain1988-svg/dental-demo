@@ -836,6 +836,24 @@ textarea.form-control {
   transform: translateY(0);
 }
 
+.kiosk-tile.locked-tile {
+  opacity: 0.55;
+  border-style: dashed;
+  background: #F8FAFC;
+  filter: grayscale(0.2);
+}
+
+.kiosk-tile.locked-tile:hover {
+  border-color: #CBD5E1;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+.kiosk-tile.locked-tile:hover .tile-icon-wrapper {
+  transform: none;
+}
+
 .tile-icon-wrapper {
   width: 54px;
   height: 54px;

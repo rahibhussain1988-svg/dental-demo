@@ -248,10 +248,135 @@ class ClinicApp {
     return Boolean(user.permissions && user.permissions.includes(permission));
   }
 
+  isScreenAllowed(screen, user = this.store?.currentUser) {
+    if (!user) return false;
+    if (user.role === "admin" || (user.permissions && user.permissions.includes("*"))) {
+      return true;
+    }
+
+    const role = user.role;
+    const perms = user.permissions || [];
+
+    switch (screen) {
+      case "dashboard":
+        return true; // All authenticated staff can access their home dashboard
+
+      case "registration":
+        return role === "receptionist" || perms.includes("patients.register");
+
+      case "search":
+        return perms.includes("patients.view") || role === "receptionist" || role === "dentist" || role === "orthodontist" || role === "assistant" || role === "cashier";
+
+      case "appointments":
+        return perms.includes("appointments.manage") || role === "receptionist" || role === "dentist" || role === "orthodontist" || role === "assistant";
+
+      case "queue":
+        return perms.includes("queue.manage") || role === "receptionist" || role === "dentist" || role === "orthodontist" || role === "assistant";
+
+      case "record":
+        return perms.includes("clinical.exam") || perms.includes("odontogram.edit") || role === "dentist" || role === "orthodontist";
+
+      case "dentist-workspace":
+        return perms.includes("clinical.exam") || perms.includes("clinical.view") || role === "dentist" || role === "orthodontist" || role === "assistant";
+
+      case "orthodontics":
+        return perms.includes("orthodontics.manage") || role === "orthodontist";
+
+      case "billing":
+        return perms.includes("billing.manage") || perms.includes("invoices.create") || role === "cashier";
+
+      case "reports":
+        return perms.includes("reports.view") || role === "cashier";
+
+      case "admin":
+        return role === "admin" || perms.includes("*");
+
+      default:
+        return false;
+    }
+  }
+
+  getScreenTitle(screen) {
+    const titles = {
+      "dashboard": "Clinic Operations Dashboard",
+      "registration": "New Patient Registration",
+      "search": "Find Patient Directory",
+      "appointments": "Appointments Calendar",
+      "queue": "Patient Queue & Tokens",
+      "record": "Dental Records & Odontogram",
+      "dentist-workspace": "Dentist Operatory Workspace",
+      "orthodontics": "Orthodontic Suite",
+      "billing": "Billing & Cashier POS",
+      "reports": "Reports & Analytics",
+      "admin": "Clinic Administration & Security"
+    };
+    return titles[screen] || screen;
+  }
+
+  updateSidebarNavPermissions() {
+    const user = this.store?.currentUser;
+    if (!user) return;
+
+    let allowedCount = 0;
+    const navItems = document.querySelectorAll(".sidebar-nav .nav-item[data-screen]");
+    navItems.forEach(item => {
+      const screen = item.getAttribute("data-screen");
+      const isAllowed = this.isScreenAllowed(screen, user);
+      if (isAllowed) {
+        allowedCount++;
+        item.style.display = "flex";
+        item.removeAttribute("disabled");
+        item.setAttribute("data-allowed", "true");
+      } else {
+        item.style.display = "none";
+        item.setAttribute("disabled", "true");
+        item.setAttribute("data-allowed", "false");
+        item.classList.remove("active");
+      }
+    });
+
+    // Update user display in sidebar footer
+    const sidebarAvatar = document.getElementById("sidebar-user-avatar");
+    if (sidebarAvatar) {
+      sidebarAvatar.innerHTML = `${user.avatar}<span style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; border-radius: 50%; background: #22C55E; border: 2px solid #FFF;" title="Active Clinician Online"></span>`;
+      sidebarAvatar.style.backgroundColor = user.color || "var(--primary-teal)";
+    }
+    const sidebarName = document.getElementById("sidebar-user-name");
+    if (sidebarName) {
+      sidebarName.textContent = user.name;
+    }
+    const sidebarRole = document.getElementById("sidebar-user-role");
+    if (sidebarRole) {
+      sidebarRole.innerHTML = `
+        <span title="${user.title}" style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block;">${user.role.toUpperCase()}</span>
+        <span style="color: #CBD5E1;">•</span>
+        <span style="color: ${user.color || 'var(--primary-teal)'}; font-weight: 700;">${allowedCount} Workspaces Allowed</span>
+      `;
+    }
+
+    // Update header avatar & dropdown value & role badge
+    const headerAvatar = document.getElementById("header-user-avatar");
+    if (headerAvatar) {
+      headerAvatar.textContent = user.avatar;
+      headerAvatar.style.backgroundColor = user.color || "var(--primary-teal)";
+    }
+    const roleBadge = document.getElementById("header-user-role-badge");
+    if (roleBadge) {
+      roleBadge.textContent = user.role.toUpperCase();
+      roleBadge.style.background = `${user.color || '#0284C7'}22`;
+      roleBadge.style.color = user.color || 'var(--primary-teal)';
+    }
+    const roleSelect = document.getElementById("active-role-selector");
+    if (roleSelect && roleSelect.value !== user.id) {
+      roleSelect.value = user.id;
+    }
+  }
+
   init() {
     this.setupClock();
     this.setupNavigation();
     this.setupRoleSwitcher();
+    this.updateSidebarNavPermissions();
     this.setupKioskToggle();
     this.setupModals();
     this.setupWorkstationNav();
@@ -302,19 +427,29 @@ class ClinicApp {
 
   setupRoleSwitcher() {
     const roleSelect = document.getElementById("active-role-selector");
-    const avatarEl = document.getElementById("header-user-avatar");
     if (roleSelect) {
       roleSelect.value = this.store.currentUser.id;
-      roleSelect.addEventListener("change", (e) => {
+      roleSelect.onchange = (e) => {
         const userId = e.target.value;
-        this.store.setCurrentUser(userId);
-        if (avatarEl) {
-          avatarEl.textContent = this.store.currentUser.avatar;
-          avatarEl.style.backgroundColor = this.store.currentUser.color;
-        }
-        this.showToast(`Switched active profile to: ${this.store.currentUser.name} (${this.store.currentUser.role.toUpperCase()})`, "success");
-        this.renderCurrentScreen();
-      });
+        this.switchActiveUser(userId);
+      };
+    }
+  }
+
+  switchActiveUser(userId) {
+    this.store.setCurrentUser(userId);
+    const user = this.store.currentUser;
+
+    this.updateSidebarNavPermissions();
+
+    // If current screen is restricted for this role, auto-redirect to dashboard
+    if (!this.isScreenAllowed(this.currentScreen, user)) {
+      const deniedScreenTitle = this.getScreenTitle(this.currentScreen);
+      this.showToast(`Access to "${deniedScreenTitle}" is restricted for ${user.name} (${user.role.toUpperCase()}). Redirected to Dashboard.`, "warning");
+      this.navigateTo("dashboard");
+    } else {
+      this.showToast(`Switched active profile to: ${user.name} (${user.role.toUpperCase()})`, "success");
+      this.renderCurrentScreen();
     }
   }
 
@@ -351,6 +486,13 @@ class ClinicApp {
   }
 
   navigateTo(screen, params = {}) {
+    if (!this.isScreenAllowed(screen)) {
+      const user = this.store.currentUser;
+      const title = this.getScreenTitle(screen);
+      this.showToast(`Access Denied: ${user.name} (${user.role.toUpperCase()}) is not authorized to access "${title}".`, "warning");
+      return false;
+    }
+
     this.currentScreen = screen;
 
     // Update sidebar active state
@@ -369,6 +511,7 @@ class ClinicApp {
 
     this.renderCurrentScreen(params);
     window.scrollTo({ top: 0, behavior: "smooth" });
+    return true;
   }
 
   showToast(message, type = "success") {
@@ -823,8 +966,8 @@ class ClinicApp {
       </h3>
 
       <div class="kiosk-tiles-grid">
-        <div class="kiosk-tile" onclick="app.navigateTo('registration')">
-          <span class="badge badge-teal tile-badge">Guided Wizard</span>
+        <div class="kiosk-tile ${!this.isScreenAllowed('registration') ? 'locked-tile' : ''}" onclick="app.navigateTo('registration')">
+          <span class="badge ${!this.isScreenAllowed('registration') ? 'badge-subtle' : 'badge-teal'} tile-badge">${!this.isScreenAllowed('registration') ? '🔒 Restricted' : 'Guided Wizard'}</span>
           <div class="tile-icon-wrapper" style="background: var(--primary-teal-light); color: var(--primary-teal);">
             ${CLINIC_ICONS.userPlus}
           </div>
@@ -834,8 +977,8 @@ class ClinicApp {
           </div>
         </div>
 
-        <div class="kiosk-tile" onclick="app.navigateTo('search')">
-          <span class="badge badge-blue tile-badge">Instant Lookup</span>
+        <div class="kiosk-tile ${!this.isScreenAllowed('search') ? 'locked-tile' : ''}" onclick="app.navigateTo('search')">
+          <span class="badge ${!this.isScreenAllowed('search') ? 'badge-subtle' : 'badge-blue'} tile-badge">${!this.isScreenAllowed('search') ? '🔒 Restricted' : 'Instant Lookup'}</span>
           <div class="tile-icon-wrapper" style="background: var(--secondary-blue-light); color: var(--secondary-blue);">
             ${CLINIC_ICONS.search}
           </div>
@@ -845,8 +988,8 @@ class ClinicApp {
           </div>
         </div>
 
-        <div class="kiosk-tile" onclick="app.navigateTo('appointments')">
-          <span class="badge badge-amber tile-badge">${todayApts.length} Today</span>
+        <div class="kiosk-tile ${!this.isScreenAllowed('appointments') ? 'locked-tile' : ''}" onclick="app.navigateTo('appointments')">
+          <span class="badge ${!this.isScreenAllowed('appointments') ? 'badge-subtle' : 'badge-amber'} tile-badge">${!this.isScreenAllowed('appointments') ? '🔒 Restricted' : `${todayApts.length} Today`}</span>
           <div class="tile-icon-wrapper" style="background: var(--warning-light); color: var(--warning);">
             ${CLINIC_ICONS.calendar}
           </div>
@@ -856,8 +999,8 @@ class ClinicApp {
           </div>
         </div>
 
-        <div class="kiosk-tile" onclick="app.navigateTo('queue')">
-          <span class="badge badge-red tile-badge">${waitingPatients.length} Waiting</span>
+        <div class="kiosk-tile ${!this.isScreenAllowed('queue') ? 'locked-tile' : ''}" onclick="app.navigateTo('queue')">
+          <span class="badge ${!this.isScreenAllowed('queue') ? 'badge-subtle' : 'badge-red'} tile-badge">${!this.isScreenAllowed('queue') ? '🔒 Restricted' : `${waitingPatients.length} Waiting`}</span>
           <div class="tile-icon-wrapper" style="background: var(--error-light); color: var(--error);">
             ${CLINIC_ICONS.users}
           </div>
@@ -867,8 +1010,8 @@ class ClinicApp {
           </div>
         </div>
 
-        <div class="kiosk-tile" onclick="app.openSamplePatientRecord()">
-          <span class="badge badge-teal tile-badge">Interactive Chart</span>
+        <div class="kiosk-tile ${!this.isScreenAllowed('record') ? 'locked-tile' : ''}" onclick="app.openSamplePatientRecord()">
+          <span class="badge ${!this.isScreenAllowed('record') ? 'badge-subtle' : 'badge-teal'} tile-badge">${!this.isScreenAllowed('record') ? '🔒 Restricted' : 'Interactive Chart'}</span>
           <div class="tile-icon-wrapper" style="background: var(--primary-teal-light); color: var(--primary-teal);">
             ${CLINIC_ICONS.tooth}
           </div>
@@ -878,8 +1021,8 @@ class ClinicApp {
           </div>
         </div>
 
-        <div class="kiosk-tile" onclick="app.navigateTo('orthodontics')">
-          <span class="badge badge-purple tile-badge">Specialty</span>
+        <div class="kiosk-tile ${!this.isScreenAllowed('orthodontics') ? 'locked-tile' : ''}" onclick="app.navigateTo('orthodontics')">
+          <span class="badge ${!this.isScreenAllowed('orthodontics') ? 'badge-subtle' : 'badge-purple'} tile-badge">${!this.isScreenAllowed('orthodontics') ? '🔒 Restricted' : 'Specialty'}</span>
           <div class="tile-icon-wrapper" style="background: var(--purple-light); color: var(--purple);">
             ${CLINIC_ICONS.brackets}
           </div>
@@ -889,8 +1032,8 @@ class ClinicApp {
           </div>
         </div>
 
-        <div class="kiosk-tile" onclick="app.navigateTo('billing')">
-          <span class="badge badge-green tile-badge">Cashier POS</span>
+        <div class="kiosk-tile ${!this.isScreenAllowed('billing') ? 'locked-tile' : ''}" onclick="app.navigateTo('billing')">
+          <span class="badge ${!this.isScreenAllowed('billing') ? 'badge-subtle' : 'badge-green'} tile-badge">${!this.isScreenAllowed('billing') ? '🔒 Restricted' : 'Cashier POS'}</span>
           <div class="tile-icon-wrapper" style="background: var(--success-light); color: var(--success);">
             ${CLINIC_ICONS.creditCard}
           </div>
@@ -900,8 +1043,8 @@ class ClinicApp {
           </div>
         </div>
 
-        <div class="kiosk-tile" onclick="app.navigateTo('reports')">
-          <span class="badge badge-subtle tile-badge">Analytics</span>
+        <div class="kiosk-tile ${!this.isScreenAllowed('reports') ? 'locked-tile' : ''}" onclick="app.navigateTo('reports')">
+          <span class="badge ${!this.isScreenAllowed('reports') ? 'badge-subtle' : 'badge-subtle'} tile-badge">${!this.isScreenAllowed('reports') ? '🔒 Restricted' : 'Analytics'}</span>
           <div class="tile-icon-wrapper" style="background: #F1F5F9; color: var(--text-secondary);">
             ${CLINIC_ICONS.report}
           </div>
@@ -911,8 +1054,8 @@ class ClinicApp {
           </div>
         </div>
 
-        <div class="kiosk-tile" onclick="app.navigateTo('admin')">
-          <span class="badge badge-subtle tile-badge">Governance</span>
+        <div class="kiosk-tile ${!this.isScreenAllowed('admin') ? 'locked-tile' : ''}" onclick="app.navigateTo('admin')">
+          <span class="badge ${!this.isScreenAllowed('admin') ? 'badge-subtle' : 'badge-subtle'} tile-badge">${!this.isScreenAllowed('admin') ? '🔒 Restricted' : 'Governance'}</span>
           <div class="tile-icon-wrapper" style="background: #F1F5F9; color: var(--text-secondary);">
             ${CLINIC_ICONS.settings}
           </div>
@@ -925,11 +1068,21 @@ class ClinicApp {
     `;
   }
   openSamplePatientRecord() {
+    if (!this.isScreenAllowed("record")) {
+      const user = this.store.currentUser;
+      this.showToast(`Access Denied: ${user.name} (${user.role.toUpperCase()}) is not authorized to access Dental Records & Odontogram.`, "warning");
+      return;
+    }
     this.selectedPatient = this.store.patients[0]; // John Miller
     this.navigateTo("record");
   }
 
   openPatientRecordByMrn(mrn) {
+    if (!this.isScreenAllowed("record")) {
+      const user = this.store.currentUser;
+      this.showToast(`Access Denied: ${user.name} (${user.role.toUpperCase()}) is not authorized to access Dental Records & Odontogram.`, "warning");
+      return;
+    }
     const pt = this.store.getPatient(mrn);
     if (pt) {
       this.selectedPatient = pt;
@@ -4481,7 +4634,7 @@ class ClinicApp {
                   <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;">${user.license || 'N/A'}</span></td>
                   <td><span style="font-size: 0.8rem; color: var(--text-secondary);">${user.permissions.join(', ')}</span></td>
                   <td style="text-align: right;">
-                    <button class="btn btn-sm btn-outline" onclick="app.store.setCurrentUser('${user.id}'); app.setupRoleSwitcher(); app.renderCurrentScreen();">
+                    <button class="btn btn-sm btn-outline" onclick="app.switchActiveUser('${user.id}')">
                       Impersonate User
                     </button>
                   </td>
