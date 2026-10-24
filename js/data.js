@@ -1758,6 +1758,33 @@ class ClinicStore {
     return this.patients.find(p => p.id === idOrMrn || p.mrn === idOrMrn);
   }
 
+  getNextMRN() {
+    return this.generateMRN();
+  }
+
+  savePatients() {
+    this.saveState();
+  }
+
+  addQueuePatient(data) {
+    const patientName = data.name || data.patientName || "Walk-In Patient";
+    const chairObj = (this.chairs || []).find(c => c.id === data.chair || c.name === data.chair) || { name: data.chair || "Chair 1 (General Operatory)" };
+    return this.addQueueItem({
+      patientId: data.patientId || ("pt-" + Date.now()),
+      patientName: patientName,
+      phone: data.phone || "",
+      serviceType: data.chiefComplaint || data.serviceType || "Walk-in Consultation",
+      chairId: data.chair || "c1",
+      chairName: data.chairName || chairObj.name || "Chair 1 (General Operatory)",
+      doctorId: data.doctorId || chairObj.doctorId || "u2",
+      doctorName: data.doctorName || "Dr. Sarah Chen, DDS",
+      status: "Waiting",
+      priority: data.priority || "Normal",
+      painScore: data.painScore || 3,
+      waitTimeMinutes: 0
+    });
+  }
+
   generateMRN() {
     const seq = String(this.patients.length + 1).padStart(4, "0");
     return `SDO-2026-${seq}`;

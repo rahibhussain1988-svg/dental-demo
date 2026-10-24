@@ -42,6 +42,113 @@ const CLINIC_ICONS = {
 };
 if (typeof window !== 'undefined') window.CLINIC_ICONS = CLINIC_ICONS;
 
+const KIOSK_SERVICE_CATEGORIES = [
+  {
+    id: 'general',
+    name: 'General Dentistry',
+    badge: 'Standard Care',
+    description: 'Oral evaluations, routine checkups, composite fillings & scaling hygiene',
+    icon: CLINIC_ICONS.tooth,
+    color: '#0D9488',
+    activeBg: '#F0FDFA',
+    border: '#99F6E4',
+    fee: 1500,
+    feeFormatted: 'Rs. 1,500',
+    chairId: 'c1',
+    chairName: 'Chair 1: General Operatory',
+    doctorId: 'u2',
+    doctorName: 'Dr. Sarah Chen, BDS, FCPS',
+    doctorTitle: 'Senior Dental Surgeon & Restorative Lead',
+    doctorPhoto: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80',
+    estWait: '~10m',
+    concerns: [
+      { id: 'gen-exam', name: 'Comprehensive Dental Examination', fee: 1500, estFee: 1500, feeFormatted: 'Rs. 1,500', isIncluded: true, desc: 'Full oral exam, visual charting & periodontal evaluation', icon: CLINIC_ICONS.stethoscope },
+      { id: 'gen-toothache', name: 'Toothache & Cavity Assessment', fee: 1500, estFee: 3500, feeFormatted: 'Est. Rs. 3,500', isIncluded: false, desc: 'Localized dental pain, hot/cold sensitivity, tooth decay', icon: CLINIC_ICONS.tooth },
+      { id: 'gen-cleaning', name: 'Ultrasonic Scaling & Polishing', fee: 1500, estFee: 4500, feeFormatted: 'Est. Rs. 4,500', isIncluded: false, desc: 'Plaque & calculus debridement, stain polishing', icon: CLINIC_ICONS.sparkles },
+      { id: 'gen-filling', name: 'Tooth Restoration (Composite Filling)', fee: 1500, estFee: 3500, feeFormatted: 'Est. Rs. 3,500', isIncluded: false, desc: 'Enamel shade-matched resin filling for tooth decay', icon: CLINIC_ICONS.shield },
+      { id: 'gen-broken', name: 'Broken / Chipped Tooth Evaluation', fee: 1500, estFee: 3500, feeFormatted: 'Est. Rs. 3,500', isIncluded: false, desc: 'Fractured cusp smoothing or temporary restorative seal', icon: CLINIC_ICONS.alertTriangle },
+      { id: 'gen-extraction', name: 'Tooth Extraction Consultation', fee: 1500, estFee: 4000, feeFormatted: 'Est. Rs. 4,000', isIncluded: false, desc: 'Surgical or simple extraction under local anesthesia', icon: CLINIC_ICONS.chair }
+    ]
+  },
+  {
+    id: 'ortho',
+    name: 'Orthodontics & Braces (Ortho Bay)',
+    badge: 'Specialized Bay',
+    description: 'Braces consultations, clear aligners, archwire tightening & adjustments',
+    icon: CLINIC_ICONS.brackets,
+    color: '#7C3AED',
+    activeBg: '#FAF5FF',
+    border: '#E9D5FF',
+    fee: 2000,
+    feeFormatted: 'Rs. 2,000',
+    chairId: 'c4',
+    chairName: 'Chair 4: Orthodontic Bay',
+    doctorId: 'u3',
+    doctorName: 'Dr. Marcus Vance, BDS, M.Orth',
+    doctorTitle: 'Chief Orthodontist & Dentofacial Specialist',
+    doctorPhoto: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80',
+    estWait: '~15m',
+    concerns: [
+      { id: 'ortho-consult', name: 'New Patient Braces & Ortho Consult', fee: 2000, estFee: 2000, feeFormatted: 'Rs. 2,000', isIncluded: true, desc: 'Malocclusion assessment, bite analysis & treatment planning', icon: CLINIC_ICONS.stethoscope },
+      { id: 'ortho-wire', name: 'Archwire Adjustment / Tightening', fee: 2000, estFee: 3000, feeFormatted: 'Est. Rs. 3,000', isIncluded: false, desc: 'Routine wire replacement & orthodontic ligature change', icon: CLINIC_ICONS.wrench },
+      { id: 'ortho-bracket', name: 'Loose Bracket / Pokey Wire Relief', fee: 2000, estFee: 2500, feeFormatted: 'Est. Rs. 2,500', isIncluded: false, desc: 'Re-bonding bracket or trimming uncomfortable archwire', icon: CLINIC_ICONS.alertTriangle },
+      { id: 'ortho-aligner', name: 'Clear Aligner Tray Check & Fit', fee: 2000, estFee: 4000, feeFormatted: 'Est. Rs. 4,000', isIncluded: false, desc: 'Aligner tracking verification & next tray dispensing', icon: CLINIC_ICONS.sparkles },
+      { id: 'ortho-retainer', name: 'Retainer Check & Impressions', fee: 2000, estFee: 5000, feeFormatted: 'Est. Rs. 5,000', isIncluded: false, desc: 'Retention review, wire tightness & replacement impression', icon: CLINIC_ICONS.shield }
+    ]
+  },
+  {
+    id: 'emergency',
+    name: 'Emergency Dental Care',
+    badge: 'Priority 1 Urgent',
+    description: 'Immediate relief for severe toothache, dental trauma, fractures & swelling',
+    icon: CLINIC_ICONS.emergency,
+    color: '#DC2626',
+    activeBg: '#FEF2F2',
+    border: '#FECACA',
+    fee: 2500,
+    feeFormatted: 'Rs. 2,500',
+    chairId: 'c3',
+    chairName: 'Chair 3: Surgical Suite',
+    doctorId: 'u2',
+    doctorName: 'Dr. Sarah Chen, BDS, FCPS',
+    doctorTitle: 'Senior Surgeon on Emergency Call',
+    doctorPhoto: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80',
+    estWait: '⚡ Immediate',
+    concerns: [
+      { id: 'emg-abscess', name: 'Acute Odontogenic Abscess & Severe Pain', fee: 2500, estFee: 3500, feeFormatted: 'Est. Rs. 3,500', isIncluded: false, desc: 'Immediate drainage, pulp debridement & pain management', icon: CLINIC_ICONS.emergency },
+      { id: 'emg-avulsion', name: 'Knocked-Out Permanent Tooth (Dental Avulsion)', fee: 2500, estFee: 4500, feeFormatted: 'Est. Rs. 4,500', isIncluded: false, desc: 'Urgent replantation, flexible splinting & antibiotic therapy', icon: CLINIC_ICONS.tooth },
+      { id: 'emg-bleeding', name: 'Uncontrolled Post-Extraction Bleeding', fee: 2500, estFee: 3000, feeFormatted: 'Est. Rs. 3,000', isIncluded: false, desc: 'Hemostatic socket packing & compression suturing', icon: CLINIC_ICONS.shield },
+      { id: 'emg-trauma', name: 'Orthodontic Trauma / Piercing Archwire', fee: 2500, estFee: 2500, feeFormatted: 'Est. Rs. 2,500', isIncluded: false, desc: 'Wire trimming, mucosal laceration care & bracket removal', icon: CLINIC_ICONS.alertTriangle }
+    ]
+  },
+  {
+    id: 'other',
+    name: 'Other Dental Services',
+    badge: 'Hygiene & Aesthetic',
+    description: 'Pediatric care, laser whitening, aesthetic smile & nightguards',
+    icon: CLINIC_ICONS.smile,
+    color: '#0284C7',
+    activeBg: '#F0F9FF',
+    border: '#BAE6FD',
+    fee: 1800,
+    feeFormatted: 'Rs. 1,800',
+    chairId: 'c4',
+    chairName: 'Chair 4: Pediatric & Hygiene Bay',
+    doctorId: 'u4',
+    doctorName: 'Liam Vance, RDA & Dr. Chen',
+    doctorTitle: 'Oral Hygiene Lead & Clinical Specialist',
+    doctorPhoto: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=150&auto=format&fit=crop&q=80',
+    estWait: '~12m',
+    concerns: [
+      { id: 'oth-pediatric', name: 'Kids Gentle Dental Exam & Fluoride', fee: 1800, estFee: 2500, feeFormatted: 'Est. Rs. 2,500', isIncluded: false, desc: 'Child-friendly examination, cavity check & protective fluoride', icon: CLINIC_ICONS.smile },
+      { id: 'oth-whitening', name: 'Laser Teeth Whitening Consultation', fee: 1800, estFee: 8000, feeFormatted: 'Est. Rs. 8,000', isIncluded: false, desc: 'Enamel shade evaluation & cosmetic whitening treatment', icon: CLINIC_ICONS.sparkles },
+      { id: 'oth-perio', name: 'Periodontal Care & Gum Disease Review', fee: 1800, estFee: 5500, feeFormatted: 'Est. Rs. 5,500', isIncluded: false, desc: 'Deep pocket measurement & specialized root debridement', icon: CLINIC_ICONS.shield },
+      { id: 'oth-nightguard', name: 'Night Guard / Bruxism & TMJ Jaw Evaluation', fee: 1800, estFee: 6500, feeFormatted: 'Est. Rs. 6,500', isIncluded: false, desc: 'Custom night guard impressions for teeth grinding relief', icon: CLINIC_ICONS.tooth }
+    ]
+  }
+];
+if (typeof window !== 'undefined') window.KIOSK_SERVICE_CATEGORIES = KIOSK_SERVICE_CATEGORIES;
+
 /**
  * Smile Dental & Orthodontics Clinic Management System
  * Main Application Controller, Navigation, and Interactive Workflows
@@ -107,9 +214,11 @@ class ClinicApp {
     this.kioskCountdownTimer = null;
 
     this.kioskState = {
+      serviceId: 'general',
+      selectedConcernId: 'gen-exam',
       pathway: 'WALK_IN',
       step: 0,
-      selectedSymptoms: [],
+      selectedSymptoms: ['gen-exam'],
       selectedChair: 'chair-1',
       phone: '',
       name: '',
@@ -123,7 +232,10 @@ class ClinicApp {
       emergencyPhone: '',
       checkinPhone: '',
       checkinResult: null,
-      lastIssuedToken: null
+      lastIssuedToken: null,
+      matchedPatient: null,
+      validationError: '',
+      isSubmitting: false
     };
 
     this.init();
@@ -5433,12 +5545,111 @@ const stationMethods = {
      STATION 1: PATIENT SELF-SERVICE KIOSK CONTROLLER
      ========================================================================== */
 
+  setKioskService(serviceId) {
+    this.kioskState.serviceId = serviceId;
+    if (serviceId === 'ortho') {
+      this.kioskState.pathway = 'ORTHO_WALKIN';
+      this.kioskState.selectedChair = 'chair-4';
+      this.kioskState.selectedConcernId = 'ortho-consult';
+      this.kioskState.selectedSymptoms = ['ortho-consult'];
+    } else if (serviceId === 'emergency') {
+      this.kioskState.pathway = 'EMERGENCY';
+      this.kioskState.selectedChair = 'chair-3';
+      this.kioskState.selectedConcernId = 'emg-abscess';
+      this.kioskState.selectedSymptoms = ['emg-abscess'];
+    } else if (serviceId === 'other') {
+      this.kioskState.pathway = 'OTHER';
+      this.kioskState.selectedChair = 'chair-4';
+      this.kioskState.selectedConcernId = 'oth-pediatric';
+      this.kioskState.selectedSymptoms = ['oth-pediatric'];
+    } else {
+      this.kioskState.serviceId = 'general';
+      this.kioskState.pathway = 'WALK_IN';
+      this.kioskState.selectedChair = 'chair-1';
+      this.kioskState.selectedConcernId = 'gen-exam';
+      this.kioskState.selectedSymptoms = ['gen-exam'];
+    }
+    this.kioskState.validationError = '';
+    this.renderKioskStation();
+  },
+
+  selectKioskConcern(concernId) {
+    this.kioskState.selectedConcernId = concernId;
+    this.kioskState.selectedSymptoms = [concernId];
+    this.kioskState.validationError = '';
+    this.renderKioskStation();
+  },
+
+  getActiveKioskService() {
+    const serviceId = this.kioskState.serviceId || 'general';
+    return (typeof KIOSK_SERVICE_CATEGORIES !== 'undefined' ? KIOSK_SERVICE_CATEGORIES : (window.KIOSK_SERVICE_CATEGORIES || [])).find(s => s.id === serviceId) || (typeof KIOSK_SERVICE_CATEGORIES !== 'undefined' ? KIOSK_SERVICE_CATEGORIES[0] : (window.KIOSK_SERVICE_CATEGORIES || [])[0]);
+  },
+
+  getActiveKioskConcern() {
+    const service = this.getActiveKioskService();
+    const concernId = this.kioskState.selectedConcernId;
+    const concern = (service.concerns || []).find(c => c.id === concernId);
+    return concern || (service.concerns && service.concerns[0]) || { name: 'General Consultation', feeFormatted: service.feeFormatted, fee: service.fee };
+  },
+
+  onKioskNameInput(val) {
+    this.kioskState.name = val;
+    this.kioskState.validationError = '';
+    this.checkExistingPatientMatch();
+  },
+
+  onKioskPhoneInput(val) {
+    this.kioskState.phone = val;
+    this.kioskState.validationError = '';
+    this.checkExistingPatientMatch();
+  },
+
+  checkExistingPatientMatch() {
+    const pName = (this.kioskState.name || '').trim().toLowerCase();
+    const pPhone = (this.kioskState.phone || '').replace(/\D/g, '');
+    let matched = null;
+    if (pPhone.length >= 7) {
+      matched = (this.store.patients || []).find(p => {
+        const clean = (p.phone || '').replace(/\D/g, '');
+        return clean.length >= 7 && (clean.includes(pPhone) || pPhone.includes(clean));
+      });
+    }
+    if (!matched && pName.length >= 3) {
+      matched = (this.store.patients || []).find(p => {
+        const full = `${p.firstName || ''} ${p.lastName || ''}`.trim().toLowerCase();
+        return full === pName || (p.name && p.name.toLowerCase() === pName);
+      });
+    }
+    this.kioskState.matchedPatient = matched || null;
+    const matchEl = document.getElementById("kiosk-matched-patient-banner");
+    if (matchEl) {
+      if (matched) {
+        matchEl.style.display = "flex";
+        matchEl.innerHTML = `
+          <span style="font-size: 1.1rem; color: #0284C7;">✓</span>
+          <div>
+            <strong>Existing Patient:</strong> ${matched.firstName || matched.name} ${matched.lastName || ''} (${matched.mrn})
+            <span style="display: block; font-size: 0.72rem; color: #0284C7;">Record linked • Historical medical chart verified</span>
+          </div>
+        `;
+      } else {
+        matchEl.style.display = "none";
+        matchEl.innerHTML = "";
+      }
+    }
+  },
+
   setKioskPathway(pathway) {
     this.kioskState.pathway = pathway;
-    this.kioskState.step = pathway === 'WALK_IN' ? 1 : 0;
-    this.kioskState.checkinResult = null;
-    this.kioskState.checkinPhone = '';
-    this.renderKioskStation();
+    if (pathway === 'ORTHO_WALKIN') {
+      this.setKioskService('ortho');
+    } else if (pathway === 'EMERGENCY') {
+      this.setKioskService('emergency');
+    } else if (pathway === 'OTHER') {
+      this.setKioskService('other');
+    } else {
+      this.setKioskService('general');
+    }
   },
 
   setKioskStep(step) {
@@ -5447,13 +5658,7 @@ const stationMethods = {
   },
 
   toggleKioskSymptom(symptomId) {
-    const idx = this.kioskState.selectedSymptoms.indexOf(symptomId);
-    if (idx > -1) {
-      this.kioskState.selectedSymptoms.splice(idx, 1);
-    } else {
-      this.kioskState.selectedSymptoms.push(symptomId);
-    }
-    this.renderKioskStation();
+    this.selectKioskConcern(symptomId);
   },
 
   selectKioskChair(chairId) {
@@ -5626,24 +5831,65 @@ const stationMethods = {
   },
 
   issueWalkinToken() {
-    const nameInput = document.getElementById("kiosk-walkin-name");
-    const name = (nameInput ? nameInput.value.trim() : "") || this.kioskState.name.trim() || "Walk-In Patient";
-    const phoneInput = document.getElementById("kiosk-walkin-phone");
-    const phone = (phoneInput ? phoneInput.value.trim() : "") || this.kioskState.phone.trim() || "555-0100";
-    const age = this.kioskState.age || "30";
-    const gender = this.kioskState.gender || "Male";
-    const chairId = this.kioskState.selectedChair || "chair-1";
-    const painScore = this.kioskState.painScore || 3;
+    if (this.kioskState.isSubmitting) return;
 
-    let patient = this.store.patients.find(p => p.phone === phone || p.name.toLowerCase() === name.toLowerCase());
+    const nameInput = document.getElementById("kiosk-walkin-name");
+    const phoneInput = document.getElementById("kiosk-walkin-phone");
+    const name = (nameInput ? nameInput.value.trim() : "") || (this.kioskState.name || "").trim();
+    const phone = (phoneInput ? phoneInput.value.trim() : "") || (this.kioskState.phone || "").trim();
+
+    // In-line Validation Alert
+    const errEl = document.getElementById("kiosk-validation-error");
+    if (!name && !phone) {
+      this.kioskState.validationError = "Please enter Patient Name or Mobile Phone Number to issue a token.";
+      if (errEl) {
+        errEl.style.display = "block";
+        errEl.textContent = this.kioskState.validationError;
+      }
+      if (nameInput) nameInput.focus();
+      return;
+    }
+
+    this.kioskState.isSubmitting = true;
+    const btn = document.getElementById("kiosk-print-token-btn");
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span>⏳</span> <span>Generating Token Slip...</span>`;
+    }
+
+    const service = this.getActiveKioskService();
+    const concern = this.getActiveKioskConcern();
+
+    // Look up or create patient
+    let patient = this.kioskState.matchedPatient;
+    if (!patient && phone) {
+      const pDigits = phone.replace(/\D/g, "");
+      if (pDigits.length >= 7) {
+        patient = (this.store.patients || []).find(p => (p.phone || "").replace(/\D/g, "").includes(pDigits));
+      }
+    }
+    if (!patient && name) {
+      patient = (this.store.patients || []).find(p => {
+        const full = `${p.firstName || ''} ${p.lastName || ''}`.trim().toLowerCase();
+        return full === name.toLowerCase() || (p.name && p.name.toLowerCase() === name.toLowerCase());
+      });
+    }
+
     if (!patient) {
+      const finalName = name || "Walk-In Patient";
+      const parts = finalName.split(" ");
+      const firstName = parts[0] || "Walk-In";
+      const lastName = parts.slice(1).join(" ") || "Patient";
       patient = {
         id: "pt-" + Date.now(),
-        mrn: this.store.getNextMRN(),
-        name: name,
-        phone: phone,
-        age: parseInt(age, 10),
-        gender: gender,
+        mrn: this.store.generateMRN(),
+        name: finalName,
+        firstName: firstName,
+        lastName: lastName,
+        phone: phone || "0300-1234567",
+        dob: "1990-01-01",
+        age: 30,
+        gender: this.kioskState.gender || "Male",
         allergies: "None",
         medicalConditions: "None",
         currentMedications: "None",
@@ -5652,50 +5898,64 @@ const stationMethods = {
         chartData: {}
       };
       this.store.patients.unshift(patient);
-      this.store.savePatients();
+      this.store.saveState();
     }
 
-    const symptomNames = (this.kioskState.selectedSymptoms || []).map(id => {
-      const sym = (window.DENTAL_SYMPTOM_OPTIONS || []).find(s => s.id === id);
-      return sym ? sym.name : id;
-    });
-    const complaintText = symptomNames.length > 0 ? symptomNames.join(", ") : "Walk-in Dental Consultation";
+    // Add to Queue (Safe against duplicate submissions)
+    const existingActive = (this.store.queue || []).find(q => q.patientId === patient.id && (q.status === "Waiting" || q.status === "In Consultation" || q.status === "Checked In"));
+    let tokenItem;
+    if (existingActive) {
+      tokenItem = existingActive;
+      this.showToast(`Patient is already in queue with Token ${existingActive.token}`, "info");
+    } else {
+      tokenItem = this.store.addQueueItem({
+        patientId: patient.id,
+        patientName: patient.name || `${patient.firstName} ${patient.lastName}`,
+        phone: patient.phone,
+        serviceType: `${service.name}: ${concern.name}`,
+        chairId: service.chairId,
+        chairName: service.chairName,
+        doctorId: service.doctorId,
+        doctorName: service.doctorName,
+        status: "Waiting",
+        priority: service.id === 'emergency' ? "Urgent" : "Normal",
+        painScore: service.id === 'emergency' ? 9 : 3,
+        waitTimeMinutes: 0
+      });
 
-    const tokenItem = this.store.addQueuePatient({
-      patientId: patient.id,
-      name: patient.name,
-      phone: patient.phone,
-      chair: chairId,
-      chiefComplaint: complaintText,
-      painScore: painScore,
-      priority: painScore >= 8 ? "Urgent" : "Normal"
-    });
-
-    const chairObj = this.store.chairs.find(c => c.id === chairId) || { name: "Operatory Chair", doctor: "On-Duty Dentist" };
-
-    if (window.clinicAudio) {
-      window.clinicAudio.announceToken(tokenItem.token, chairObj.name, chairObj.doctor);
+      if (window.clinicAudio) {
+        window.clinicAudio.announceToken(tokenItem.token, service.chairName, service.doctorName);
+      }
+      this.launchConfetti();
+      this.showToast(`✓ Token ${tokenItem.token} generated for ${patient.name}`, "success");
     }
 
-    this.launchConfetti();
-
-    let totalEst = 40;
-    (this.kioskState.selectedSymptoms || []).forEach(id => {
-      const sym = (window.DENTAL_SYMPTOM_OPTIONS || []).find(s => s.id === id);
-      if (sym) totalEst = Math.max(totalEst, sym.estFee);
-    });
-
+    // Show thermal receipt modal
     this.showThermalReceiptModal({
       token: tokenItem.token,
-      name: patient.name,
+      name: patient.name || `${patient.firstName} ${patient.lastName}`,
       phone: patient.phone,
-      chairName: chairObj.name,
-      doctor: chairObj.doctor,
-      priority: painScore >= 8 ? "Urgent Priority" : "Standard Walk-In",
-      complaint: complaintText,
-      fee: totalEst,
-      time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+      mrn: patient.mrn,
+      chairName: service.chairName,
+      doctor: service.doctorName,
+      serviceName: service.name,
+      concernName: concern.name,
+      priority: service.id === 'emergency' ? "Urgent Priority 1" : "Standard Walk-In",
+      tokenFee: `Rs. ${service.fee.toLocaleString()}`,
+      estProcedureFee: concern.feeFormatted,
+      time: new Date().toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" })
     });
+
+    // Reset inputs
+    this.kioskState.name = '';
+    this.kioskState.phone = '';
+    this.kioskState.matchedPatient = null;
+    this.kioskState.validationError = '';
+    this.kioskState.isSubmitting = false;
+
+    this.renderKioskStation();
+    this.renderTvStation();
+    this.renderCabinStation();
   },
 
   showThermalReceiptModal(data) {
@@ -5705,60 +5965,65 @@ const stationMethods = {
 
     let countdown = 10;
     container.innerHTML = `
-      <div class="thermal-slip-card animate-fade-in">
-        <div style="text-align: center; border-bottom: 1px dashed #CBD5E1; padding-bottom: 12px; margin-bottom: 12px;">
+      <div class="thermal-slip-card animate-fade-in" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); max-width: 360px; margin: 0 auto; font-family: 'Inter', -apple-system, sans-serif;">
+        <div style="text-align: center; border-bottom: 1.5px dashed #CBD5E1; padding-bottom: 10px; margin-bottom: 12px;">
           <div style="font-size: 1.8rem; line-height: 1;">🦷</div>
-          <h3 style="font-size: 1.15rem; font-weight: 800; margin: 4px 0 2px 0;">SMILE DENTAL & ORTHO</h3>
-          <p style="font-size: 0.72rem; color: #64748B; margin: 0;">124 Healthcare Plaza, Suite 400 • (555) 019-2834</p>
-          <p style="font-size: 0.7rem; color: #94A3B8; margin: 2px 0 0 0;">PATIENT QUEUE ACCESS TOKEN</p>
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin: 4px 0 2px 0; color: #0F172A;">SMILE DENTAL &amp; ORTHO</h3>
+          <p style="font-size: 0.72rem; color: #64748B; margin: 0;">Plot 14-B, Executive Medical Plaza, Blue Area, Islamabad</p>
+          <p style="font-size: 0.7rem; color: #0D9488; font-weight: 700; margin: 2px 0 0 0;">UAN: +92 (51) 289-4321 • NTN: 894002-7</p>
+          <div style="display: inline-block; background: #F1F5F9; color: #475569; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; margin-top: 6px; letter-spacing: 0.5px;">PATIENT QUEUE ACCESS TOKEN</div>
         </div>
 
-        <div style="text-align: center; margin: 16px 0; background: #F1F5F9; padding: 14px 10px; border-radius: 6px; border: 1px dashed #94A3B8;">
-          <div style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: #475569; letter-spacing: 1px;">YOUR TOKEN NUMBER</div>
-          <div style="font-size: 3.4rem; font-weight: 900; color: #0D9488; font-family: 'JetBrains Mono', monospace; line-height: 1.1; margin: 6px 0;">
+        <div style="text-align: center; margin: 12px 0; background: #F8FAFC; padding: 12px 10px; border-radius: 8px; border: 1.5px dashed #94A3B8;">
+          <div style="font-size: 0.74rem; text-transform: uppercase; font-weight: 800; color: #475569; letter-spacing: 1px;">YOUR QUEUE TOKEN</div>
+          <div style="font-size: 3.2rem; font-weight: 900; color: #0D9488; font-family: 'JetBrains Mono', monospace; line-height: 1.1; margin: 4px 0;">
             ${data.token}
           </div>
-          <div style="font-size: 0.82rem; font-weight: 700; color: #0F172A;">${data.chairName}</div>
-          <div style="font-size: 0.75rem; color: #0284C7;">${data.doctor}</div>
+          <div style="font-size: 0.84rem; font-weight: 800; color: #0F172A;">${data.chairName}</div>
+          <div style="font-size: 0.76rem; color: #0284C7; font-weight: 700;">${data.doctor}</div>
         </div>
 
-        <div style="font-size: 0.78rem; line-height: 1.6; border-bottom: 1px dashed #CBD5E1; padding-bottom: 10px; margin-bottom: 10px;">
+        <div style="font-size: 0.78rem; line-height: 1.6; border-bottom: 1.5px dashed #CBD5E1; padding-bottom: 10px; margin-bottom: 10px;">
           <div style="display: flex; justify-content: space-between;">
             <span style="color: #64748B;">Patient:</span>
-            <strong style="color: #0F172A;">${data.name}</strong>
+            <strong style="color: #0F172A;">${data.name} ${data.mrn ? `(${data.mrn})` : ''}</strong>
           </div>
           <div style="display: flex; justify-content: space-between;">
             <span style="color: #64748B;">Phone:</span>
-            <span>${data.phone}</span>
+            <span style="font-family: 'JetBrains Mono', monospace;">${data.phone}</span>
           </div>
           <div style="display: flex; justify-content: space-between;">
-            <span style="color: #64748B;">Priority:</span>
-            <span style="font-weight: 700; color: ${data.priority.includes('CRITICAL') || data.priority.includes('Urgent') ? '#DC2626' : '#0D9488'};">${data.priority}</span>
+            <span style="color: #64748B;">Service &amp; Concern:</span>
+            <span style="max-width: 190px; text-align: right; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; font-weight: 700; color: #0F172A;">${data.concernName || data.serviceName}</span>
           </div>
           <div style="display: flex; justify-content: space-between;">
-            <span style="color: #64748B;">Chief Concern:</span>
-            <span style="max-width: 170px; text-align: right; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${data.complaint}</span>
+            <span style="color: #64748B;">Triage Priority:</span>
+            <span style="font-weight: 800; color: ${String(data.priority).includes('Urgent') || String(data.priority).includes('Priority 1') ? '#DC2626' : '#0D9488'};">${data.priority}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-top: 1px dashed #E2E8F0; padding-top: 4px; margin-top: 4px;">
+            <span style="color: #64748B;">Token Consultation Fee:</span>
+            <strong style="color: #0D9488;">${data.tokenFee} (Paid)</strong>
           </div>
           <div style="display: flex; justify-content: space-between;">
-            <span style="color: #64748B;">Est. Consultation:</span>
-            <strong>${data.fee}</strong>
+            <span style="color: #64748B;">Est. Procedure Balance:</span>
+            <span style="color: #64748B;">${data.estProcedureFee || 'Billed Chairside'}</span>
           </div>
-          <div style="display: flex; justify-content: space-between;">
-            <span style="color: #64748B;">Issued Time:</span>
+          <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #94A3B8;">
+            <span>Issued Time:</span>
             <span>${data.time}</span>
           </div>
         </div>
 
-        <div style="text-align: center; margin: 12px 0 8px 0;">
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 3px; color: #334155;">||| | ||||| || |||| |||||| | |||</div>
-          <div style="font-size: 0.68rem; color: #94A3B8; margin-top: 2px;">Please relax in Lounge. Watch Queue TV.</div>
+        <div style="text-align: center; margin: 10px 0 6px 0;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 3px; color: #334155;">||| | ||||| || |||| |||||| | |||</div>
+          <div style="font-size: 0.68rem; color: #64748B; margin-top: 2px;">Please relax in reception lounge. Watch TV Queue Display.</div>
         </div>
 
-        <div style="text-align: center; margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
-          <button class="btn btn-primary btn-sm" onclick="window.print()" style="width: 100%;">
-            <span>🖨️</span> Print Receipt Slip
+        <div style="text-align: center; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <button class="btn btn-primary btn-sm" onclick="window.print()" style="width: 100%; height: 38px; font-weight: 800; font-size: 0.85rem; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>🖨️</span> Print Thermal Slip
           </button>
-          <button class="btn btn-outline btn-sm" onclick="app.closeThermalReceiptModal()" style="width: 100%;">
+          <button class="btn btn-outline btn-sm" onclick="app.closeThermalReceiptModal()" style="width: 100%; height: 36px; font-weight: 700; font-size: 0.8rem; border-radius: var(--radius-md);">
             <span>✓</span> Done (Closing in <span id="slip-countdown">${countdown}</span>s)
           </button>
         </div>
@@ -5785,9 +6050,11 @@ const stationMethods = {
     if (modal) modal.classList.remove("open");
 
     this.kioskState = {
+      serviceId: 'general',
+      selectedConcernId: 'gen-exam',
       pathway: 'WALK_IN',
       step: 0,
-      selectedSymptoms: [],
+      selectedSymptoms: ['gen-exam'],
       selectedChair: 'chair-1',
       phone: '',
       name: '',
@@ -5801,7 +6068,10 @@ const stationMethods = {
       emergencyPhone: '',
       checkinPhone: '',
       checkinResult: null,
-      lastIssuedToken: null
+      lastIssuedToken: null,
+      matchedPatient: null,
+      validationError: '',
+      isSubmitting: false
     };
 
     if (this.currentStation === 'PATIENT_KIOSK') {
@@ -5998,32 +6268,12 @@ const stationMethods = {
     if (!mount) return;
 
     const page = this.kioskPage || 'walkin';
-    const isOrtho = this.kioskState.pathway === 'ORTHO_WALKIN';
     const currentTab = this.kioskApptTab || 'today';
     const query = (this.kioskApptSearch || "").toLowerCase().trim();
 
-    // Attending Clinician info
-    const docPhoto = isOrtho 
-      ? "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80"
-      : "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80";
-    const docName = isOrtho ? "Dr. Marcus Vance, BDS, M.Orth" : "Dr. Sarah Chen, BDS, FCPS";
-    const docSuite = isOrtho ? "Chair 2: Orthodontic Bay" : "Chair 1: General Operatory";
-    const docFee = isOrtho ? "Rs. 2,000" : "Rs. 1,500";
-
-    // Primary Concern list
-    const concernList = isOrtho ? [
-      { id: 'ortho-wire', name: 'Archwire Adjustment / Tightening', est: 'Rs. 3,000', icon: CLINIC_ICONS.wrench },
-      { id: 'ortho-bracket', name: 'Loose Bracket / Pokey Wire', est: 'Rs. 2,500', icon: CLINIC_ICONS.alertTriangle },
-      { id: 'ortho-aligner', name: 'Clear Aligner Tray Check', est: 'Rs. 4,000', icon: CLINIC_ICONS.sparkles },
-      { id: 'ortho-consult', name: 'New Patient Braces Consult', est: 'Rs. 2,000', icon: CLINIC_ICONS.smile }
-    ] : [
-      { id: 'sym-1', name: 'Toothache / Cavity Pain', est: 'Rs. 1,500', icon: CLINIC_ICONS.tooth },
-      { id: 'sym-2', name: 'Scaling & Polishing (Hygiene)', est: 'Rs. 4,500', icon: CLINIC_ICONS.sparkles },
-      { id: 'sym-3', name: 'General Dental Examination', est: 'Rs. 1,500', icon: CLINIC_ICONS.stethoscope },
-      { id: 'sym-4', name: 'Broken Tooth / Chipped Enamel', est: 'Rs. 3,500', icon: CLINIC_ICONS.alertTriangle },
-      { id: 'sym-5', name: 'Gum Swelling / Bleeding Gums', est: 'Rs. 2,500', icon: CLINIC_ICONS.shield },
-      { id: 'sym-6', name: 'Tooth Extraction / Wisdom Pain', est: 'Rs. 4,000', icon: CLINIC_ICONS.emergency }
-    ];
+    const activeService = this.getActiveKioskService();
+    const activeConcern = this.getActiveKioskConcern();
+    const activeQueueCount = (this.store.queue || []).filter(q => q.status === 'Waiting').length;
 
     // Filter appointments for Page 2
     const allTodayAppts = this.store.appointments.map(a => {
@@ -6102,110 +6352,213 @@ const stationMethods = {
           
           <!-- ================= PAGE 1: WALK-IN REGISTRATION ================= -->
           ${page === 'walkin' ? `
-            <div style="height: 100%; display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 16px; align-items: stretch; overflow: hidden;">
+            <div style="height: 100%; display: grid; grid-template-columns: 1.18fr 0.82fr; gap: 16px; align-items: stretch; overflow: hidden;">
               
-              <!-- Left Column: Department & Concern Selection -->
-              <div style="background: #FFF; border: 1.5px solid var(--border-color); border-radius: var(--radius-xl); padding: 18px 20px; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm);">
+              <!-- Left Column: Step-by-Step Selection Workflow -->
+              <div style="background: #FFFFFF; border: 1.5px solid var(--border-color); border-radius: var(--radius-xl); padding: 16px 18px; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm);">
                 
-                <!-- Pathway Switcher (General vs Ortho) -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; flex-shrink: 0;">
-                  <button onclick="app.setKioskPathway('WALK_IN')" style="padding: 10px 14px; border-radius: var(--radius-lg); border: 2px solid ${!isOrtho ? 'var(--primary-teal)' : '#E2E8F0'}; background: ${!isOrtho ? '#F0FDFA' : '#FFF'}; cursor: pointer; text-align: left; transition: all 0.15s ease;">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                      <strong style="font-size: 0.88rem; color: #0F172A;">General Dentistry</strong>
-                      <span class="badge badge-teal" style="font-size: 0.7rem;">Rs. 1,500</span>
+                <!-- STEP 1: CHOOSE A DENTAL SERVICE -->
+                <div style="flex-shrink: 0; margin-bottom: 12px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span style="width: 22px; height: 22px; border-radius: 50%; background: var(--primary-teal); color: #FFF; font-size: 0.74rem; font-weight: 900; display: flex; align-items: center; justify-content: center;">1</span>
+                      <strong style="font-size: 0.84rem; font-weight: 900; color: #0F172A; text-transform: uppercase; letter-spacing: 0.5px;">Choose a Dental Service:</strong>
                     </div>
-                    <div style="font-size: 0.74rem; color: #64748B; margin-top: 2px;">Exam, Toothache, Cleaning, Filling</div>
-                  </button>
+                    <span style="font-size: 0.72rem; color: #64748B; font-weight: 700;">Base Consult Fee</span>
+                  </div>
 
-                  <button onclick="app.setKioskPathway('ORTHO_WALKIN')" style="padding: 10px 14px; border-radius: var(--radius-lg); border: 2px solid ${isOrtho ? '#7C3AED' : '#E2E8F0'}; background: ${isOrtho ? '#FAF5FF' : '#FFF'}; cursor: pointer; text-align: left; transition: all 0.15s ease;">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                      <strong style="font-size: 0.88rem; color: #0F172A;">Braces &amp; Ortho Bay</strong>
-                      <span class="badge" style="background: #F3E8FF; color: #7C3AED; font-size: 0.7rem;">Rs. 2,000</span>
-                    </div>
-                    <div style="font-size: 0.74rem; color: #64748B; margin-top: 2px;">Wires, Brackets, Clear Aligners</div>
-                  </button>
-                </div>
-
-                <div style="font-size: 0.78rem; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 8px; flex-shrink: 0;">
-                  Select Primary Concern:
-                </div>
-
-                <!-- Scrollable Concern Chips List -->
-                <div style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; padding-right: 4px; scrollbar-width: thin;">
-                  ${concernList.map(c => {
-                    const isSelected = this.kioskState.selectedSymptoms.includes(c.id);
-                    return `
-                      <div onclick="app.toggleKioskSymptom('${c.id}')" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-radius: var(--radius-md); border: 1.5px solid ${isSelected ? 'var(--primary-teal)' : '#E2E8F0'}; background: ${isSelected ? '#F0FDFA' : '#FFF'}; cursor: pointer; transition: all 0.15s ease;">
-                        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                          <div style="width: 28px; height: 28px; border-radius: 6px; background: ${isSelected ? '#CCFBF1' : '#F8FAFC'}; display: flex; align-items: center; justify-content: center; color: ${isSelected ? 'var(--dark-teal)' : '#475569'}; flex-shrink: 0;">
-                            ${c.icon}
+                  <!-- 4 Selectable Service Cards in 2x2 Grid -->
+                  <div class="kiosk-service-grid">
+                    ${KIOSK_SERVICE_CATEGORIES.map(cat => {
+                      const isCatSelected = activeService.id === cat.id;
+                      return `
+                        <div onclick="app.setKioskService('${cat.id}')" class="kiosk-service-card ${isCatSelected ? 'selected' : ''}" style="${isCatSelected ? `border-color: ${cat.color}; background: ${cat.activeBg};` : ''}">
+                          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 6px;">
+                            <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                              <div class="service-icon-box" style="background: ${isCatSelected ? '#FFFFFF' : '#F8FAFC'}; color: ${cat.color}; border: 1px solid ${isCatSelected ? cat.border : '#E2E8F0'};">
+                                ${cat.icon}
+                              </div>
+                              <div style="min-width: 0;">
+                                <div class="service-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${cat.name}</div>
+                                <span class="badge" style="background: ${isCatSelected ? '#FFFFFF' : '#F1F5F9'}; color: ${cat.color}; font-size: 0.64rem; font-weight: 800; padding: 1px 6px;">${cat.badge}</span>
+                              </div>
+                            </div>
+                            <div style="width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid ${isCatSelected ? cat.color : '#CBD5E1'}; background: ${isCatSelected ? cat.color : '#FFF'}; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 10px; font-weight: 900; flex-shrink: 0;">
+                              ${isCatSelected ? '✓' : ''}
+                            </div>
                           </div>
-                          <strong style="font-size: 0.84rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.name}</strong>
+                          <div class="service-desc">${cat.description}</div>
+                          <div class="service-footer">
+                            <span style="font-size: 0.72rem; font-weight: 700; color: #64748B;">Consultation:</span>
+                            <span class="badge ${isCatSelected ? 'badge-teal' : 'badge-subtle'}" style="font-size: 0.72rem; font-weight: 800; background: ${isCatSelected ? cat.color : '#F1F5F9'}; color: ${isCatSelected ? '#FFF' : '#334155'};">
+                              ${cat.feeFormatted}
+                            </span>
+                          </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                          <span class="badge ${isSelected ? 'badge-teal' : 'badge-subtle'}" style="font-size: 0.72rem;">${c.est}</span>
-                          <span style="width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid ${isSelected ? 'var(--primary-teal)' : '#CBD5E1'}; background: ${isSelected ? 'var(--primary-teal)' : '#FFF'}; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 10px; font-weight: 800;">
-                            ${isSelected ? '✓' : ''}
-                          </span>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+
+                <!-- STEP 2: SELECT THE PRIMARY CONCERN -->
+                <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span style="width: 22px; height: 22px; border-radius: 50%; background: ${activeService.color}; color: #FFF; font-size: 0.74rem; font-weight: 900; display: flex; align-items: center; justify-content: center;">2</span>
+                      <strong style="font-size: 0.84rem; font-weight: 900; color: #0F172A; text-transform: uppercase; letter-spacing: 0.5px;">Select Primary Concern for ${activeService.name}:</strong>
+                    </div>
+                    <span style="font-size: 0.72rem; color: #64748B; font-weight: 700;">1 Primary Concern</span>
+                  </div>
+
+                  <!-- Scrollable Concerns List -->
+                  <div class="kiosk-concern-list" style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; scrollbar-width: thin;">
+                    ${(activeService.concerns || []).length > 0 ? (activeService.concerns || []).map(c => {
+                      const isConcernSelected = activeConcern.id === c.id;
+                      return `
+                        <div onclick="app.selectKioskConcern('${c.id}')" class="kiosk-concern-row ${isConcernSelected ? 'selected' : ''}" style="${isConcernSelected ? `border-color: ${activeService.color}; background: ${activeService.activeBg};` : ''}">
+                          <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                            <div class="kiosk-concern-icon" style="background: ${isConcernSelected ? '#FFFFFF' : '#F8FAFC'}; color: ${activeService.color}; border: 1px solid ${isConcernSelected ? activeService.border : '#E2E8F0'};">
+                              ${c.icon}
+                            </div>
+                            <div style="min-width: 0;">
+                              <div style="font-size: 0.84rem; font-weight: 800; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.name}</div>
+                              <div style="font-size: 0.72rem; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.desc}</div>
+                            </div>
+                          </div>
+                          <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+                            <span class="badge ${isConcernSelected ? 'badge-teal' : 'badge-subtle'}" style="font-size: 0.72rem; font-weight: 800;">
+                              ${c.feeFormatted}
+                            </span>
+                            <div class="kiosk-radio-circle" style="${isConcernSelected ? `border-color: ${activeService.color}; background: ${activeService.color};` : ''}">
+                              ${isConcernSelected ? '✓' : ''}
+                            </div>
+                          </div>
                         </div>
+                      `;
+                    }).join('') : `
+                      <div style="padding: 24px; text-align: center; color: #64748B; font-size: 0.82rem; background: #F8FAFC; border-radius: var(--radius-lg); border: 1px dashed #CBD5E1;">
+                        No specific concerns configured for this service. General consultation applies.
                       </div>
-                    `;
-                  }).join('')}
+                    `}
+                  </div>
+                </div>
+
+                <!-- STEP 3: CLINICIAN, OPERATORY & QUEUE STATUS BAR -->
+                <div style="margin-top: 10px; padding: 8px 12px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; flex-shrink: 0;">
+                  <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                    <span style="color: ${activeService.color}; display: flex;">${CLINIC_ICONS.chair}</span>
+                    <span style="color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                      <strong>${activeService.chairName}</strong> • Attending: <strong>${activeService.doctorName}</strong>
+                    </span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+                    <span style="color: #16A34A; font-weight: 800; display: flex; align-items: center; gap: 4px;">
+                      <span style="width: 7px; height: 7px; border-radius: 50%; background: #22C55E; display: inline-block;"></span>
+                      On Duty
+                    </span>
+                    <span style="color: #475569;">Est. Wait: <strong style="color: #0F172A;">${activeService.estWait}</strong></span>
+                    <span class="badge badge-subtle" style="font-size: 0.68rem;">${activeQueueCount} waiting</span>
+                  </div>
                 </div>
 
               </div>
 
               <!-- Right Column: Patient Information & Instant Token Dispense -->
-              <div style="background: #FFF; border: 1.5px solid var(--border-color); border-radius: var(--radius-xl); padding: 18px 20px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); overflow: hidden;">
+              <div style="background: #FFFFFF; border: 1.5px solid var(--border-color); border-radius: var(--radius-xl); padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); overflow: hidden;">
                 
-                <div>
-                  <!-- Attending Clinician Mini Bar -->
-                  <div style="display: flex; align-items: center; gap: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: var(--radius-lg); margin-bottom: 14px;">
-                    <img src="${docPhoto}" alt="${docName}" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; border: 1.5px solid var(--primary-teal);" />
+                <div style="overflow-y: auto; padding-right: 2px; scrollbar-width: thin;">
+                  
+                  <!-- A. Attending Clinician Card -->
+                  <div style="display: flex; align-items: center; gap: 12px; background: #F8FAFC; border: 1.5px solid #E2E8F0; padding: 10px 12px; border-radius: var(--radius-lg); margin-bottom: 12px;">
+                    <img src="${activeService.doctorPhoto}" alt="${activeService.doctorName}" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1.5px solid ${activeService.color}; flex-shrink: 0;" />
                     <div style="min-width: 0; flex: 1;">
-                      <div style="font-size: 0.7rem; font-weight: 800; color: var(--primary-teal); text-transform: uppercase;">Attending Clinician • ${docFee}</div>
-                      <div style="font-size: 0.88rem; font-weight: 800; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${docName}</div>
-                      <div style="font-size: 0.74rem; color: #64748B;">${docSuite}</div>
+                      <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 0.68rem; font-weight: 800; color: ${activeService.color}; text-transform: uppercase;">Attending Clinician</span>
+                        <span class="badge" style="background: #DCFCE7; color: #15803D; font-size: 0.66rem; font-weight: 800;">🟢 Available</span>
+                      </div>
+                      <div style="font-size: 0.9rem; font-weight: 800; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${activeService.doctorName}</div>
+                      <div style="font-size: 0.74rem; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${activeService.doctorTitle}</div>
                     </div>
                   </div>
 
-                  <!-- Patient Full Name Input -->
+                  <!-- B. Patient Information Inputs -->
                   <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 800; font-size: 0.85rem; color: #0F172A; margin-bottom: 4px;">
-                      Patient Full Name:
-                    </label>
-                    <div style="position: relative;">
-                      <div style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #64748B; display: flex;">
-                        ${CLINIC_ICONS.user}
+                    <div style="font-size: 0.8rem; font-weight: 900; color: #475569; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
+                      Patient Information:
+                    </div>
+
+                    <!-- Live Matched Patient Banner -->
+                    <div id="kiosk-matched-patient-banner" class="kiosk-matched-banner"></div>
+
+                    <!-- In-line Validation Error Banner -->
+                    <div id="kiosk-validation-error" class="kiosk-validation-alert"></div>
+
+                    <!-- Patient Full Name -->
+                    <div style="margin-bottom: 10px;">
+                      <label style="display: block; font-weight: 800; font-size: 0.82rem; color: #0F172A; margin-bottom: 4px;">
+                        Patient Full Name:
+                      </label>
+                      <div style="position: relative;">
+                        <div style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #64748B; display: flex;">
+                          ${CLINIC_ICONS.user}
+                        </div>
+                        <input type="text" id="kiosk-walkin-name" class="form-control" style="font-size: 0.95rem; height: 42px; padding: 8px 12px 8px 38px; border-radius: var(--radius-md);" placeholder="e.g. Tariq Mehmood" value="${this.kioskState.name || ''}" oninput="app.onKioskNameInput(this.value)">
                       </div>
-                      <input type="text" id="kiosk-walkin-name" class="form-control" style="font-size: 0.95rem; padding: 10px 12px 10px 38px; border-radius: var(--radius-md);" placeholder="e.g. Tariq Mehmood (or leave blank)" value="${this.kioskState.name || ''}" oninput="app.kioskState.name = this.value">
+                    </div>
+
+                    <!-- Mobile Phone Number -->
+                    <div style="margin-bottom: 10px;">
+                      <label style="display: block; font-weight: 800; font-size: 0.82rem; color: #0F172A; margin-bottom: 4px;">
+                        Mobile Phone Number (Pakistan):
+                      </label>
+                      <div style="position: relative;">
+                        <div style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #64748B; display: flex;">
+                          ${CLINIC_ICONS.phone}
+                        </div>
+                        <input type="tel" id="kiosk-walkin-phone" class="form-control" style="font-size: 0.98rem; height: 42px; padding: 8px 12px 8px 38px; border-radius: var(--radius-md); font-family: 'JetBrains Mono', monospace;" placeholder="0300-1234567" value="${this.kioskState.phone || ''}" oninput="app.onKioskPhoneInput(this.value)">
+                      </div>
+                      <div style="font-size: 0.7rem; color: #64748B; margin-top: 3px;">
+                        Queue token updates &amp; SMS alerts dispatched to this mobile number.
+                      </div>
                     </div>
                   </div>
 
-                  <!-- Mobile Phone Number Input (Pakistan format) -->
-                  <div style="margin-bottom: 14px;">
-                    <label style="display: block; font-weight: 800; font-size: 0.85rem; color: #0F172A; margin-bottom: 4px;">
-                      Mobile Phone Number:
-                    </label>
-                    <div style="position: relative;">
-                      <div style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #64748B; display: flex;">
-                        ${CLINIC_ICONS.phone}
-                      </div>
-                      <input type="tel" id="kiosk-walkin-phone" class="form-control" style="font-size: 1rem; padding: 10px 12px 10px 38px; border-radius: var(--radius-md); font-family: 'JetBrains Mono', monospace;" placeholder="0300-1234567" value="${this.kioskState.phone || ''}" oninput="app.kioskState.phone = this.value">
+                  <!-- C. Dedicated Order Summary Card -->
+                  <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: var(--radius-lg); padding: 12px 14px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.8rem;">
+                      <span style="color: #64748B;">Base Consultation Fee:</span>
+                      <strong style="color: #0F172A;">Rs. ${activeService.fee.toLocaleString()}</strong>
                     </div>
-                    <div style="font-size: 0.72rem; color: #64748B; margin-top: 3px;">
-                      Queue SMS and token updates will be dispatched to this number.
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.8rem;">
+                      <span style="color: #64748B; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Concern: ${activeConcern.name}</span>
+                      <span style="color: #0284C7; font-weight: 700;">${activeConcern.feeFormatted}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.74rem; color: #16A34A;">
+                      <span>Diagnostic Oral Exam:</span>
+                      <span>Included</span>
+                    </div>
+                    <div style="border-top: 1px dashed #CBD5E1; margin: 8px 0 6px 0; padding-top: 8px; display: flex; justify-content: space-between; align-items: baseline;">
+                      <div>
+                        <div style="font-size: 0.76rem; font-weight: 900; text-transform: uppercase; color: #334155; letter-spacing: 0.5px;">Payable Now (Token Registration):</div>
+                        <div style="font-size: 0.68rem; color: #64748B;">Procedure fees billed chairside after doctor exam</div>
+                      </div>
+                      <div style="text-align: right;">
+                        <strong style="font-size: 1.25rem; font-weight: 900; color: var(--primary-teal); font-family: 'JetBrains Mono', monospace;">
+                          Rs. ${activeService.fee.toLocaleString()}
+                        </strong>
+                      </div>
                     </div>
                   </div>
+
                 </div>
 
-                <!-- Instant Print Action -->
-                <div>
-                  <button class="btn btn-primary" onclick="app.issueWalkinToken()" style="width: 100%; height: 52px; font-size: 1.05rem; font-weight: 800; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 18px rgba(13,148,136,0.25);">
+                <!-- D. Primary Action Button -->
+                <div style="flex-shrink: 0; margin-top: 8px;">
+                  <button id="kiosk-print-token-btn" class="btn btn-primary" onclick="app.issueWalkinToken()" style="width: 100%; height: 50px; font-size: 1.02rem; font-weight: 900; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 18px rgba(13,148,136,0.25);">
                     ${CLINIC_ICONS.printer}
-                    <span>Touch to Print Token Slip (${docFee})</span>
+                    <span>Touch to Print Token Slip (Rs. ${activeService.fee.toLocaleString()})</span>
                   </button>
-                  <div style="margin-top: 6px; text-align: center; font-size: 0.72rem; color: #94A3B8;">
+                  <div style="margin-top: 5px; text-align: center; font-size: 0.7rem; color: #94A3B8;">
                     🔒 Contactless Thermal Queue Ticket • 0 Wait Arrival
                   </div>
                 </div>
