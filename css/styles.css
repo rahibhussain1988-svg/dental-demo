@@ -1218,9 +1218,8 @@ textarea.form-control {
    ========================================================================== */
 
 .odontogram-layout {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 20px;
+  display: block;
+  width: 100%;
 }
 
 .odontogram-wrapper {
@@ -1428,24 +1427,75 @@ textarea.form-control {
 .swatch-fracture { background-color: #DC2626; }
 .swatch-implant { background-color: #334155; }
 
-/* Tooth Clinical Inspector Side Panel */
+/* Tooth Clinical Inspector Modal Popup (Fixed Screen Overlay) */
 .tooth-inspector-panel {
-  background: #FFFFFF;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  z-index: 99999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s ease;
+  overflow: hidden !important;
+}
+
+.tooth-inspector-panel.open {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+.tooth-inspector-card {
+  background-color: #FFFFFF;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 20px;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
+  width: 100%;
+  max-width: 560px;
+  max-height: 88vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  transform: scale(0.96) translateY(14px);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.tooth-inspector-panel.open .tooth-inspector-card {
+  transform: scale(1) translateY(0);
+}
+
+.inspector-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.inspector-modal-body::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+.inspector-modal-body::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+.inspector-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }
 
 .inspector-header {
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  margin-bottom: 0;
+  padding-bottom: 0;
   border-bottom: 1px solid var(--border-color);
 }
 
 .inspector-tooth-badge {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: var(--dark-teal);
   font-family: var(--font-mono);
@@ -2030,7 +2080,8 @@ textarea.form-control {
     grid-template-columns: repeat(2, 1fr);
   }
   .odontogram-layout {
-    grid-template-columns: 1fr;
+    display: block;
+    width: 100%;
   }
   .queue-board-columns {
     grid-template-columns: 1fr;

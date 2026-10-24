@@ -2075,55 +2075,82 @@ class ClinicApp {
           </div>
         </div>
 
-        <!-- Tooth Inspector Panel -->
-        <div class="tooth-inspector-panel" id="tooth-inspector-mount">
-          <div class="inspector-header">
-            <div class="inspector-tooth-badge" id="inspector-tooth-number">Select Tooth</div>
-            <div style="font-size: 0.85rem; color: var(--text-secondary);" id="inspector-tooth-name">Click any tooth on chart</div>
-          </div>
-
-          <div id="inspector-tooth-controls" style="display: none;">
-            <label class="form-label">Tooth Surfaces Affected</label>
-            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;">
-              <label class="filter-pill" style="cursor: pointer;"><input type="checkbox" id="surf-occlusal" onchange="app.toggleSurface('occlusal')"> Occlusal (O)</label>
-              <label class="filter-pill" style="cursor: pointer;"><input type="checkbox" id="surf-mesial" onchange="app.toggleSurface('mesial')"> Mesial (M)</label>
-              <label class="filter-pill" style="cursor: pointer;"><input type="checkbox" id="surf-distal" onchange="app.toggleSurface('distal')"> Distal (D)</label>
-              <label class="filter-pill" style="cursor: pointer;"><input type="checkbox" id="surf-buccal" onchange="app.toggleSurface('buccal')"> Buccal (B)</label>
-              <label class="filter-pill" style="cursor: pointer;"><input type="checkbox" id="surf-lingual" onchange="app.toggleSurface('lingual')"> Lingual (L)</label>
+        <!-- Tooth Inspector Panel (Fixed Modal Overlay) -->
+        <div class="tooth-inspector-panel" id="tooth-inspector-mount" onclick="if(event.target===this)app.closeToothInspector()">
+          <div class="tooth-inspector-card" onclick="event.stopPropagation()">
+            <div class="modal-header inspector-modal-header" style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); background: #FFFFFF;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="inspector-tooth-badge" id="inspector-tooth-number" style="font-size: 1.25rem; font-weight: 800; color: var(--dark-teal); background: rgba(13, 148, 136, 0.1); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(13, 148, 136, 0.2);">Select Tooth</div>
+                <div>
+                  <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);" id="inspector-tooth-name">Click any tooth on chart</div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted);">Clinical Tooth Inspector &amp; Diagnostic Plan</div>
+                </div>
+              </div>
+              <button type="button" class="modal-close-btn" onclick="app.closeToothInspector()" title="Close Inspector (Esc)" style="background: #F1F5F9; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--text-secondary); cursor: pointer; transition: all 0.15s ease;">
+                ✕
+              </button>
             </div>
 
-            <label class="form-label">Clinical Finding / Condition</label>
-            <div class="condition-pill-grid">
-              <button type="button" class="condition-pill" onclick="app.setInspectorCondition('healthy')">Sound / Healthy</button>
-              <button type="button" class="condition-pill" onclick="app.setInspectorCondition('caries')">Active Caries</button>
-              <button type="button" class="condition-pill" onclick="app.setInspectorCondition('restoration')">Composite</button>
-              <button type="button" class="condition-pill" onclick="app.setInspectorCondition('amalgam')">Amalgam</button>
-              <button type="button" class="condition-pill" onclick="app.setInspectorCondition('crown')">Crown / Cap</button>
-              <button type="button" class="condition-pill" onclick="app.setInspectorCondition('rct')">Root Canal</button>
-              <button type="button" class="condition-pill" onclick="app.setInspectorCondition('fracture')">Fracture</button>
-              <button type="button" class="condition-pill" onclick="app.setInspectorCondition('missing')">Missing</button>
-              <button type="button" class="condition-pill" onclick="app.setInspectorCondition('extraction_planned')">Extraction Planned</button>
-              <button type="button" class="condition-pill" onclick="app.setInspectorCondition('implant')">Dental Implant</button>
+            <div class="modal-body inspector-modal-body" style="padding: 20px; overflow-y: auto; max-height: calc(88vh - 130px);">
+              <div id="inspector-tooth-controls" style="display: none;">
+                <div style="margin-bottom: 16px;">
+                  <label class="form-label" style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: block;">Tooth Surfaces Affected</label>
+                  <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <label class="filter-pill" style="cursor: pointer; padding: 6px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; background: #F8FAFC; border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 6px;"><input type="checkbox" id="surf-occlusal" onchange="app.toggleSurface('occlusal')"> Occlusal (O)</label>
+                    <label class="filter-pill" style="cursor: pointer; padding: 6px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; background: #F8FAFC; border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 6px;"><input type="checkbox" id="surf-mesial" onchange="app.toggleSurface('mesial')"> Mesial (M)</label>
+                    <label class="filter-pill" style="cursor: pointer; padding: 6px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; background: #F8FAFC; border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 6px;"><input type="checkbox" id="surf-distal" onchange="app.toggleSurface('distal')"> Distal (D)</label>
+                    <label class="filter-pill" style="cursor: pointer; padding: 6px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; background: #F8FAFC; border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 6px;"><input type="checkbox" id="surf-buccal" onchange="app.toggleSurface('buccal')"> Buccal (B)</label>
+                    <label class="filter-pill" style="cursor: pointer; padding: 6px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; background: #F8FAFC; border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 6px;"><input type="checkbox" id="surf-lingual" onchange="app.toggleSurface('lingual')"> Lingual (L)</label>
+                  </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                  <label class="form-label" style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: block;">Clinical Finding / Condition</label>
+                  <div class="condition-pill-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                    <button type="button" class="condition-pill" onclick="app.setInspectorCondition('healthy')">Sound / Healthy</button>
+                    <button type="button" class="condition-pill" onclick="app.setInspectorCondition('caries')">Active Caries</button>
+                    <button type="button" class="condition-pill" onclick="app.setInspectorCondition('restoration')">Composite</button>
+                    <button type="button" class="condition-pill" onclick="app.setInspectorCondition('amalgam')">Amalgam</button>
+                    <button type="button" class="condition-pill" onclick="app.setInspectorCondition('crown')">Crown / Cap</button>
+                    <button type="button" class="condition-pill" onclick="app.setInspectorCondition('rct')">Root Canal</button>
+                    <button type="button" class="condition-pill" onclick="app.setInspectorCondition('fracture')">Fracture</button>
+                    <button type="button" class="condition-pill" onclick="app.setInspectorCondition('missing')">Missing</button>
+                    <button type="button" class="condition-pill" onclick="app.setInspectorCondition('extraction_planned')">Extraction Planned</button>
+                    <button type="button" class="condition-pill" onclick="app.setInspectorCondition('implant')">Dental Implant</button>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                  <label class="form-label" style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px; display: block;">Clinical Diagnosis Note</label>
+                  <input type="text" class="form-control" id="inspector-diagnosis-input" placeholder="e.g. Dentinal caries with pulp involvement" oninput="app.updateToothDiagnosis(this.value)">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label class="form-label" style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px; display: block;">Plan Procedure for this Tooth</label>
+                  <select class="form-control" id="inspector-procedure-select">
+                    <option value="">-- Choose Procedure --</option>
+                    ${this.store.procedures.map(p => `
+                      <option value="${p.code}">${p.code}: ${p.name} (Rs. ${p.price})</option>
+                    `).join('')}
+                  </select>
+                </div>
+              </div>
+
+              <div id="inspector-empty-state" style="padding: 30px 20px; text-align: center; color: var(--text-secondary);">
+                <div style="font-size: 2.2rem; margin-bottom: 8px;">🦷</div>
+                <div style="font-weight: 600; font-size: 1rem; color: var(--text-main); margin-bottom: 4px;">No Tooth Selected</div>
+                <div style="font-size: 0.85rem;">Click any tooth on the odontogram chart to inspect surfaces and plan treatment.</div>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Clinical Diagnosis Note</label>
-              <input type="text" class="form-control" id="inspector-diagnosis-input" placeholder="e.g. Dentinal caries with pulp involvement">
+            <div class="modal-footer" style="padding: 14px 20px; border-top: 1px solid var(--border-color); background: #F8FAFC; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="app.closeToothInspector()">
+                Done / Close
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="app.addProcedureFromInspector()" style="display: inline-flex; align-items: center; gap: 6px;">
+                <span>➕</span> Add to Treatment Plan
+              </button>
             </div>
-
-            <div class="form-group">
-              <label class="form-label">Plan Procedure for this Tooth</label>
-              <select class="form-control" id="inspector-procedure-select">
-                <option value="">-- Choose Procedure --</option>
-                ${this.store.procedures.map(p => `
-                  <option value="${p.code}">${p.code}: ${p.name} (Rs. ${p.price})</option>
-                `).join('')}
-              </select>
-            </div>
-
-            <button type="button" class="btn btn-primary" style="width: 100%; margin-top: 8px;" onclick="app.addProcedureFromInspector()">
-              <span>➕</span> Add to Treatment Plan
-            </button>
           </div>
         </div>
       </div>
@@ -2148,6 +2175,7 @@ class ClinicApp {
   handleToothSelection(toothNum, data, surface, toothName) {
     this.activeOdontogramTooth = toothNum;
     const controlsMount = document.getElementById("inspector-tooth-controls");
+    const emptyState = document.getElementById("inspector-empty-state");
     const numEl = document.getElementById("inspector-tooth-number");
     const nameEl = document.getElementById("inspector-tooth-name");
     const diagInput = document.getElementById("inspector-diagnosis-input");
@@ -2155,6 +2183,7 @@ class ClinicApp {
     if (numEl) numEl.textContent = `Tooth #${toothNum}`;
     if (nameEl) nameEl.textContent = toothName;
     if (controlsMount) controlsMount.style.display = "block";
+    if (emptyState) emptyState.style.display = "none";
 
     // Update checkboxes
     const surfaces = data.surfaces || {};
@@ -2178,6 +2207,36 @@ class ClinicApp {
     document.querySelectorAll(".condition-pill").forEach(pill => {
       pill.classList.toggle("active", pill.textContent.toLowerCase().includes(data.status || 'healthy'));
     });
+
+    // Open modal popup over screen and lock background scroll
+    this.openToothInspector();
+  }
+
+  openToothInspector() {
+    const mount = document.getElementById("tooth-inspector-mount");
+    if (mount) {
+      mount.classList.add("open");
+    }
+    document.body.style.overflow = "hidden";
+  }
+
+  closeToothInspector() {
+    const mount = document.getElementById("tooth-inspector-mount");
+    if (mount) {
+      mount.classList.remove("open");
+    }
+    document.body.style.overflow = "";
+  }
+
+  updateToothDiagnosis(value) {
+    if (!this.activeOdontogramTooth || !this.selectedPatient) return;
+    const toothNum = this.activeOdontogramTooth;
+    const ptChart = this.selectedPatient.dentalChart || {};
+    const toothData = ptChart[toothNum] || { status: "healthy", surfaces: {}, findings: [], diagnosis: "" };
+    toothData.diagnosis = value;
+    ptChart[toothNum] = toothData;
+    this.selectedPatient.dentalChart = ptChart;
+    this.store.savePatient(this.selectedPatient);
   }
 
   toggleSurface(surfaceName) {
@@ -2299,6 +2358,7 @@ class ClinicApp {
     this.store.savePatient(this.selectedPatient);
 
     this.showToast(`Added ${proc.name} (Tooth #${this.activeOdontogramTooth}) to Treatment Plan!`, "success");
+    this.closeToothInspector();
   }
 
   saveOdontogramDraft() {
@@ -7833,3 +7893,16 @@ const stationMethods = {
 Object.assign(ClinicApp.prototype, stationMethods);
 
 window.app = new ClinicApp();
+
+
+/* Global Escape Key for Modals and Tooth Inspector */
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    const toothInspector = document.getElementById("tooth-inspector-mount");
+    if (toothInspector && toothInspector.classList.contains("open")) {
+      if (typeof app !== "undefined" && app.closeToothInspector) {
+        app.closeToothInspector();
+      }
+    }
+  }
+});
