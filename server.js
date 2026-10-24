@@ -35,6 +35,13 @@ const server = http.createServer((req, res) => {
   });
 });
 
+process.on('uncaughtException', (err) => {
+  console.error('[SERVER EXCEPTION]', err);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[UNHANDLED REJECTION]', reason);
+});
+
 function startServer(port) {
   server.listen(port, () => {
     console.log(`Smile Dental Clinic App running at http://localhost:${port}`);
@@ -42,9 +49,12 @@ function startServer(port) {
     if (err.code === 'EADDRINUSE') {
       startServer(port + 1);
     } else {
-      console.error(err);
+      console.error('[SERVER LISTEN ERROR]', err);
     }
   });
 }
+
+// Keep event loop alive
+setInterval(() => {}, 60000);
 
 startServer(8085);
